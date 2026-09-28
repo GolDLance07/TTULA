@@ -15,11 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     procps \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Legba binary
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "x86_64" ]; then \
-        curl -sSL "https://github.com/evilsocket/legba/releases/latest/download/legba-linux-amd64.tar.gz" | tar -xz -C /usr/local/bin legba; \
-    fi || true
+# Install Legba
+RUN apt-get update && (apt-get install -y --no-install-recommends legba || true) && rm -rf /var/lib/apt/lists/*
+
 
 # Setup workspace
 WORKDIR /app

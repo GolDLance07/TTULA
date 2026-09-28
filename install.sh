@@ -59,26 +59,33 @@ fi
 # Step 3: Ensure Legba is installed
 echo -e "${CYAN}[*] Step 3: Checking Legba...${NC}"
 if ! command -v legba &>/dev/null; then
-    echo -e "${YELLOW}[*] Downloading Legba binary for $(uname -m)...${NC}"
-    ARCH=$(uname -m)
-    if [ "$ARCH" = "x86_64" ]; then
-        LEGBA_URL="https://github.com/evilsocket/legba/releases/latest/download/legba-linux-amd64.tar.gz"
-    elif [ "$ARCH" = "aarch64" ]; then
-        LEGBA_URL="https://github.com/evilsocket/legba/releases/latest/download/legba-linux-arm64.tar.gz"
+    echo -e "${YELLOW}[*] Attempting to install Legba via apt (standard on Kali Linux)...${NC}"
+    if apt-get install -y -qq legba 2>/dev/null; then
+        echo -e "${GREEN}[+] Legba installed via apt.${NC}"
     else
-        LEGBA_URL=""
-    fi
-
-    if [ -n "$LEGBA_URL" ]; then
+        echo -e "${YELLOW}[*] Legba not in apt cache; attempting GitHub release download...${NC}"
         TMP_DIR=$(mktemp -d)
-        if curl -sSL "$LEGBA_URL" -o "$TMP_DIR/legba.tar.gz"; then
-            tar -xzf "$TMP_DIR/legba.tar.gz" -C "$TMP_DIR"
-            if [ -f "$TMP_DIR/legba" ]; then
-                install -m 755 "$TMP_DIR/legba" /usr/local/bin/legba
-                echo -e "${GREEN}[+] Legba installed to /usr/local/bin/legba${NC}"
+        set +e
+        # Query latest release asset from GitHub API
+        LEGBA_URL=$(curl -sSL "https://api.github.com/repos/evilsocket/legba/releases/latest" 2>/dev/null | grep -o 'https://[^"]*linux[^"]*amd64[^"]*\.tar\.gz' | head -n 1)
+        if [ -n "$LEGBA_URL" ]; then
+            if curl -sSL --fail "$LEGBA_URL" -o "$TMP_DIR/legba.tar.gz" 2>/dev/null; then
+                if tar -xzf "$TMP_DIR/legba.tar.gz" -C "$TMP_DIR" 2>/dev/null; then
+                    LEGBA_BIN=$(find "$TMP_DIR" -type f -name legba -perm /111 2>/dev/null | head -n 1)
+                    if [ -n "$LEGBA_BIN" ]; then
+                        install -m 755 "$LEGBA_BIN" /usr/local/bin/legba
+                        echo -e "${GREEN}[+] Legba installed to /usr/local/bin/legba${NC}"
+                    fi
+                fi
             fi
         fi
+        set -e
         rm -rf "$TMP_DIR"
+
+        if ! command -v legba &>/dev/null; then
+            echo -e "${YELLOW}[!] Note: Legba binary could not be auto-downloaded.${NC}"
+            echo -e "    You can install it anytime with: ${BOLD}sudo apt install legba${NC} or ${BOLD}cargo install legba${NC}"
+        fi
     fi
 else
     echo -e "${GREEN}[+] Legba is already installed.${NC}"
