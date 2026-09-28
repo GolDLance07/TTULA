@@ -81,6 +81,72 @@ def cmd_cheats(query: str):
         print(f"    Placeholders:{list(c.placeholders.keys())}")
 
 
+def cmd_doctor():
+    """Diagnostic system health check for Kali Linux environment and tools."""
+    import shutil
+    import platform
+    from ttula.utils.config import get_config_dir
+
+    print("\n" + "=" * 55)
+    print("      TTULA Kali System & Toolchain Diagnostics")
+    print("=" * 55)
+
+    os_info = f"{platform.system()} {platform.release()} ({platform.machine()})"
+    print(f"[*] Operating System:  {os_info}")
+    print(f"[*] Python Version:    {platform.python_version()}")
+    print(f"[*] Config Directory:  {get_config_dir()}")
+
+    # Check PTY support
+    pty_status = "Available (POSIX native)" if os.name != "nt" else "Emulated (Windows fallback)"
+    print(f"[*] PTY Subsystem:     {pty_status}")
+
+    tools = [
+        ("Tailscale Mesh", "tailscale", "sudo apt install tailscale && sudo tailscale up"),
+        ("Tookie OSINT", "tookie-osint", "pip install tookie-osint"),
+        ("Uro URL Filter", "uro", "pip install uro"),
+        ("Legba Auth Tester", "legba", "cargo install legba OR download binary to /usr/local/bin"),
+        ("Nmap Port Scanner", "nmap", "sudo apt install nmap"),
+    ]
+
+    print("\n[+] Integrated Tools Status:")
+    all_ok = True
+    for label, bin_name, fix in tools:
+        path = shutil.which(bin_name)
+        if path:
+            print(f"  [+] {label:<20} -> {path}")
+        else:
+            print(f"  [-] {label:<20} -> NOT FOUND")
+            print(f"      Fix: {fix}")
+            all_ok = False
+
+    print("\n" + "-" * 55)
+    if all_ok:
+        print("[+] All toolchain dependencies are installed and ready!")
+    else:
+        print("[!] Some tools are missing. Run `ttula setup-deps` or use the fixes above.")
+    print("=" * 55 + "\n")
+
+
+def cmd_setup_deps():
+    """Helps install missing Python and Kali dependencies."""
+    import shutil
+    print("[*] Installing Python dependencies (tookie-osint, uro)...")
+    cmd = [sys.executable, "-m", "pip", "install", "tookie-osint", "uro"]
+    try:
+        subprocess.run(cmd, check=True)
+        print("[✓] Python dependencies installed successfully.")
+    except Exception as e:
+        print(f"[!] Pip install failed: {e}")
+
+    if not shutil.which("tailscale"):
+        print("\n[!] Tailscale not detected. On Kali/Debian, install with:")
+        print("    curl -fsSL https://tailscale.com/install.sh | sh")
+
+    if not shutil.which("legba"):
+        print("\n[!] Legba not detected. Install via precompiled binary or cargo:")
+        print("    curl -sSfL https://raw.githubusercontent.com/evilsocket/legba/master/install.sh | sudo sh")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="ttula",
@@ -108,6 +174,12 @@ def main():
     cheats_parser = subparsers.add_parser("cheats", help="Search Arsenal cheat corpus")
     cheats_parser.add_argument("query", nargs="?", default="", help="Search query or category")
 
+    # Doctor command
+    subparsers.add_parser("doctor", help="Check system prerequisites and toolchain health")
+
+    # Setup-deps command
+    subparsers.add_parser("setup-deps", help="Automate installation of toolchain dependencies")
+
     args = parser.parse_args()
 
     if args.command == "ui" or args.command is None:
@@ -122,7 +194,12 @@ def main():
         cmd_pipeline(args.username)
     elif args.command == "cheats":
         cmd_cheats(args.query)
+    elif args.command == "doctor":
+        cmd_doctor()
+    elif args.command == "setup-deps":
+        cmd_setup_deps()
 
 
 if __name__ == "__main__":
     main()
+

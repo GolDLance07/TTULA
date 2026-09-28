@@ -1,0 +1,10 @@
+services:
+  ttula:
+    build: .
+    container_name: ttula-kali
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ~/.config/ttula:/root/.config/ttula
+    environment:
+      - TTULA_CONFIG_DIR=/root/.config/ttula

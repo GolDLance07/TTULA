@@ -1,0 +1,16 @@
+[Unit]
+Description=TTULA Security Operations Orchestration Daemon
+After=network.target tailscaled.service
+Wants=tailscaled.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/ttula
+Environment="PATH=/opt/ttula/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+ExecStart=/opt/ttula/venv/bin/ttula ui --host 0.0.0.0 --port 8501
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

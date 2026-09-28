@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=TTULA
+GenericName=Security Operations Orchestrator
+Comment=Kali-native orchestration layer for authorized security lab workflows
+Exec=ttula ui
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=X-Kali-01-InfoGathering;X-Kali-03-WebApplicationAnalysis;X-Kali-05-PasswordAttacks;Network;Security;
+StartupNotify=true
