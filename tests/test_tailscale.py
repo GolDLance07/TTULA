@@ -36,3 +36,16 @@ def test_tailscale_offline_fallback():
         status = adapter.get_status()
         assert status["online"] is False
         assert len(status["devices"]) == 1  # only fallback local node
+
+
+def test_tailscale_null_peer_and_self(monkeypatch):
+    """Verifies that null 'Peer' and 'Self' in raw JSON (common when tailscale has no peers) does not raise AttributeError."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        adapter = TailscaleAdapter(config_path=tmpdir, mock_mode=False)
+        # Mock get_status_raw to simulate {"BackendState": "Running", "Self": None, "Peer": None}
+        monkeypatch.setattr(adapter, "get_status_raw", lambda: {"BackendState": "Running", "Self": None, "Peer": None})
+        status = adapter.get_status()
+        assert status["online"] is True
+        assert status["device_count"] == 0
+        assert adapter.get_targets() == []
+

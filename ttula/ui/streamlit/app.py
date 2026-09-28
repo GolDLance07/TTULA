@@ -293,9 +293,9 @@ elif menu == "🔍 OSINT Discovery (Tookie)":
                     st.error(f"Tookie error: {e}")
 
     active_col = st.session_state.get("last_url_collection")
-    if active_col and active_col.items:
+    if active_col and hasattr(active_col, "items") and active_col.items:
         st.markdown(f"### Discovered URLs ({active_col.count()} items)")
-        disclaimer = active_col.metadata.get("disclaimer")
+        disclaimer = active_col.metadata.get("disclaimer") if hasattr(active_col, "metadata") else None
         if disclaimer:
             st.warning(f"⚠️ **OSINT Safety Notice**: {disclaimer}")
 
@@ -308,7 +308,7 @@ elif menu == "🔍 OSINT Discovery (Tookie)":
             st.rerun()
 
         # Display matches table
-        matches = active_col.metadata.get("matches", [])
+        matches = active_col.metadata.get("matches", []) if hasattr(active_col, "metadata") else []
         if matches:
             st.dataframe(matches, use_container_width=True)
         else:
@@ -321,7 +321,7 @@ elif menu == "🧹 URL Processing (Uro)":
     st.caption("Clean, normalize, and eliminate redundant parameters from discovered URL lists.")
 
     active_col = st.session_state.get("last_url_collection")
-    default_text = "\n".join(active_col.items) if active_col else ""
+    default_text = "\n".join(active_col.items) if (active_col and hasattr(active_col, "items") and active_col.items) else ""
 
     custom_urls = st.text_area(
         "Input URLs (One per line or loaded from Tookie)",
@@ -346,7 +346,7 @@ elif menu == "🧹 URL Processing (Uro)":
                 st.success(f"Uro finished: {len(lines)} original URLs reduced to {cleaned_col.count()} unique endpoints.")
 
     active_col = st.session_state.get("last_url_collection")
-    if active_col and active_col.source_tool == "uro":
+    if active_col and hasattr(active_col, "source_tool") and active_col.source_tool == "uro":
         st.markdown(f"### Cleaned Endpoint Inventory ({active_col.count()} unique)")
         st.code("\n".join(active_col.items), language="text")
 

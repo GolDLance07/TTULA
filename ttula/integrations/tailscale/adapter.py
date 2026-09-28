@@ -84,39 +84,42 @@ class TailscaleAdapter:
 
     def get_status(self) -> Dict[str, Any]:
         """Provides parsed status summary."""
-        raw = self.get_status_raw()
-        self_node = raw.get("Self", {})
-        backend_state = raw.get("BackendState", "Unknown")
+        raw = self.get_status_raw() or {}
+        self_node = raw.get("Self") or {}
+        backend_state = raw.get("BackendState") or "Unknown"
         is_online = backend_state in ("Running", "Connected")
 
         devices = []
         # Current node
         if self_node:
-            my_ips = self_node.get("TailscaleIPs", [])
+            my_ips = self_node.get("TailscaleIPs") or []
             devices.append({
-                "name": self_node.get("HostName", "local-node"),
+                "name": self_node.get("HostName") or "local-node",
                 "ip": my_ips[0] if my_ips else "127.0.0.1",
-                "os": self_node.get("OS", ""),
-                "online": self_node.get("Online", True),
+                "os": self_node.get("OS") or "",
+                "online": bool(self_node.get("Online", True)),
                 "is_self": True,
                 "is_authorized_lab": False,
             })
 
         # Peer nodes
-        peers = raw.get("Peer", {})
-        for _, peer in peers.items():
-            ips = peer.get("TailscaleIPs", [])
-            ip = ips[0] if ips else ""
-            hname = peer.get("HostName", peer.get("DNSName", "peer"))
-            auth = self.is_authorized(hname) or self.is_authorized(ip)
-            devices.append({
-                "name": hname,
-                "ip": ip,
-                "os": peer.get("OS", ""),
-                "online": peer.get("Online", False),
-                "is_self": False,
-                "is_authorized_lab": auth,
-            })
+        peers = raw.get("Peer") or {}
+        if isinstance(peers, dict):
+            for _, peer in peers.items():
+                if not isinstance(peer, dict):
+                    continue
+                ips = peer.get("TailscaleIPs") or []
+                ip = ips[0] if ips else ""
+                hname = peer.get("HostName") or peer.get("DNSName") or "peer"
+                auth = self.is_authorized(hname) or (bool(ip) and self.is_authorized(ip))
+                devices.append({
+                    "name": hname,
+                    "ip": ip,
+                    "os": peer.get("OS") or "",
+                    "online": bool(peer.get("Online", False)),
+                    "is_self": False,
+                    "is_authorized_lab": auth,
+                })
 
         return {
             "online": is_online,
