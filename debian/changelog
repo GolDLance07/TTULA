@@ -1,0 +1,8 @@
+ttula (0.1.0-1) unstable; urgency=medium
+
+  * Initial release of TTULA (Security Operations Orchestration Tool).
+  * Persistent interactive PTY execution manager.
+  * Native integrations for Tailscale, Arsenal-NG, Tookie, Uro, and Legba.
+  * Streamlit local browser control interface with strict authorization gates.
+
+ -- TTULA Security Operations <operator@ttula.local>  Mon, 28 Sep 2026 18:00:00 +0000

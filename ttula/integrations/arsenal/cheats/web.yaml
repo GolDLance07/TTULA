@@ -1,0 +1,23 @@
+- name: curl_headers
+  title: "Curl HTTP Response Headers"
+  description: "Retrieve response headers from target web server"
+  command: "curl -I -s -k http://<target>:<port>"
+  category: "web_reconnaissance"
+  tags: ["curl", "http", "headers", "web", "banner"]
+  requires_authorized_lab: false
+
+- name: ffuf_directory_fuzz
+  title: "FFUF Web Directory Fuzzing"
+  description: "Fuzz web directories using wordlist"
+  command: "ffuf -u http://<target>:<port>/FUZZ -w <wordlist> -mc 200,301,302"
+  category: "web_reconnaissance"
+  tags: ["ffuf", "fuzzing", "web", "directories", "endpoints"]
+  requires_authorized_lab: true
+
+- name: nikto_web_scan
+  title: "Nikto Web Vulnerability Scan"
+  description: "Comprehensive scan for known web server vulnerabilities and misconfigurations"
+  command: "nikto -h http://<target>:<port> -Tuning 1,2,3,b"
+  category: "web_reconnaissance"
+  tags: ["nikto", "web", "vulnerabilities", "scan"]
+  requires_authorized_lab: true

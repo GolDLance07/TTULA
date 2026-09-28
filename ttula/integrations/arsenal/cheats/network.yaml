@@ -1,0 +1,23 @@
+- name: nmap_fast_scan
+  title: "Nmap Fast SYN Scan"
+  description: "Fast SYN scan across top 1000 ports"
+  command: "nmap -sS -T4 <target>"
+  category: "service_enumeration"
+  tags: ["nmap", "scan", "syn", "port", "recon"]
+  requires_authorized_lab: true
+
+- name: nmap_service_version
+  title: "Nmap Service Version & OS Detection"
+  description: "Probe open ports to determine service/version info and OS"
+  command: "nmap -sV -O -p <port> <target>"
+  category: "service_enumeration"
+  tags: ["nmap", "service", "version", "detection", "banner"]
+  requires_authorized_lab: true
+
+- name: nmap_full_tcp
+  title: "Nmap All Ports TCP Scan"
+  description: "Scan all 65535 TCP ports with service detection"
+  command: "nmap -p- -sV --min-rate 1000 <target>"
+  category: "service_enumeration"
+  tags: ["nmap", "all-ports", "tcp", "full"]
+  requires_authorized_lab: true

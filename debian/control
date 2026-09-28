@@ -1,0 +1,16 @@
+Source: ttula
+Section: net
+Priority: optional
+Maintainer: TTULA Security Operations <operator@ttula.local>
+Build-Depends: debhelper-compat (= 13), dh-python, python3-all, python3-setuptools
+Standards-Version: 4.6.2
+Homepage: https://github.com/ttula/ttula
+
+Package: ttula
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}, python3 (>= 3.9), python3-yaml, python3-streamlit
+Recommends: tailscale, legba, tookie-osint, uro, nmap
+Description: Security Operations Orchestration Tool for Kali Linux
+ Personal Kali-native orchestration layer for controlled security lab workflows.
+ Seamlessly connects Arsenal-NG, Tookie, Uro, and Legba over Tailscale to
+ authorized lab targets via persistent PTY sessions and a local browser control surface.

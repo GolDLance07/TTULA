@@ -1,0 +1,23 @@
+- name: legba_ssh_single
+  title: "Legba SSH Password Test"
+  description: "Test SSH authentication against authorized target"
+  command: "legba ssh -t <target> -P <port> -u <username> -p <password> -c 2"
+  category: "credential_testing"
+  tags: ["legba", "ssh", "auth", "login", "password"]
+  requires_authorized_lab: true
+
+- name: legba_http_basic
+  title: "Legba HTTP Basic Auth Test"
+  description: "Test HTTP Basic auth using dictionary"
+  command: "legba http --target http://<target>:<port> --auth-type basic --username <username> --wordlist-pass <wordlist> -c 2"
+  category: "credential_testing"
+  tags: ["legba", "http", "basic-auth", "wordlist"]
+  requires_authorized_lab: true
+
+- name: enum4linux_smb
+  title: "Enum4Linux SMB Enumeration"
+  description: "Enumerate users, shares and policies on target SMB"
+  command: "enum4linux -a <target>"
+  category: "service_enumeration"
+  tags: ["smb", "enum4linux", "shares", "users", "windows"]
+  requires_authorized_lab: true
