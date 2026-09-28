@@ -91,6 +91,27 @@ else
     echo -e "${GREEN}[+] Legba is already installed.${NC}"
 fi
 
+# Step 3b: Ensure Tookie OSINT is installed
+echo -e "${CYAN}[*] Step 3b: Checking Tookie OSINT...${NC}"
+if ! command -v tookie-osint &>/dev/null && ! command -v tookie &>/dev/null; then
+    echo -e "${YELLOW}[*] Attempting to install tookie-osint via apt (Kali repository)...${NC}"
+    if apt-get install -y -qq tookie-osint 2>/dev/null; then
+        echo -e "${GREEN}[+] tookie-osint installed via apt.${NC}"
+    else
+        echo -e "${YELLOW}[*] Installing tookie-osint from GitHub repository...${NC}"
+        if git clone --depth 1 https://github.com/Alfredredbird/tookie-osint.git /opt/tookie-osint 2>/dev/null || (cd /opt/tookie-osint 2>/dev/null && git pull -q); then
+            cat << 'EOF' > /usr/local/bin/tookie-osint
+#!/usr/bin/env bash
+python3 /opt/tookie-osint/tookie-osint.py "$@"
+EOF
+            chmod +x /usr/local/bin/tookie-osint
+            echo -e "${GREEN}[+] tookie-osint installed to /usr/local/bin/tookie-osint${NC}"
+        fi
+    fi
+else
+    echo -e "${GREEN}[+] tookie-osint is already installed.${NC}"
+fi
+
 # Step 4: Setup isolated /opt/ttula environment (PEP 668 compliant)
 echo -e "${CYAN}[*] Step 4: Setting up /opt/ttula application directory...${NC}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -108,9 +129,9 @@ if [ ! -d "$INSTALL_DIR/venv" ]; then
 fi
 
 # Install dependencies and TTULA package
-echo -e "${CYAN}[*] Installing TTULA and pipeline tools (Tookie, Uro, Streamlit)...${NC}"
+echo -e "${CYAN}[*] Installing TTULA and pipeline tools (Uro, PyYAML, Streamlit)...${NC}"
 "$INSTALL_DIR/venv/bin/pip" install --upgrade pip -q
-"$INSTALL_DIR/venv/bin/pip" install tookie-osint uro pyyaml streamlit -q
+"$INSTALL_DIR/venv/bin/pip" install uro pyyaml streamlit -q
 "$INSTALL_DIR/venv/bin/pip" install -e "$INSTALL_DIR" -q
 
 # Step 5: Global executable symlink

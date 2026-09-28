@@ -102,9 +102,9 @@ def cmd_doctor():
 
     tools = [
         ("Tailscale Mesh", "tailscale", "sudo apt install tailscale && sudo tailscale up"),
-        ("Tookie OSINT", "tookie-osint", "pip install tookie-osint"),
-        ("Uro URL Filter", "uro", "pip install uro"),
-        ("Legba Auth Tester", "legba", "cargo install legba OR download binary to /usr/local/bin"),
+        ("Tookie OSINT", "tookie-osint", "sudo apt install tookie-osint OR git clone https://github.com/Alfredredbird/tookie-osint"),
+        ("Uro URL Filter", "uro", "pip install uro OR sudo apt install uro"),
+        ("Legba Auth Tester", "legba", "sudo apt install legba OR cargo install legba"),
         ("Nmap Port Scanner", "nmap", "sudo apt install nmap"),
     ]
 
@@ -130,21 +130,27 @@ def cmd_doctor():
 def cmd_setup_deps():
     """Helps install missing Python and Kali dependencies."""
     import shutil
-    print("[*] Installing Python dependencies (tookie-osint, uro)...")
-    cmd = [sys.executable, "-m", "pip", "install", "tookie-osint", "uro"]
+    print("[*] Installing Python dependencies (uro, pyyaml, streamlit)...")
+    cmd = [sys.executable, "-m", "pip", "install", "uro", "pyyaml", "streamlit"]
     try:
         subprocess.run(cmd, check=True)
-        print("[✓] Python dependencies installed successfully.")
+        print("[+] Python dependencies installed successfully.")
     except Exception as e:
         print(f"[!] Pip install failed: {e}")
+
+    if not shutil.which("tookie-osint") and not shutil.which("tookie"):
+        print("\n[!] Tookie OSINT not detected. On Kali/Debian, install with:")
+        print("    sudo apt install tookie-osint")
+        print("    OR: git clone https://github.com/Alfredredbird/tookie-osint /opt/tookie-osint")
 
     if not shutil.which("tailscale"):
         print("\n[!] Tailscale not detected. On Kali/Debian, install with:")
         print("    curl -fsSL https://tailscale.com/install.sh | sh")
 
     if not shutil.which("legba"):
-        print("\n[!] Legba not detected. Install via precompiled binary or cargo:")
-        print("    curl -sSfL https://raw.githubusercontent.com/evilsocket/legba/master/install.sh | sudo sh")
+        print("\n[!] Legba not detected. On Kali Linux, install with:")
+        print("    sudo apt install legba")
+
 
 
 def main():

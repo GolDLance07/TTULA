@@ -15,9 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     procps \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Legba
-RUN apt-get update && (apt-get install -y --no-install-recommends legba || true) && rm -rf /var/lib/apt/lists/*
-
+# Install Kali tools (legba, tookie-osint, uro)
+RUN apt-get update && (apt-get install -y --no-install-recommends legba tookie-osint uro || true) && rm -rf /var/lib/apt/lists/*
 
 # Setup workspace
 WORKDIR /app
@@ -26,7 +25,6 @@ COPY ttula /app/ttula
 
 # Install dependencies and TTULA into system environment
 RUN pip install --break-system-packages --no-cache-dir \
-    tookie-osint \
     uro \
     pyyaml \
     streamlit \
