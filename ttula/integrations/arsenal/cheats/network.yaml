@@ -21,3 +21,12 @@
   category: "service_enumeration"
   tags: ["nmap", "all-ports", "tcp", "full"]
   requires_authorized_lab: true
+
+- name: nc_banner_grab
+  title: "Netcat Service Banner Grab"
+  description: "Connect to target port to retrieve service banner"
+  command: "nc -vn -w 3 <target> <port>"
+  category: "service_enumeration"
+  tags: ["netcat", "banner", "nc", "port", "ssh"]
+  requires_authorized_lab: false
+
