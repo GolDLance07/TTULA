@@ -81,10 +81,16 @@ Install TTULA in development mode:
 pip install -e .
 ```
 
-### 2. Launch the Streamlit Web Console
+### 2. Launch the Native Visual Terminal Dashboard (Default)
 ```bash
-ttula ui
-# Or specify host and port:
+ttula
+# Or explicitly:
+ttula tui
+```
+Runs directly in your terminal with hotkey navigation (`1-5` for tabs, `Space` to toggle lab authorization, `Enter` to execute).
+
+### 3. Launch the Optional Streamlit Web Console
+```bash
 ttula ui --host 127.0.0.1 --port 8501
 ```
 Access the dark-mode cyber console at `http://127.0.0.1:8501`.

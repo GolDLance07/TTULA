@@ -131,9 +131,9 @@ if [ ! -d "$INSTALL_DIR/venv" ]; then
 fi
 
 # Install dependencies and TTULA package
-echo -e "${CYAN}[*] Installing TTULA and pipeline tools (Uro, PyYAML, Streamlit)...${NC}"
+echo -e "${CYAN}[*] Installing TTULA and pipeline tools (Textual TUI, Uro, PyYAML, Streamlit)...${NC}"
 "$INSTALL_DIR/venv/bin/pip" install --upgrade pip -q
-"$INSTALL_DIR/venv/bin/pip" install uro pyyaml streamlit -q
+"$INSTALL_DIR/venv/bin/pip" install uro pyyaml textual streamlit -q
 "$INSTALL_DIR/venv/bin/pip" install -e "$INSTALL_DIR" --no-deps --force-reinstall -q
 
 # Step 5: Global executable symlink

@@ -160,7 +160,10 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="command", help="Available subcommands")
 
-    # UI command
+    # TUI command (default)
+    subparsers.add_parser("tui", help="Launch native Kali Visual Terminal Dashboard (default)")
+
+    # UI / Web command
     ui_parser = subparsers.add_parser("ui", help="Launch Streamlit browser console")
     ui_parser.add_argument("--host", default="127.0.0.1", help="Bind host (default: 127.0.0.1)")
     ui_parser.add_argument("--port", type=int, default=8501, help="Bind port (default: 8501)")
@@ -188,7 +191,10 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == "ui" or args.command is None:
+    if args.command == "tui" or args.command is None:
+        from ttula.ui.tui.app import run_tui
+        run_tui()
+    elif args.command == "ui":
         host = getattr(args, "host", "127.0.0.1")
         port = getattr(args, "port", 8501)
         launch_ui(host=host, port=port)
