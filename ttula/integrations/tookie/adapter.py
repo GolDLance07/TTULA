@@ -43,50 +43,86 @@ class TookieAdapter:
         if self.mock_mode or not shutil.which(self.tookie_bin):
             return self._mock_discover(username)
 
-        # Build structured argv
-        argv = [self.tookie_bin, "-u", username, "--json"]
-        res = run_process_command(argv, tool_name="tookie", timeout=float(timeout))
+        # Run tookie in an isolated temp directory to capture exported files cleanly
+        import tempfile
+        from pathlib import Path
+        import re
 
-        if not res.success and not res.stdout:
-            logger.warning(f"Tookie invocation failed ({res.exit_code}): {res.stderr}")
-            return URLCollection(
-                items=[],
-                source_tool="tookie",
-                metadata={"username": username, "error": res.stderr, "matches": []},
-            )
+        temp_run_dir = Path(tempfile.mkdtemp(prefix="ttula_tookie_"))
+        try:
+            # Build structured argv: tookie-osint uses -o json, NOT --json
+            argv = [self.tookie_bin, "-u", username, "-o", "json"]
+            res = run_process_command(argv, tool_name="tookie", timeout=float(timeout), cwd=str(temp_run_dir))
 
-        return self._parse_output(res.stdout, username)
+            # Check if tookie created a json file in the temp working directory
+            json_content = ""
+            for jfile in temp_run_dir.glob("*.json"):
+                try:
+                    with open(jfile, "r", encoding="utf-8", errors="replace") as jf:
+                        json_content = jf.read()
+                        break
+                except Exception:
+                    pass
+
+            raw_combined = f"{json_content}\n{res.stdout}" if json_content else (res.stdout or res.stderr)
+            return self._parse_output(raw_combined, username)
+        finally:
+            shutil.rmtree(temp_run_dir, ignore_errors=True)
 
     def _parse_output(self, raw_output: str, username: str) -> URLCollection:
+        import re
         urls: List[str] = []
         matches: List[Dict[str, Any]] = []
 
+        # Try parsing as JSON first
         try:
-            # Parse JSON from tookie
             data = json.loads(raw_output)
-            # data can be list of matches or dict
-            records = data if isinstance(data, list) else data.get("results", data.get("matches", []))
-            for item in records:
-                if isinstance(item, dict):
-                    url = item.get("url") or item.get("link")
-                    if url:
-                        urls.append(url)
-                        matches.append({
-                            "platform": item.get("platform", item.get("site", "Unknown")),
-                            "url": url,
-                            "status": "possible match",  # PRD requirement: never confirmed
-                            "http_status": item.get("status_code", 200),
-                        })
-                elif isinstance(item, str) and item.startswith("http"):
-                    urls.append(item)
-                    matches.append({"platform": "Web", "url": item, "status": "possible match"})
-        except json.JSONDecodeError:
-            # Fallback line-by-line URL extraction if tookie printed plain text or mixed output
-            for line in raw_output.splitlines():
-                line = line.strip()
-                if line.startswith("http://") or line.startswith("https://"):
-                    urls.append(line)
-                    matches.append({"platform": "Extracted", "url": line, "status": "possible match"})
+            # data can be a list or a dictionary
+            if isinstance(data, dict):
+                if "results" in data and isinstance(data["results"], (list, dict)):
+                    data = data["results"]
+                elif "matches" in data and isinstance(data["matches"], (list, dict)):
+                    data = data["matches"]
+
+            if isinstance(data, list):
+                for item in data:
+                    if isinstance(item, dict):
+                        url = item.get("url") or item.get("link")
+                        if url:
+                            urls.append(url)
+                            matches.append({
+                                "platform": item.get("platform", item.get("site", "Unknown")),
+                                "url": url,
+                                "status": "possible match",  # PRD requirement: never confirmed
+                                "http_status": item.get("status_code", item.get("status", 200)),
+                            })
+                    elif isinstance(item, str) and item.startswith("http"):
+                        urls.append(item)
+                        matches.append({"platform": "Web", "url": item, "status": "possible match"})
+            elif isinstance(data, dict):
+                for platform_name, val in data.items():
+                    if isinstance(val, str) and (val.startswith("http://") or val.startswith("https://")):
+                        urls.append(val)
+                        matches.append({"platform": platform_name, "url": val, "status": "possible match"})
+                    elif isinstance(val, dict):
+                        url = val.get("url") or val.get("link")
+                        if url:
+                            urls.append(url)
+                            matches.append({
+                                "platform": platform_name,
+                                "url": url,
+                                "status": "possible match",
+                                "http_status": val.get("status_code", val.get("status", 200)),
+                            })
+        except Exception:
+            pass
+
+        # Fallback regex extraction to capture any URLs in terminal/text output
+        url_regex = re.compile(r"https?://[^\s'\"<>\)]+")
+        for found_url in url_regex.findall(raw_output):
+            if found_url not in urls:
+                urls.append(found_url)
+                matches.append({"platform": "Extracted", "url": found_url, "status": "possible match"})
 
         # Deduplicate while preserving order
         unique_urls = list(dict.fromkeys(urls))

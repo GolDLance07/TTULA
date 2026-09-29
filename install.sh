@@ -118,9 +118,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INSTALL_DIR="/opt/ttula"
 
 mkdir -p "$INSTALL_DIR"
-cp -r "$SCRIPT_DIR/ttula" "$INSTALL_DIR/"
-cp -r "$SCRIPT_DIR/pyproject.toml" "$INSTALL_DIR/"
-cp -r "$SCRIPT_DIR/README.md" "$INSTALL_DIR/"
+rm -rf "$INSTALL_DIR/ttula"
+find "$INSTALL_DIR" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+cp -r "$SCRIPT_DIR/ttula" "$INSTALL_DIR/ttula"
+cp "$SCRIPT_DIR/pyproject.toml" "$INSTALL_DIR/"
+cp "$SCRIPT_DIR/README.md" "$INSTALL_DIR/"
 
 # Create dedicated virtual environment
 if [ ! -d "$INSTALL_DIR/venv" ]; then
@@ -132,7 +134,7 @@ fi
 echo -e "${CYAN}[*] Installing TTULA and pipeline tools (Uro, PyYAML, Streamlit)...${NC}"
 "$INSTALL_DIR/venv/bin/pip" install --upgrade pip -q
 "$INSTALL_DIR/venv/bin/pip" install uro pyyaml streamlit -q
-"$INSTALL_DIR/venv/bin/pip" install -e "$INSTALL_DIR" -q
+"$INSTALL_DIR/venv/bin/pip" install -e "$INSTALL_DIR" --no-deps --force-reinstall -q
 
 # Step 5: Global executable symlink
 echo -e "${CYAN}[*] Step 5: Registering global 'ttula' CLI command...${NC}"
