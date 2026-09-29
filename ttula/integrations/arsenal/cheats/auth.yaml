@@ -1,7 +1,7 @@
 - name: legba_ssh_single
   title: "Legba SSH Password Test"
   description: "Test SSH authentication against authorized target"
-  command: "legba ssh -t <target> -P <port> -u <username> -p <password> -c 2"
+  command: "legba ssh --target <target>:<port> --username <username> --password <password> -c 2"
   category: "credential_testing"
   tags: ["legba", "ssh", "auth", "login", "password"]
   requires_authorized_lab: true

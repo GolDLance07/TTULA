@@ -584,6 +584,11 @@ class TTULATUIApp(App):
                 if col.metadata.get("warning"):
                     self._log_terminal(f"[bold yellow][!] {col.metadata['warning']}[/bold yellow]")
 
+                # Auto-populate Legba username field with discovered handle
+                legba_users = self.query("#input_legba_user")
+                if legba_users and user:
+                    legba_users.first().value = user
+
                 self._log_terminal(
                     f"[bold green][+] Tookie finished: {col.count()} URLs discovered for '{user}'.[/bold green]"
                 )
@@ -801,9 +806,10 @@ class TTULATUIApp(App):
                 concurrency=2,
             )
             self.exec_mgr.send(self.session_id, cmd)
-            self.query_one("#term_log", RichLog).write(f"\n[bold red]$ {cmd.display_string}[/bold red]")
+            self._log_terminal(f"\n[bold red]$ {cmd.display_string}[/bold red]")
             self.notify(f"Dispatched Legba {proto.upper()} attack to persistent PTY.")
         except Exception as e:
+            self._log_terminal(f"\n[bold red]⛔ Safety Gate Refused: {e}[/bold red]")
             self.notify(f"Safety Gate Refused Execution: {e}", severity="error")
 
     def _send_pty_input(self) -> None:

@@ -82,18 +82,16 @@ class LegbaAdapter:
         # Build argv list
         argv: List[str] = [self.legba_bin, proto]
 
-        # Target specification
+        # Target specification with port
+        target_spec = target.tailscale_ip
+        if port:
+            target_spec = f"{target.tailscale_ip}:{port}"
+
         if proto == "http":
-            target_url = target.tailscale_ip
-            if not target_url.startswith("http://") and not target_url.startswith("https://"):
-                target_url = f"http://{target_url}"
-            if port:
-                target_url = f"{target_url}:{port}"
-            argv.extend(["--target", target_url])
-        else:
-            argv.extend(["--target", target.tailscale_ip])
-            if port:
-                argv.extend(["--port", str(port)])
+            if not target_spec.startswith("http://") and not target_spec.startswith("https://"):
+                target_spec = f"http://{target_spec}"
+
+        argv.extend(["--target", target_spec])
 
         # Credentials / Wordlists
         if username:
