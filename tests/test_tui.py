@@ -28,13 +28,31 @@ async def test_tui_app_mount_and_tabs(monkeypatch, tmp_path):
         app.action_toggle_auth()
         assert app.active_target.is_authorized_lab != initial_auth
 
-        # Test tab switching
+        # Test tab switching & auto-focus
         app.action_switch_tab("tab_tookie")
+        await pilot.pause()
         tabs = app.query_one("#main_tabs")
         assert tabs.active == "tab_tookie"
+        inp = app.query_one("#input_tookie_user")
+        assert app.focused is inp
 
+        # Test typing in tookie input without interference
+        inp.value = "test_lab_user"
+        assert inp.value == "test_lab_user"
+
+        # Test Arsenal tab selection and execution
         app.action_switch_tab("tab_arsenal")
+        await pilot.pause()
         assert tabs.active == "tab_arsenal"
+        ars_table = app.query_one("#arsenal_table")
+        assert ars_table.row_count > 0
 
-        app.action_switch_tab("tab_legba")
-        assert tabs.active == "tab_legba"
+        # Authorize lab target so command preparation succeeds
+        app.active_target.is_authorized_lab = True
+
+        # Simulate RowSelected (Enter) on arsenal row
+        from textual.widgets import DataTable
+        app.on_data_table_row_selected(DataTable.RowSelected(ars_table, 0, 0))
+
+        # Verify command dispatched to PTY
+        assert app.exec_mgr.get_command_count(app.session_id) > 0

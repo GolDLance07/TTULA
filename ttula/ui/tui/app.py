@@ -30,6 +30,7 @@ from textual.widgets import (
 )
 from textual.reactive import reactive
 from textual.binding import Binding
+from textual import work
 
 from ttula.core.engine import TTULAEngine, create_default_engine
 from ttula.core.models import Target, Command, URLCollection
@@ -128,14 +129,21 @@ class TTULATUIApp(App):
     """
 
     BINDINGS = [
-        Binding("q", "quit", "Quit", show=True),
-        Binding("1", "switch_tab('tab_tailscale')", "Tailscale", show=True),
-        Binding("2", "switch_tab('tab_tookie')", "Tookie", show=True),
-        Binding("3", "switch_tab('tab_uro')", "Uro", show=True),
-        Binding("4", "switch_tab('tab_arsenal')", "Arsenal", show=True),
-        Binding("5", "switch_tab('tab_legba')", "Legba", show=True),
-        Binding("space", "toggle_auth", "Toggle Lab Auth", show=True),
-        Binding("r", "refresh_tailscale", "Refresh", show=True),
+        Binding("ctrl+c", "quit", "Quit", show=False),
+        Binding("ctrl+q", "quit", "Quit", show=True),
+        Binding("f1", "switch_tab('tab_tailscale')", "F1 Mesh", show=True),
+        Binding("f2", "switch_tab('tab_tookie')", "F2 Recon", show=True),
+        Binding("f3", "switch_tab('tab_uro')", "F3 Filter", show=True),
+        Binding("f4", "switch_tab('tab_arsenal')", "F4 Cheats", show=True),
+        Binding("f5", "switch_tab('tab_legba')", "F5 Auth", show=True),
+        Binding("1", "key_1", "1", show=False),
+        Binding("2", "key_2", "2", show=False),
+        Binding("3", "key_3", "3", show=False),
+        Binding("4", "key_4", "4", show=False),
+        Binding("5", "key_5", "5", show=False),
+        Binding("space", "key_space", "Space Auth", show=True),
+        Binding("r", "key_refresh", "r Refresh", show=True),
+        Binding("f12", "focus_terminal", "F12 Terminal", show=True),
     ]
 
     active_target: reactive[Optional[Target]] = reactive(None)
@@ -190,13 +198,16 @@ class TTULATUIApp(App):
             with TabPane("📚 [4] Arsenal Cheats", id="tab_arsenal"):
                 with Vertical(classes="glass-box"):
                     yield Label("Curated Command Playbooks", classes="card-title")
+                    yield Static(id="arsenal_target_status")
                     with Horizontal():
-                        yield Input(placeholder="Search tag or query (e.g. nmap, web, scan)", id="input_arsenal_query")
+                        yield Input(placeholder="Search tag (e.g. nmap, web, scan)", id="input_arsenal_query")
                         yield Button("🔍 Search", id="btn_search_arsenal", variant="primary")
+                        yield Input(placeholder="Port", value="80", id="input_arsenal_port")
+                        yield Button("Simulate Lab Target", id="btn_arsenal_sim_node")
                     yield DataTable(id="arsenal_table")
                     yield Static("$ [Select a command template above]", id="arsenal_cmd_preview", classes="cmd-preview")
                     with Horizontal():
-                        yield Button("▶ Execute in PTY Terminal", id="btn_exec_arsenal", variant="success")
+                        yield Button("▶ Execute in PTY Terminal (Enter)", id="btn_exec_arsenal", variant="success")
 
             # TAB 5: LEGBA AUTH TESTING
             with TabPane("🔐 [5] Legba Auth", id="tab_legba"):
@@ -227,6 +238,12 @@ class TTULATUIApp(App):
 
         yield Footer()
 
+    def _log_terminal(self, message: str) -> None:
+        """Safely write to persistent PTY terminal RichLog without throwing NoMatches."""
+        logs = self.query("#term_log")
+        if logs:
+            logs.first().write(message)
+
     def on_mount(self) -> None:
         """Initialize tables and periodic background reading."""
         # Setup Devices Table
@@ -250,8 +267,7 @@ class TTULATUIApp(App):
         dt_arsenal.add_columns("Title", "Tool", "Description")
 
         # Log initial terminal banner
-        term_log = self.query_one("#term_log", RichLog)
-        term_log.write("[bold cyan][*] TTULA Interactive PTY Session active. Zero-injection argv executor ready.[/bold cyan]")
+        self._log_terminal("[bold cyan][*] TTULA Interactive PTY Session active. Zero-injection argv executor ready.[/bold cyan]")
 
         # Initial refresh
         self.action_refresh_tailscale()
@@ -265,8 +281,7 @@ class TTULATUIApp(App):
         try:
             chunk = self.exec_mgr.read(self.session_id, timeout=0.05)
             if chunk:
-                term_log = self.query_one("#term_log", RichLog)
-                term_log.write(chunk.strip())
+                self._log_terminal(chunk.strip())
         except Exception:
             pass
 
@@ -326,9 +341,113 @@ class TTULATUIApp(App):
                 self.active_target = target
             self.action_refresh_tailscale()
 
+    def action_key_1(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_switch_tab("tab_tailscale")
+
+    def action_key_2(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_switch_tab("tab_tookie")
+
+    def action_key_3(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_switch_tab("tab_uro")
+
+    def action_key_4(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_switch_tab("tab_arsenal")
+
+    def action_key_5(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_switch_tab("tab_legba")
+
+    def action_key_space(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_toggle_auth()
+
+    def action_key_refresh(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_refresh_tailscale()
+
+    def action_focus_terminal(self) -> None:
+        self.query_one("#term_input", Input).focus()
+
     def action_switch_tab(self, tab_id: str) -> None:
         tabs = self.query_one("#main_tabs", TabbedContent)
         tabs.active = tab_id
+        if tab_id == "tab_tookie":
+            inps = self.query("#input_tookie_user")
+            if inps:
+                inps.first().focus()
+        elif tab_id == "tab_arsenal":
+            tables = self.query("#arsenal_table")
+            if tables:
+                tables.first().focus()
+            self._update_arsenal_preview()
+        elif tab_id == "tab_tailscale":
+            tables = self.query("#devices_table")
+            if tables:
+                tables.first().focus()
+        elif tab_id == "tab_uro":
+            btns = self.query("#btn_run_uro")
+            if btns:
+                btns.first().focus()
+        elif tab_id == "tab_legba":
+            inps = self.query("#input_legba_user")
+            if inps:
+                inps.first().focus()
+            self._update_legba_preview()
+
+    def on_tabbed_content_tab_activated(self, event: TabbedContent.TabActivated) -> None:
+        pane_id = event.pane.id
+        if pane_id == "tab_tookie":
+            inps = self.query("#input_tookie_user")
+            if inps:
+                inps.first().focus()
+        elif pane_id == "tab_arsenal":
+            tables = self.query("#arsenal_table")
+            if tables:
+                tables.first().focus()
+            self._update_arsenal_preview()
+        elif pane_id == "tab_tailscale":
+            tables = self.query("#devices_table")
+            if tables:
+                tables.first().focus()
+        elif pane_id == "tab_uro":
+            btns = self.query("#btn_run_uro")
+            if btns:
+                btns.first().focus()
+        elif pane_id == "tab_legba":
+            inps = self.query("#input_legba_user")
+            if inps:
+                inps.first().focus()
+            self._update_legba_preview()
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        inp_id = event.input.id
+        if inp_id == "input_tookie_user":
+            self._handle_tookie_run()
+        elif inp_id in ("input_arsenal_query", "input_arsenal_port"):
+            self._populate_arsenal()
+        elif inp_id == "term_input":
+            self._send_pty_input()
+
+    def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
+        table_id = event.data_table.id
+        if table_id == "arsenal_table":
+            self._execute_selected_arsenal()
+        elif table_id == "devices_table":
+            dt = event.data_table
+            if dt.row_count > 0:
+                row_key, _ = dt.coordinate_to_cell_key(dt.cursor_coordinate)
+                target = self.engine.get_target(str(row_key.value))
+                if target:
+                    self.active_target = target
+                    self.notify(f"Active target locked: {target.name} ({target.tailscale_ip})")
+
+    def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
+        if event.data_table.id == "arsenal_table":
+            self._update_arsenal_preview()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
@@ -344,11 +463,12 @@ class TTULATUIApp(App):
                 if target:
                     self.active_target = target
                     self.notify(f"Active target locked: {target.name} ({target.tailscale_ip})")
-        elif btn_id == "btn_sim_node":
+        elif btn_id in ("btn_sim_node", "btn_arsenal_sim_node"):
             sim = Target(name="lab-vulnerable-server", tailscale_ip="100.64.0.50", is_authorized_lab=True, os="linux")
             self.engine.register_target(sim)
             self.active_target = sim
             self.action_refresh_tailscale()
+            self._log_terminal("[bold green][✓] Registered & selected simulated lab target: lab-vulnerable-server (100.64.0.50) [AUTHORIZED LAB][/bold green]")
             self.notify("Simulated authorized lab node registered.")
         elif btn_id == "btn_run_tookie":
             self._handle_tookie_run()
@@ -368,26 +488,49 @@ class TTULATUIApp(App):
             self.query_one("#term_log", RichLog).clear()
 
     def _handle_tookie_run(self) -> None:
-        inp = self.query_one("#input_tookie_user", Input)
-        user = inp.value.strip()
+        inps = self.query("#input_tookie_user")
+        if not inps:
+            return
+        user = inps.first().value.strip()
         if not user:
             self.notify("Please enter a username to discover.", severity="warning")
             return
+        self._run_tookie_worker(user)
 
-        self.notify(f"Running Tookie discovery for '{user}'...")
+    @work(exclusive=True, thread=True)
+    def _run_tookie_worker(self, user: str) -> None:
+        self.app.call_from_thread(
+            self._log_terminal,
+            f"\n[bold cyan][*] Running Tookie OSINT discovery for username: '{user}'...[/bold cyan]"
+        )
+        self.app.call_from_thread(
+            self._log_terminal,
+            "[dim][*] Querying public platforms & social profiles (please wait)...[/dim]"
+        )
+        self.app.call_from_thread(self.notify, f"Running Tookie discovery for '{user}'...")
         try:
-            col = self.engine.run_tookie(user, timeout=30)
+            col = self.engine.run_tookie(user, timeout=45)
             self._last_collection = col
-            dt = self.query_one("#tookie_results_table", DataTable)
-            dt.clear()
 
-            matches = col.metadata.get("matches", [])
-            for m in matches:
-                dt.add_row(m.get("platform", "Web"), m.get("url", ""), m.get("status", "possible match"))
+            def update_ui():
+                dt_list = self.query("#tookie_results_table")
+                if dt_list:
+                    dt = dt_list.first()
+                    dt.clear()
+                    matches = col.metadata.get("matches", [])
+                    for m in matches:
+                        dt.add_row(m.get("platform", "Web"), m.get("url", ""), m.get("status", "possible match"))
+                self._log_terminal(
+                    f"[bold green][+] Tookie finished: {col.count()} URLs discovered for '{user}'.[/bold green]"
+                )
+                self.notify(f"Tookie found {col.count()} URLs! Click 'Send to Uro' to filter.")
 
-            self.notify(f"Tookie found {col.count()} URLs. You can now send them to Uro.")
+            self.app.call_from_thread(update_ui)
         except Exception as e:
-            self.notify(f"Tookie error: {e}", severity="error")
+            def report_err():
+                self._log_terminal(f"[bold red][-] Tookie error: {e}[/bold red]")
+                self.notify(f"Tookie error: {e}", severity="error")
+            self.app.call_from_thread(report_err)
 
     def _handle_tookie_to_uro(self) -> None:
         if not self._last_collection or not self._last_collection.items:
@@ -398,86 +541,181 @@ class TTULATUIApp(App):
         self._handle_uro_run()
 
     def _handle_uro_run(self) -> None:
-        if not self._last_collection:
-            self.notify("No collection available for Uro.", severity="warning")
+        if not self._last_collection or not self._last_collection.items:
+            self.notify("No collection available for Uro. Run Tookie first.", severity="warning")
             return
+        self._run_uro_worker()
 
+    @work(exclusive=True, thread=True)
+    def _run_uro_worker(self) -> None:
+        self.app.call_from_thread(
+            self._log_terminal,
+            f"\n[bold cyan][*] Running Uro URL deduplication on {self._last_collection.count()} endpoints...[/bold cyan]"
+        )
         try:
             cleaned = self.engine.run_uro(self._last_collection)
             self._last_collection = cleaned
-            lbl = self.query_one("#uro_status_label", Static)
-            lbl.update(f"[bold green]Deduplicated:[/bold green] {len(self._last_collection.items)} endpoints retained.")
 
-            dt = self.query_one("#uro_results_table", DataTable)
-            dt.clear()
-            for u in cleaned.items:
-                dt.add_row(u)
-            self.notify(f"Uro cleaned {len(cleaned.items)} URLs.")
+            def update_uro_ui():
+                lbls = self.query("#uro_status_label")
+                if lbls:
+                    lbls.first().update(f"[bold green]Deduplicated:[/bold green] {cleaned.count()} endpoints retained.")
+                dt_list = self.query("#uro_results_table")
+                if dt_list:
+                    dt = dt_list.first()
+                    dt.clear()
+                    for u in cleaned.items:
+                        dt.add_row(u)
+                self._log_terminal(f"[bold green][+] Uro finished: {cleaned.count()} cleaned endpoints retained.[/bold green]")
+                self.notify(f"Uro cleaned {cleaned.count()} URLs.")
+
+            self.app.call_from_thread(update_uro_ui)
         except Exception as e:
-            self.notify(f"Uro error: {e}", severity="error")
+            def report_uro_err():
+                self._log_terminal(f"[bold red][-] Uro error: {e}[/bold red]")
+                self.notify(f"Uro error: {e}", severity="error")
+            self.app.call_from_thread(report_uro_err)
 
     def _populate_arsenal(self) -> None:
-        inp = self.query_one("#input_arsenal_query", Input)
-        query = inp.value.strip()
+        query = ""
+        inps = self.query("#input_arsenal_query")
+        if inps:
+            query = inps.first().value.strip()
         cmds = self.engine.find_commands(query)
 
-        dt = self.query_one("#arsenal_table", DataTable)
-        dt.clear()
-        for i, cmd in enumerate(cmds):
-            dt.add_row(cmd.title, cmd.source_tool, cmd.description, key=str(i))
+        dt_list = self.query("#arsenal_table")
+        if dt_list:
+            dt = dt_list.first()
+            dt.clear()
+            for i, cmd in enumerate(cmds):
+                dt.add_row(cmd.title, cmd.source_tool, cmd.description, key=str(i))
 
         if cmds:
             self._current_cmds = cmds
             self._update_arsenal_preview()
 
     def _update_arsenal_preview(self) -> None:
-        if not hasattr(self, "_current_cmds") or not self._current_cmds:
+        status_widgets = self.query("#arsenal_target_status")
+        if status_widgets:
+            if self.active_target and self.active_target.is_authorized_lab:
+                status_widgets.first().update(
+                    f"[bold green]✓ Active Lab Target: {self.active_target.name} ({self.active_target.tailscale_ip}) [AUTHORIZED LAB][/bold green]"
+                )
+            elif self.active_target:
+                status_widgets.first().update(
+                    f"[bold red]⚠️ Target {self.active_target.name} is [RESTRICTED / UNAUTHORIZED]. Scans blocked by Safety Gate.[/bold red]"
+                )
+            else:
+                status_widgets.first().update(
+                    "[bold yellow]⚠️ No active target selected. Go to [1] Tailnet Mesh (or click 'Simulate Lab Target')[/bold yellow]"
+                )
+
+        previews = self.query("#arsenal_cmd_preview")
+        if not previews:
             return
-        cmd = self._current_cmds[0]
+        preview_widget = previews.first()
+
+        if not hasattr(self, "_current_cmds") or not self._current_cmds:
+            preview_widget.update("$ [Select a command template]")
+            return
+
+        dt = self.query("#arsenal_table")
+        row_idx = 0
+        if dt:
+            dt_widget = dt.first()
+            if dt_widget.cursor_row is not None and dt_widget.cursor_row >= 0:
+                row_idx = min(dt_widget.cursor_row, len(self._current_cmds) - 1)
+
+        cmd = self._current_cmds[row_idx]
+        port_val = "80"
+        port_inputs = self.query("#input_arsenal_port")
+        if port_inputs and port_inputs.first().value:
+            port_val = port_inputs.first().value.strip()
+
         try:
-            prep = self.engine.prepare_command(cmd, target=self.active_target)
-            self.query_one("#arsenal_cmd_preview", Static).update(f"$ {prep.display_string}")
+            prep = self.engine.prepare_command(cmd, target=self.active_target, extra_params={"port": port_val})
+            preview_widget.update(f"$ {prep.display_string}")
         except Exception as e:
-            self.query_one("#arsenal_cmd_preview", Static).update(f"⛔ {e}")
+            preview_widget.update(f"⛔ {e}")
 
     def _execute_selected_arsenal(self) -> None:
-        dt = self.query_one("#arsenal_table", DataTable)
-        if dt.row_count == 0 or not hasattr(self, "_current_cmds"):
+        dt_list = self.query("#arsenal_table")
+        if not dt_list:
+            return
+        dt = dt_list.first()
+        if dt.row_count == 0 or not hasattr(self, "_current_cmds") or not self._current_cmds:
+            self.notify("No command templates available.", severity="warning")
             return
 
         row_idx = dt.cursor_row
+        if row_idx is None or row_idx < 0:
+            row_idx = 0
+
         if row_idx < len(self._current_cmds):
             cmd = self._current_cmds[row_idx]
+            # Safety gate check
+            if cmd.requires_authorized_lab:
+                if not self.active_target or not self.active_target.is_authorized_lab:
+                    target_name = self.active_target.name if self.active_target else "None"
+                    err_msg = (
+                        f"⛔ Safety Gate Blocked: Command '{cmd.title}' requires an authorized lab target. "
+                        f"Target '{target_name}' is not authorized."
+                    )
+                    self._log_terminal(f"\n[bold red]{err_msg}[/bold red]")
+                    self._log_terminal(
+                        "[yellow]💡 Solution: Go to [1] Tailnet Mesh (press F1) and press Space to authorize a device, or click 'Simulate Lab Target'.[/yellow]"
+                    )
+                    self.notify(f"Safety Gate: Target '{target_name}' unauthorized.", severity="error")
+                    return
+
+            port_val = "80"
+            port_inputs = self.query("#input_arsenal_port")
+            if port_inputs and port_inputs.first().value:
+                port_val = port_inputs.first().value.strip()
+
             try:
-                prep = self.engine.prepare_command(cmd, target=self.active_target)
+                prep = self.engine.prepare_command(
+                    cmd, target=self.active_target, extra_params={"port": port_val}
+                )
                 self.exec_mgr.send(self.session_id, prep)
-                self.query_one("#term_log", RichLog).write(f"\n[bold green]$ {prep.display_string}[/bold green]")
-                self.notify(f"Dispatched '{prep.title}' to live PTY.")
+                self._log_terminal(f"\n[bold green]$ {prep.display_string}[/bold green]")
+                self.notify(f"▶ Dispatched '{prep.title}' to live PTY.")
             except Exception as e:
+                self._log_terminal(f"\n[bold red]⛔ Command Preparation Error: {e}[/bold red]")
                 self.notify(f"Safety Gate: {e}", severity="error")
 
     def _update_legba_preview(self) -> None:
+        previews = self.query("#legba_cmd_preview")
+        if not previews:
+            return
+        preview_widget = previews.first()
+
         if not self.active_target:
-            self.query_one("#legba_cmd_preview", Static).update("⛔ No active target selected. Go to [1] Tailscale.")
+            preview_widget.update("⛔ No active target selected. Go to [1] Tailscale.")
             return
 
-        proto = self.query_one("#select_legba_proto", Select).value or "ssh"
-        port = int(self.query_one("#input_legba_port", Input).value or 22)
-        user = self.query_one("#input_legba_user", Input).value
-        pw = self.query_one("#input_legba_pass", Input).value
+        protos = self.query("#select_legba_proto")
+        ports = self.query("#input_legba_port")
+        users = self.query("#input_legba_user")
+        pws = self.query("#input_legba_pass")
+
+        proto = protos.first().value if (protos and protos.first().value) else "ssh"
+        port_val = int(ports.first().value or 22) if ports else 22
+        user_val = users.first().value if users else "admin"
+        pw_val = pws.first().value if pws else "password123"
 
         try:
             cmd = self.engine.build_legba_command(
                 protocol=str(proto),
                 target=self.active_target,
-                username=user,
-                password=pw,
-                port=port,
+                username=user_val,
+                password=pw_val,
+                port=port_val,
                 concurrency=2,
             )
-            self.query_one("#legba_cmd_preview", Static).update(f"$ {cmd.display_string}")
+            preview_widget.update(f"$ {cmd.display_string}")
         except Exception as e:
-            self.query_one("#legba_cmd_preview", Static).update(f"⛔ {e}")
+            preview_widget.update(f"⛔ {e}")
 
     def _execute_legba(self) -> None:
         if not self.active_target:

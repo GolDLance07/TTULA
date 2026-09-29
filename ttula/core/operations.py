@@ -109,6 +109,17 @@ def fill_command_placeholders(
             key_tag = f"<{k}>" if not (k.startswith("<") and k.endswith(">")) else k
             substitutions[key_tag] = str(v)
 
+    # Provide safe fallback values for generic placeholders if not supplied
+    default_fallbacks = {
+        "<port>": "22" if any("ssh" in str(a).lower() for a in command.argv) else "80",
+        "<username>": "admin",
+        "<password>": "admin",
+        "<wordlist>": "/usr/share/wordlists/dirb/common.txt",
+    }
+    for ph_key, ph_default in default_fallbacks.items():
+        if ph_key not in substitutions:
+            substitutions[ph_key] = ph_default
+
     new_argv: List[str] = []
     filled_placeholders: Dict[str, str] = dict(command.placeholders)
 
