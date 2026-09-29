@@ -68,25 +68,56 @@ class TTULATUIApp(App):
         height: 3;
     }
 
+    #main_tabs {
+        height: 1fr;
+    }
+
     .glass-box {
         background: #131b2e;
         border: round #1e293b;
         padding: 1;
-        margin: 1;
+        height: 1fr;
     }
 
     .card-title {
         color: #00f0ff;
         text-style: bold;
-        margin-bottom: 1;
+        margin-bottom: 0;
+        height: 1;
+    }
+
+    .input-row {
+        height: 3;
+        margin: 1 0;
+    }
+
+    .input-row Input {
+        width: 1fr;
+    }
+
+    .input-row Button {
+        width: auto;
+    }
+
+    #input_arsenal_port {
+        width: 14;
+    }
+
+    .btn-row {
+        height: 3;
+        margin-top: 1;
+    }
+
+    .btn-row Button {
+        margin-right: 1;
     }
 
     .cmd-preview {
         background: #06090e;
         color: #38bdf8;
         border: solid #00f0ff;
-        padding: 1;
-        margin: 1 0;
+        padding: 0 1;
+        height: 3;
         text-style: bold;
     }
 
@@ -98,18 +129,6 @@ class TTULATUIApp(App):
     .badge-unauth {
         color: #ef4444;
         text-style: bold;
-    }
-
-    #terminal_pane {
-        height: 12;
-        border-top: double #00f0ff;
-        background: #06090e;
-    }
-
-    #term_log {
-        background: #06090e;
-        color: #38bdf8;
-        height: 8;
     }
 
     Input {
@@ -124,10 +143,39 @@ class TTULATUIApp(App):
         color: #ffffff;
     }
 
+    DataTable {
+        height: 1fr;
+        min-height: 4;
+        background: #131b2e;
+    }
+
+    #terminal_pane {
+        height: 11;
+        border-top: double #00f0ff;
+        background: #06090e;
+    }
+
+    #lbl_pty_title {
+        height: 1;
+        color: #94a3b8;
+    }
+
+    #term_log {
+        background: #06090e;
+        color: #38bdf8;
+        height: 1fr;
+        min-height: 4;
+    }
+
+    #term_input_row {
+        height: 3;
+    }
+
     #term_input {
         background: #111827;
         color: #e2e8f0;
         border: tall #1e293b;
+        width: 1fr;
     }
 
     #term_input:focus {
@@ -136,12 +184,7 @@ class TTULATUIApp(App):
     }
 
     Button {
-        margin: 0 1;
-    }
-
-    DataTable {
-        height: 100%;
-        background: #131b2e;
+        margin: 0;
     }
     """
 
@@ -185,7 +228,7 @@ class TTULATUIApp(App):
                 with Vertical(classes="glass-box"):
                     yield Label("Discovered Tailscale Lab Mesh Devices", classes="card-title")
                     yield DataTable(id="devices_table")
-                    with Horizontal():
+                    with Horizontal(classes="btn-row"):
                         yield Button("Toggle Lab Authorization (Space)", id="btn_toggle_auth", variant="primary")
                         yield Button("Set Active Target (Enter)", id="btn_set_target", variant="success")
                         yield Button("Refresh Status (r)", id="btn_refresh_ts")
@@ -195,11 +238,11 @@ class TTULATUIApp(App):
             with TabPane("🔍 [2] Tookie OSINT", id="tab_tookie"):
                 with Vertical(classes="glass-box"):
                     yield Label("OSINT Username Discovery", classes="card-title")
-                    with Horizontal():
-                        yield Input(placeholder="Target username (e.g. labadmin)", id="input_tookie_user")
+                    with Horizontal(classes="input-row"):
+                        yield Input(placeholder="Target username (e.g. labadmin, root)", id="input_tookie_user")
                         yield Button("🚀 Run Discovery", id="btn_run_tookie", variant="primary")
                     yield DataTable(id="tookie_results_table")
-                    with Horizontal():
+                    with Horizontal(classes="btn-row"):
                         yield Button("🧹 Send Collection to Uro Pipeline", id="btn_tookie_to_uro", variant="success")
 
             # TAB 3: URO FILTERING
@@ -208,7 +251,7 @@ class TTULATUIApp(App):
                     yield Label("URL Cleaning and Normalization", classes="card-title")
                     yield Static("Ready to filter URL collection...", id="uro_status_label")
                     yield DataTable(id="uro_results_table")
-                    with Horizontal():
+                    with Horizontal(classes="btn-row"):
                         yield Button("⚡ Clean URLs with Uro", id="btn_run_uro", variant="primary")
 
             # TAB 4: ARSENAL CHEATS
@@ -216,14 +259,14 @@ class TTULATUIApp(App):
                 with Vertical(classes="glass-box"):
                     yield Label("Curated Command Playbooks", classes="card-title")
                     yield Static(id="arsenal_target_status")
-                    with Horizontal():
+                    with Horizontal(classes="input-row"):
                         yield Input(placeholder="Search tag (e.g. nmap, web, scan)", id="input_arsenal_query")
                         yield Button("🔍 Search", id="btn_search_arsenal", variant="primary")
                         yield Input(placeholder="Port", value="80", id="input_arsenal_port")
                         yield Button("Simulate Lab Target", id="btn_arsenal_sim_node")
                     yield DataTable(id="arsenal_table")
                     yield Static("$ [Select a command template above]", id="arsenal_cmd_preview", classes="cmd-preview")
-                    with Horizontal():
+                    with Horizontal(classes="btn-row"):
                         yield Button("▶ Execute in PTY Terminal (Enter)", id="btn_exec_arsenal", variant="success")
 
             # TAB 5: LEGBA AUTH TESTING
@@ -231,7 +274,7 @@ class TTULATUIApp(App):
                 with Vertical(classes="glass-box"):
                     yield Label("Legba Authentication Testing (Strict Lab Gated)", classes="card-title")
                     yield Static("⚠️ Refuses execution unless target is marked [✓ AUTHORIZED LAB]", id="legba_warning")
-                    with Horizontal():
+                    with Horizontal(classes="input-row"):
                         yield Select(
                             options=[("SSH", "ssh"), ("HTTP", "http"), ("SMB", "smb"), ("FTP", "ftp")],
                             value="ssh",
@@ -241,14 +284,14 @@ class TTULATUIApp(App):
                         yield Input(placeholder="Username", value="admin", id="input_legba_user")
                         yield Input(placeholder="Password", value="password123", id="input_legba_pass", password=True)
                     yield Static("$ [Select target and protocol]", id="legba_cmd_preview", classes="cmd-preview")
-                    with Horizontal():
+                    with Horizontal(classes="btn-row"):
                         yield Button("🚀 Launch Legba Auth Test in PTY", id="btn_exec_legba", variant="error")
 
         # BOTTOM SPLIT: PERSISTENT PTY TERMINAL
         with Vertical(id="terminal_pane"):
             yield Label("💻 Live Persistent PTY Console Stream (survives interactions)", id="lbl_pty_title")
             yield RichLog(id="term_log", highlight=True, markup=True)
-            with Horizontal():
+            with Horizontal(id="term_input_row"):
                 yield Input(placeholder="Send raw command to PTY (e.g. echo $USER or tailscale netcheck)", id="term_input")
                 yield Button("Send ⏎", id="btn_send_pty", variant="primary")
                 yield Button("Clear", id="btn_clear_pty")
