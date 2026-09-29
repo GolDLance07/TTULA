@@ -112,10 +112,27 @@ class TTULATUIApp(App):
         height: 8;
     }
 
+    Input {
+        background: #111827;
+        color: #e2e8f0;
+        border: tall #334155;
+    }
+
+    Input:focus {
+        border: tall #00f0ff;
+        background: #192238;
+        color: #ffffff;
+    }
+
     #term_input {
         background: #111827;
         color: #e2e8f0;
         border: tall #1e293b;
+    }
+
+    #term_input:focus {
+        border: tall #00f0ff;
+        background: #192238;
     }
 
     Button {
