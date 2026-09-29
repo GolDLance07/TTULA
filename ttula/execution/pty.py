@@ -55,7 +55,7 @@ class PTYSession:
 
             os.environ["TERM"] = "xterm-256color"
             os.environ["PS1"] = f"ttula@{self.session_id}:$ "
-            os.execlp(self.shell_cmd, self.shell_cmd, "--norc", "--noprofile")
+            os.execlp(self.shell_cmd, self.shell_cmd)
             sys.exit(1)
 
         # Parent process

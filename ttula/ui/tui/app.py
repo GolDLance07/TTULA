@@ -580,6 +580,10 @@ class TTULATUIApp(App):
                     matches = col.metadata.get("matches", [])
                     for m in matches:
                         dt.add_row(m.get("platform", "Web"), m.get("url", ""), m.get("status", "possible match"))
+                
+                if col.metadata.get("warning"):
+                    self._log_terminal(f"[bold yellow][!] {col.metadata['warning']}[/bold yellow]")
+
                 self._log_terminal(
                     f"[bold green][+] Tookie finished: {col.count()} URLs discovered for '{user}'.[/bold green]"
                 )
