@@ -1,7 +1,7 @@
 - name: curl_headers
   title: "Curl HTTP Response Headers"
   description: "Retrieve response headers from target web server"
-  command: "curl -I -s -k http://<target>:<port>"
+  command: "curl -I -s -S -k http://<target>:<port>"
   category: "web_reconnaissance"
   tags: ["curl", "http", "headers", "web", "banner"]
   requires_authorized_lab: false
