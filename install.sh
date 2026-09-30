@@ -35,8 +35,19 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 echo -e "${CYAN}[*] Step 1: Installing system dependencies via apt...${NC}"
-apt-get update -qq
-DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+set +e
+apt-get update -qq 2>/dev/null
+APT_STATUS=$?
+if [ $APT_STATUS -ne 0 ]; then
+    echo -e "${YELLOW}[!] Notice: Kali mirror index mismatch or stale cache detected.${NC}"
+    echo -e "${YELLOW}[*] Flushing /var/lib/apt/lists and retrying with clean state...${NC}"
+    rm -rf /var/lib/apt/lists/*
+    apt-get clean
+    apt-get update -qq --fix-missing || true
+fi
+set -e
+
+DEBIAN_FRONTEND=noninteractive apt-get install -y --fix-missing -qq \
     python3 \
     python3-pip \
     python3-venv \
@@ -45,6 +56,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
     nmap \
     build-essential \
     ca-certificates
+
 
 # Step 2: Ensure Tailscale is installed
 echo -e "${CYAN}[*] Step 2: Checking Tailscale...${NC}"
