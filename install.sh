@@ -124,6 +124,13 @@ cp -r "$SCRIPT_DIR/ttula" "$INSTALL_DIR/ttula"
 cp "$SCRIPT_DIR/pyproject.toml" "$INSTALL_DIR/"
 cp "$SCRIPT_DIR/README.md" "$INSTALL_DIR/"
 
+# Copy Arsenal-NG cheat-files directory if present
+if [ -d "$SCRIPT_DIR/cheat-files" ]; then
+    echo -e "${CYAN}[*] Copying Arsenal-NG cheat playbooks to $INSTALL_DIR/cheat-files...${NC}"
+    rm -rf "$INSTALL_DIR/cheat-files"
+    cp -r "$SCRIPT_DIR/cheat-files" "$INSTALL_DIR/cheat-files"
+fi
+
 # Create dedicated virtual environment
 if [ ! -d "$INSTALL_DIR/venv" ]; then
     echo -e "${YELLOW}[*] Creating Python virtual environment in $INSTALL_DIR/venv...${NC}"
@@ -136,13 +143,20 @@ echo -e "${CYAN}[*] Installing TTULA and pipeline tools (Textual TUI, Uro, PyYAM
 "$INSTALL_DIR/venv/bin/pip" install uro pyyaml textual streamlit -q
 "$INSTALL_DIR/venv/bin/pip" install -e "$INSTALL_DIR" --no-deps --force-reinstall -q
 
-# Step 5: Global executable symlink
-echo -e "${CYAN}[*] Step 5: Registering global 'ttula' CLI command...${NC}"
+# Step 5: Global executable symlinks (CLI and TUI)
+echo -e "${CYAN}[*] Step 5: Registering global 'ttula' and 'ttula-tui' commands...${NC}"
 cat << 'EOF' > /usr/local/bin/ttula
 #!/usr/bin/env bash
 exec /opt/ttula/venv/bin/ttula "$@"
 EOF
 chmod +x /usr/local/bin/ttula
+
+cat << 'EOF' > /usr/local/bin/ttula-tui
+#!/usr/bin/env bash
+exec /opt/ttula/venv/bin/ttula tui "$@"
+EOF
+chmod +x /usr/local/bin/ttula-tui
+
 
 # Step 6: Kali Linux Application Menu Entry
 echo -e "${CYAN}[*] Step 6: Installing Kali Desktop Menu entry...${NC}"

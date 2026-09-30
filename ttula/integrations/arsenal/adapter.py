@@ -69,15 +69,19 @@ class ArsenalAdapter:
             # Auto-discover root cheat-files directory
             root_cheat_files = Path.cwd() / "cheat-files"
             project_cheat_files = Path(__file__).resolve().parents[3] / "cheat-files"
+            system_cheat_files = Path("/opt/ttula/cheat-files")
             bundled_cheats = Path(__file__).parent / "cheats"
 
             if root_cheat_files.exists():
                 self.cheats_dirs.append(root_cheat_files)
             elif project_cheat_files.exists():
                 self.cheats_dirs.append(project_cheat_files)
+            elif system_cheat_files.exists():
+                self.cheats_dirs.append(system_cheat_files)
 
             if bundled_cheats.exists():
                 self.cheats_dirs.append(bundled_cheats)
+
 
         self._commands_cache: List[Command] = []
         self._metadata_cache: List[Dict[str, Any]] = []
