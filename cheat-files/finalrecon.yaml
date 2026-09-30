@@ -1,0 +1,72 @@
+tool: finalrecon
+tags: [reconnaissance, web, security, pentest, enumeration, osint, scanner]
+
+actions:
+  # === BASIC RECONNAISSANCE ===
+  - title: finalrecon - header information
+    desc: |
+      Extracts HTTP header information from the target URL. This action is useful for identifying server versions, security headers, and potential technologies used by the web server. It provides a quick look at the server-side configuration and possible vulnerabilities like missing security headers.
+    command: "finalrecon --url {{target_url}} --headers"
+
+  - title: finalrecon - ssl/tls certificate info
+    desc: |
+      Retrieves detailed SSL/TLS certificate information for the target. It displays validity dates, issuer details, subject names, and cipher suites supported by the server. Use this to verify certificate authenticity or check for expired and weak configurations that could lead to man-in-the-middle attacks.
+    command: "finalrecon --url {{target_url}} --sslinfo"
+
+  - title: finalrecon - whois lookup
+    desc: |
+      Performs a WHOIS lookup for the target domain to gather administrative and registration data. This identifies domain owners, registration dates, expiry dates, and name server information. It is a fundamental step in OSINT for mapping the target's organizational structure and contact points.
+    command: "finalrecon --url {{target_url}} --whois"
+
+  # === ENUMERATION & DISCOVERY ===
+  - title: finalrecon - dns enumeration
+    desc: |
+      Executes DNS enumeration to discover various DNS records associated with the target domain. It attempts to fetch A, AAAA, MX, TXT, and NS records to map out the target's infrastructure. This is critical for identifying mail servers, third-party service integrations, and IP ranges.
+    command: "finalrecon --url {{target_url}} --dns"
+
+  - title: finalrecon - subdomain enumeration
+    desc: |
+      Searches for subdomains associated with the main target domain using multiple sources. This expands the attack surface by identifying forgotten dev environments, staging servers, or administrative panels. Note that this process may take time depending on the number of passive sources being queried.
+    command: "finalrecon --url {{target_url}} --sub"
+
+  - title: finalrecon - directory search
+    desc: |
+      Brute-forces directories and files on the target web server using a specified wordlist. This helps in discovering hidden paths, sensitive configuration files, or unlinked backup folders. You can increase the thread count with the -dt flag to speed up the discovery process on robust targets.
+    command: "finalrecon --url {{target_url}} --dir -w {{wordlist|/usr/share/wordlists/dirb/common.txt}} -dt {{threads|30}}"
+
+  - title: finalrecon - directory search with extensions
+    desc: |
+      Performs a directory search while specifically looking for files with certain extensions. This is highly effective when searching for specific file types like .php, .txt, or .bak files that might contain source code or credentials. Ensure you provide a comma-separated list of extensions without leading dots.
+    command: "finalrecon --url {{target_url}} --dir -e {{extensions|php,txt,xml,zip,bak}}"
+
+  - title: finalrecon - web crawling
+    desc: |
+      Crawls the target website to extract internal and external links found within the HTML. This helps map the site structure and discover potentially interesting endpoints or assets that are not immediately visible. It is an essential step for deeper manual analysis of the application logic.
+    command: "finalrecon --url {{target_url}} --crawl"
+
+  - title: finalrecon - wayback machine urls
+    desc: |
+      Fetches archived URLs from the Wayback Machine for the specified target. This allows researchers to find old files, removed pages, and historical data that might still reside on the server or provide clues about past vulnerabilities. It is a non-intrusive way to perform extensive URL discovery.
+    command: "finalrecon --url {{target_url}} --wayback"
+
+  # === INFRASTRUCTURE & FULL SCAN ===
+  - title: finalrecon - fast port scan
+    desc: |
+      Performs a quick port scan on the target host to identify common open ports and services. This is useful for gaining a rapid overview of the target's network exposure before performing more detailed scans. Note that this is a basic scanner and may not replace specialized tools like Nmap for complex network environments.
+    command: "finalrecon --url {{target_url}} --ps -pt {{threads|50}}"
+
+  - title: finalrecon - full reconnaissance
+    desc: |
+      Runs all available reconnaissance modules against the target in a single execution. This includes headers, SSL, WHOIS, DNS, subdomains, crawling, and directory searching. Use this when you want a comprehensive report on the target but be aware that it generates significant traffic and may trigger security alerts.
+    command: "finalrecon --url {{target_url}} --full"
+
+  # === ADVANCED CONFIGURATIONS ===
+  - title: finalrecon - authenticated/api scan
+    desc: |
+      Runs reconnaissance modules while providing an API key for services that require authentication, such as Shodan. Adding an API key improves the depth and accuracy of the results for modules that rely on third-party data. Use the format 'service@key' to specify the provider and the token.
+    command: "finalrecon --url {{target_url}} --full -k {{api_key|shodan@YOUR_KEY_HERE}}"
+
+  - title: finalrecon - export results to file
+    desc: |
+      Executes a scan and exports the gathered information into a specific format for reporting. The default export format is 'txt', but other formats may be supported depending on the tool version. This is crucial for documentation and sharing findings with stakeholders or during a penetration testing engagement.
+    command: "finalrecon --url {{target_url}} --full -o {{format|txt}} -cd {{output_dir|./recon_results}}"

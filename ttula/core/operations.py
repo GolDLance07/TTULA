@@ -80,6 +80,10 @@ def fill_command_placeholders(
 ) -> Command:
     """Safely fills command placeholders in argv list.
     
+    Supports both:
+    - Arsenal-NG {{variable}} and {{variable|default}} tokens
+    - Legacy <target>, <port> placeholders
+    
     Security rules:
     - Never uses raw shell string evaluation.
     - Token-level replacement inside argv elements.
@@ -93,21 +97,41 @@ def fill_command_placeholders(
             )
 
     substitutions: Dict[str, str] = {}
+    var_map: Dict[str, str] = {}
 
     if target:
-        substitutions["<target>"] = target.tailscale_ip or target.name
+        target_ip = target.tailscale_ip or target.name
+        substitutions["<target>"] = target_ip
         substitutions["<ip>"] = target.tailscale_ip
         substitutions["<host>"] = target.tailscale_ip
+        substitutions["<rhost>"] = target.tailscale_ip
         substitutions["<hostname>"] = target.hostname or target.name
+
+        var_map["target"] = target_ip
+        var_map["ip"] = target.tailscale_ip
+        var_map["host"] = target.tailscale_ip
+        var_map["rhost"] = target.tailscale_ip
+        var_map["hostname"] = target.hostname or target.name
+        var_map["target_range"] = target.tailscale_ip
 
     if execution_node:
         substitutions["<node>"] = execution_node.name
         substitutions["<local_ip>"] = execution_node.tailscale_ip
+        var_map["node"] = execution_node.name
+        var_map["lhost"] = execution_node.tailscale_ip
 
     if extra_params:
         for k, v in extra_params.items():
-            key_tag = f"<{k}>" if not (k.startswith("<") and k.endswith(">")) else k
-            substitutions[key_tag] = str(v)
+            val_str = str(v).strip()
+            clean_k = k.strip().lower()
+            key_tag = f"<{clean_k}>" if not (clean_k.startswith("<") and clean_k.endswith(">")) else clean_k
+            
+            # Don't overwrite an existing non-empty value (like target IP) with an empty string
+            if val_str or key_tag not in substitutions:
+                substitutions[key_tag] = val_str
+            if val_str or clean_k.strip("<>") not in var_map:
+                var_map[clean_k.strip("<>")] = val_str
+
 
     # Provide safe fallback values for generic placeholders if not supplied
     default_fallbacks = {
@@ -119,16 +143,47 @@ def fill_command_placeholders(
     for ph_key, ph_default in default_fallbacks.items():
         if ph_key not in substitutions:
             substitutions[ph_key] = ph_default
+            var_map[ph_key.strip("<>")] = ph_default
+
+    # Ensure URL is synthesized if target & port are known
+    if "url" not in var_map:
+        t_ip = var_map.get("target") or var_map.get("ip", "127.0.0.1")
+        t_port = var_map.get("port", "80")
+        var_map["url"] = f"http://{t_ip}:{t_port}"
+        substitutions["<url>"] = var_map["url"]
+
+    re_arsenal_ph = re.compile(r"\{\{\s*([^}|]+)(?:\|([^}]*))?\s*\}\}")
 
     new_argv: List[str] = []
     filled_placeholders: Dict[str, str] = dict(command.placeholders)
 
     for arg in command.argv:
         new_arg = arg
+        # 1. Replace legacy <...> placeholders
         for ph, val in substitutions.items():
             if ph in new_arg:
                 new_arg = new_arg.replace(ph, val)
                 filled_placeholders[ph] = val
+
+        # 2. Replace Arsenal-NG {{variable|default}} placeholders
+        def _replace_ph(m: re.Match) -> str:
+            v_name = m.group(1).strip()
+            v_default = m.group(2).strip() if m.group(2) is not None else ""
+            v_lower = v_name.lower()
+
+            if v_lower in var_map and var_map[v_lower]:
+                filled_placeholders[m.group(0)] = var_map[v_lower]
+                return var_map[v_lower]
+            if v_default:
+                filled_placeholders[m.group(0)] = v_default
+                return v_default
+            if v_lower in default_fallbacks:
+                val = default_fallbacks[v_lower]
+                filled_placeholders[m.group(0)] = val
+                return val
+            return v_name
+
+        new_arg = re_arsenal_ph.sub(_replace_ph, new_arg)
         new_argv.append(new_arg)
 
     return Command(
@@ -140,3 +195,4 @@ def fill_command_placeholders(
         placeholders=filled_placeholders,
         requires_authorized_lab=command.requires_authorized_lab,
     )
+

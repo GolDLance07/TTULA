@@ -1,0 +1,87 @@
+tool: pacu
+tags: [cloud, security, pentest, aws, exploitation, enumeration, authentication]
+
+# === SESSION AND AUTHENTICATION ===
+actions:
+ - title: pacu - create new session
+   desc: |
+     This command initializes a brand new session within the Pacu framework. 
+     Sessions are used to isolate data, logs, and credentials between different engagements or environments. 
+     It is highly recommended to use unique session names for every new project to avoid data corruption.
+   command: "pacu --new-session {{session_name}}"
+
+ - title: pacu - set credentials manually
+   desc: |
+     This command allows you to manually input AWS credentials into the current session. 
+     You must provide an alias for the keys, the Access Key ID, the Secret Access Key, and optionally a Session Token. 
+     This is the most direct way to provide Pacu with the necessary permissions to interact with an AWS environment.
+   command: "pacu --set-keys {{alias}} {{access_key_id}} {{secret_access_key}} {{session_token|None}}"
+
+ - title: pacu - import credentials from aws profile
+   desc: |
+     This command imports AWS credentials directly from your local AWS configuration files (~/.aws/credentials). 
+     It is useful when you have already configured profiles using the AWS CLI and want to use them within Pacu. 
+     Ensure the specified profile name exists in your local configuration before running this command.
+   command: "pacu --import-keys {{profile_name|default}}"
+
+ - title: pacu - check current identity
+   desc: |
+     The whoami command displays details about the currently active IAM identity in the session. 
+     It verifies the credentials and returns the Account ID, User ARN, and the associated permissions if known. 
+     This should be the first command run after setting keys to ensure that the environment is reachable.
+   command: "pacu --whoami"
+
+# === ENUMERATION AND DISCOVERY ===
+
+ - title: pacu - list all modules
+   desc: |
+     This command displays a complete list of all exploitation and enumeration modules available in Pacu. 
+     Modules are grouped by categories such as 'discovery', 'exploitation', 'persistence', and 'privesc'. 
+     Use this to find specific tools for the AWS services you are targeting during your assessment.
+   command: "pacu --list-modules"
+
+ - title: pacu - get module information
+   desc: |
+     This command provides detailed documentation and usage instructions for a specific Pacu module. 
+     It explains what the module does, what permissions are required to run it, and what arguments it accepts. 
+     Reviewing module info is critical before running destructive or loud modules in a production environment.
+   command: "pacu --module-name {{module_name}} --module-info"
+
+ - title: pacu - set target regions
+   desc: |
+     This command restricts or expands the scope of the current session to specific AWS regions. 
+     You can provide a space-separated list of regions or use 'all' to target every available AWS region. 
+     Limiting regions can significantly speed up enumeration modules and reduce the number of API calls made.
+   command: "pacu --set-regions {{regions|all}}"
+
+# === MODULE EXECUTION ===
+
+ - title: pacu - execute a module
+   desc: |
+     This command triggers the execution of a specific module within the active session. 
+     It will use the credentials and regions previously configured to perform its tasks. 
+     Note that executing modules may trigger AWS CloudTrail alerts, so ensure you have authorization for the target account.
+   command: "pacu --module-name {{module_name}} --exec"
+
+ - title: pacu - execute module with specific arguments
+   desc: |
+     This command executes a module while passing custom arguments to modify its behavior. 
+     Arguments are passed as a single string and typically include parameters like specific regions, usernames, or resource IDs. 
+     This is the standard way to fine-tune module performance or target specific AWS resources.
+   command: "pacu --module-name {{module_name}} --module-args '{{args|--regions us-east-1}}' --exec"
+
+ - title: pacu - run in quiet mode
+   desc: |
+     This command starts Pacu without displaying the large ASCII banner at startup. 
+     It is useful for cleaner terminal output or when running Pacu in automated scripts or restricted shells. 
+     The functionality of the tool remains identical, but the initial visual clutter is removed.
+   command: "pacu -q --session {{session_name}}"
+
+# === DATA MANAGEMENT ===
+
+ - title: pacu - view session data
+   desc: |
+     This command retrieves and displays the data collected by modules for a specific AWS service. 
+     Pacu stores results in a local database, and this command allows you to query that database for previously found information. 
+     Use 'all' to see a summary of all data collected across all services in the current session.
+   command: "pacu --data {{service_name|all}}"

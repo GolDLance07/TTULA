@@ -1,0 +1,81 @@
+tool: vulnx
+tags: [vulnerability-scanner, cve, reconnaissance, pentest, security, exploitation, enumeration]
+
+actions:
+# === CONFIGURATION AND DISCOVERY ===
+
+ - title: vulnx - authenticate api
+   desc: |
+     Configure your API key to access the ProjectDiscovery vulnerability database. This step is highly recommended to bypass rate limits associated with anonymous searching. You can obtain a free API key from the ProjectDiscovery Cloud website.
+   command: "vulnx auth"
+
+ - title: vulnx - list available filters
+   desc: |
+     Show all searchable fields and filter options available in the tool. This helps users understand the specific syntax and data types allowed for complex queries. It provides descriptions, examples, and enum values for fields like severity or CVSS scores.
+   command: "vulnx filters"
+
+ - title: vulnx - health check
+   desc: |
+     Test the connectivity to the vulnerability database backend. This command ensures that your network environment allows communication with the API and that your credentials are valid. Use this for troubleshooting if searches are failing or returning unexpected errors.
+   command: "vulnx healthcheck"
+
+# === BASIC SEARCHING ===
+
+ - title: vulnx - simple keyword search
+   desc: |
+     Perform a basic search for vulnerabilities related to a specific product or technology. This is the quickest way to find CVEs associated with a keyword like 'apache' or 'nginx'. The output provides a summary of relevant vulnerabilities including their IDs and severity levels.
+   command: "vulnx search {{keyword|apache}}"
+
+ - title: vulnx - specific cve lookup
+   desc: |
+     Retrieve detailed information about a single vulnerability using its CVE identifier. This command provides a comprehensive breakdown including technical descriptions, affected products, and references. It is the best way to analyze the impact and requirements of a specific known bug.
+   command: "vulnx id {{cve_id|CVE-2021-44228}}"
+
+ - title: vulnx - search with result limit
+   desc: |
+     Search for vulnerabilities while restricting the number of returned results. Use this when searching for broad terms to prevent the terminal from being overwhelmed with data. It helps in focusing on the most relevant or recent entries first.
+   command: "vulnx search {{keyword|nginx}} --limit {{count|10}}"
+
+# === ADVANCED FILTERING ===
+
+ - title: vulnx - search by severity and score
+   desc: |
+     Find vulnerabilities that match a specific severity level or exceed a CVSS score threshold. This is critical for prioritizing remediation efforts on the most dangerous flaws. You can use comparison operators like greater-than to find scores above a certain point.
+   command: "vulnx search \"severity:{{severity|critical}} && cvss_score:>{{score|8.0}}\""
+
+ - title: vulnx - filter by exploitable characteristics
+   desc: |
+     Filter vulnerabilities that are known to be exploited in the wild or have public Proof of Concepts. This command specifically targets vulnerabilities in the Known Exploited Vulnerabilities (KEV) list or those with Nuclei templates. It is essential for risk-based vulnerability management and penetration testing.
+   command: "vulnx search \"is_kev:{{kev_status|true}} && is_poc:{{poc_status|true}}\" --template"
+
+ - title: vulnx - search by vendor and product
+   desc: |
+     Narrow down search results to a specific software vendor or product name. This helps in identifying vulnerabilities within a specific stack, such as Microsoft Windows or Oracle Database. You can use the --product or --vendor flags to achieve high precision in your results.
+   command: "vulnx search --vendor {{vendor|microsoft}} --product {{product|windows}}"
+
+ - title: vulnx - time based search
+   desc: |
+     Search for vulnerabilities published within a specific timeframe or based on their age in days. This is useful for identifying recently discovered zero-day vulnerabilities or bugs from a specific year. Date formats can include years, months, or specific day ranges.
+   command: "vulnx search \"cve_created_at:>={{year|2024}} && age_in_days:<{{days|30}}\""
+
+# === ANALYSIS AND OUTPUT ===
+
+ - title: vulnx - aggregate data analysis
+   desc: |
+     Analyze vulnerability patterns by aggregating data based on specific fields. This command helps you understand which vendors or severities are most prevalent in a given search set. It is an excellent tool for generating high-level security posture reports.
+   command: "vulnx analyze --fields {{field|severity}}"
+
+ - title: vulnx - export results to json
+   desc: |
+     Save the search results into a machine-readable JSON format for further processing or automation. This allows integration with other tools in a DevSecOps pipeline or for custom scripting. The --output flag ensures the data is saved directly to a file on disk.
+   command: "vulnx search {{query|log4j}} --json --output {{filename|results.json}}"
+
+ - title: vulnx - detailed multi-id lookup
+   desc: |
+     Look up multiple CVE IDs simultaneously and retrieve detailed information for each. You can provide a comma-separated list of IDs to get a combined report. This is much faster than running the id command multiple times for a list of findings.
+   command: "vulnx id {{cve_list|CVE-2024-1234,CVE-2024-5678}} --detailed"
+
+ - title: vulnx - sorted search results
+   desc: |
+     Search for vulnerabilities and sort the output based on a specific field like CVSS score or creation date. Sorting helps in quickly identifying the highest-risk items or the most recent updates. Use --sort-desc for descending order to see the highest scores at the top.
+   command: "vulnx search {{keyword|cms}} --sort-desc {{field|cvss_score}}"

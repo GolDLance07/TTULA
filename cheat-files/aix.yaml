@@ -1,0 +1,104 @@
+tool: aix
+tags: [ai, llm, openai, terminal, cli, automation, productivity, pentest]
+
+# === BASIC USAGE ===
+
+actions:
+  - title: aix - basic prompt
+    desc: |
+      Send a simple text query to the default language model from the command line. 
+      This is the most common way to get quick answers, code snippets, or explanations without leaving the terminal. 
+      By default, this command uses the GPT-3.5 model for processing.
+    command: "aix -p \"{{prompt|What is the capital of France?}}\""
+
+  - title: aix - query via stdin
+    desc: |
+      Pipe the output of another command directly into aix for processing or analysis. 
+      This is extremely useful for summarizing logs, explaining complex terminal outputs, or transforming data using AI. 
+      It allows for seamless integration of LLMs into existing shell pipelines and scripts.
+    command: "echo \"{{input_data|list top 5 linux distros}}\" | aix"
+
+  - title: aix - save output to file
+    desc: |
+      Execute a prompt and save the generated response directly to a local file. 
+      This is useful for generating documentation, scripts, or long-form content that needs to be stored for later use. 
+      Combine this with other flags to ensure the output is formatted exactly as needed for your project.
+    command: "aix -p \"{{prompt}}\" -o {{output_file|result.txt}}"
+
+# === MODEL SELECTION & CONFIGURATION ===
+
+  - title: aix - query with gpt-4
+    desc: |
+      Force the tool to use the GPT-4.0 model for the provided prompt. 
+      GPT-4 is generally more capable at complex reasoning, coding tasks, and following intricate instructions compared to GPT-3.5. 
+      Ensure your API key has the necessary permissions and credits to access GPT-4 models to avoid errors.
+    command: "aix -p \"{{prompt|Write a python script to scan for open ports}}\" -g4"
+
+  - title: aix - use specific model
+    desc: |
+      Specify a exact model identifier to use for the request, such as a specific snapshot version. 
+      This ensures consistency in responses if you are building automation that relies on a particular model version's behavior. 
+      Use the list-models flag if you are unsure of the exact strings accepted by the API.
+    command: "aix -m {{model_name|gpt-4-0314}} -p \"{{prompt}}\""
+
+  - title: aix - list available models
+    desc: |
+      Retrieve a complete list of all AI models available to your current API key. 
+      This is a helpful diagnostic step to verify which engines (GPT-3, GPT-4, etc.) you are authorized to use. 
+      The output will show the model IDs required for the custom model flag.
+    command: "aix -lm -ak {{api_key}}"
+
+# === ADVANCED TUNING ===
+
+  - title: aix - set system context
+    desc: |
+      Provide a system-level message to define the AI's persona, constraints, or background knowledge. 
+      This helps guide the AI to behave in a specific way, such as acting as a senior developer or a security auditor. 
+      Setting a strong system context can significantly improve the quality and relevance of the output for specialized tasks.
+    command: "aix -sc \"{{context|You are a professional security researcher specialized in web vulnerabilities.}}\" -p \"{{prompt}}\""
+
+  - title: aix - adjust temperature
+    desc: |
+      Change the temperature parameter to control the randomness and creativity of the response. 
+      A lower value (e.g., 0.2) makes the output more deterministic and focused, while a higher value (e.g., 0.8) makes it more creative. 
+      Use lower values for technical tasks like coding and higher values for creative writing or brainstorming.
+    command: "aix -p \"{{prompt}}\" -t {{temperature|0.7}}"
+
+  - title: aix - set top-p sampling
+    desc: |
+      Configure the top-p (nucleus) sampling value to control the diversity of the AI's response. 
+      This is an alternative to temperature that limits the AI's word choices to a subset of the most likely tokens. 
+      It is generally recommended to adjust either temperature or top-p, but not both simultaneously for the same query.
+    command: "aix -p \"{{prompt}}\" -tp {{top_p|0.9}}"
+
+# === OUTPUT & FORMATTING ===
+
+  - title: aix - output in jsonl format
+    desc: |
+      Generate the AI's response in JSON Lines format, which includes metadata like timestamps and model info. 
+      This is the preferred format for programmatic processing, allowing you to easily parse the results using tools like jq. 
+      It is highly effective for building datasets or logging AI interactions for auditing purposes.
+    command: "aix -p \"{{prompt}}\" -j"
+
+  - title: aix - stream output
+    desc: |
+      Enable streaming mode to see the AI's response in the terminal as it is being generated. 
+      This provides immediate visual feedback for long responses, making the tool feel more interactive and responsive. 
+      Note that markdown rendering is typically disabled when streaming to ensure raw text is displayed correctly.
+    command: "aix -p \"{{prompt}}\" -s"
+
+  - title: aix - silent mode
+    desc: |
+      Run the tool in silent mode to suppress headers, version info, and informational logs. 
+      This ensures that only the actual AI-generated content is printed to the standard output. 
+      This is essential when using aix inside scripts where extra boilerplate text would break the logic.
+    command: "aix -p \"{{prompt}}\" -silent"
+
+# === MAINTENANCE ===
+
+  - title: aix - update tool
+    desc: |
+      Check for and install the latest version of the aix utility from the official repository. 
+      Keeping the tool updated ensures you have the latest features, bug fixes, and support for new OpenAI models. 
+      This command may require an active internet connection to reach the ProjectDiscovery update servers.
+    command: "aix -up"

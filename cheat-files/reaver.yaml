@@ -1,0 +1,79 @@
+tool: reaver
+tags: [wifi, wireless, security, pentest, wps, cracking, exploitation]
+
+actions:
+  # === BASIC USAGE ===
+  - title: reaver - basic wps pin attack
+    desc: |
+      Performs a brute-force attack on the target Access Point's WPS PIN to recover the WPA/WPA2 passphrase. 
+      This is the most common usage of the tool when a target AP has WPS enabled and is not currently locked. 
+      The verbose flag (-vv) is highly recommended to see the progress of the pin attempts and any error messages.
+      Be aware that continuous attempts may trigger a WPS lockout on modern routers.
+    command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -vv"
+
+  - title: reaver - pixie dust attack
+    desc: |
+      Executes the Pixie Dust attack which exploits cryptographic weaknesses in the WPS implementation of certain chipsets. 
+      This method is significantly faster than a standard brute-force attack as it can often recover the PIN within seconds by analyzing the M3 message. 
+      It is particularly effective against Ralink, Broadcom, and Realtek chipsets. 
+      Using the -K or -Z flag initiates this specific offline cracking logic.
+    command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -K"
+
+  # === TARGETING & ENUMERATION ===
+  - title: reaver - attack on fixed channel
+    desc: |
+      Targets a specific Access Point on a predefined wireless channel while disabling automatic channel hopping. 
+      Using a fixed channel ensures that the wireless interface stays synchronized with the target AP throughout the attack. 
+      This is recommended once the target BSSID and its operating channel have been identified via tools like airodump-ng. 
+      The -f flag forces the tool to stay on the specified frequency.
+    command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -c {{channel|6}} -f"
+
+  - title: reaver - attack 5ghz networks
+    desc: |
+      Enables support for 802.11 5GHz frequency bands during the WPS attack process. 
+      Many modern dual-band routers support WPS on both 2.4GHz and 5GHz, and one band might be more vulnerable than the other. 
+      You must ensure that your wireless adapter supports 5GHz monitoring mode for this command to function. 
+      This is often combined with specific channel selection for better reliability.
+    command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -5"
+
+  # === ADVANCED CONFIGURATION & LOCKOUT EVASION ===
+  - title: reaver - avoid wps lockouts with delays
+    desc: |
+      Configures custom delays between PIN attempts and lockout recovery periods to bypass AP security triggers. 
+      The -d flag sets a delay between each individual attempt, while -l defines how long to wait if the AP reports a locked state. 
+      Slower attacks are less likely to be detected or blocked by the router's firmware. 
+      This is essential for attacking newer routers that implement aggressive rate-limiting on WPS requests.
+    command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -d {{delay|30}} -l {{lock_delay|60}} -vv"
+
+  - title: reaver - small dh keys for speed
+    desc: |
+      Forces the use of small Diffie-Hellman keys to speed up the WPS handshake process. 
+      This reduces the computational overhead on both the attacking machine and the target Access Point. 
+      While it can improve the speed of the attack, some Access Points may not support smaller keys and might fail to associate. 
+      Use this option if you are experiencing slow response times during the authentication phase.
+    command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -S -vv"
+
+  - title: reaver - mimic windows 7 registrar
+    desc: |
+      Configures Reaver to mimic the behavior of a Windows 7 machine when acting as a WPS registrar. 
+      Some Access Points are configured to only respond or permit WPS operations from recognized client types or vendors. 
+      By using the -w flag, the attack may bypass certain basic vendor-specific filters or behavioral checks. 
+      This can be a useful fallback if standard association attempts are being rejected by the target.
+    command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -w"
+
+  # === SESSION MANAGEMENT ===
+  - title: reaver - resume session
+    desc: |
+      Restores a previously interrupted attack session from a saved session file. 
+      Reaver automatically saves progress, and using the -s flag allows you to pick up exactly where the brute-force last stopped. 
+      This is critical for long-running attacks that may span several days or involve thousands of PIN combinations. 
+      Ensure the session file path is correct to avoid starting the attack from the beginning.
+    command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -s {{session_file|session.cap}}"
+
+  - title: reaver - test specific pin
+    desc: |
+      Attempts to authenticate against the target Access Point using a single, manually specified WPS PIN. 
+      This is useful when you have a strong candidate PIN from a default PIN database or calculated via a MAC-to-PIN algorithm. 
+      If the PIN is correct, Reaver will immediately return the WPA/WPA2 PSK for the network. 
+      It is a much faster alternative to brute-forcing when the PIN is already suspected.
+    command: "reaver -i {{interface|wlan0mon}} -b {{bssid}} -p {{wps_pin}} -vv"

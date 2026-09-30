@@ -1,0 +1,79 @@
+tool: alterx
+tags: [subdomain, reconnaissance, wordlist, pentest, automation, dsl, enumeration]
+
+actions:
+# === BASIC PERMUTATIONS ===
+ - title: alterx - generate permutations from list
+   desc: |
+     Generate permutations and alterations for a list of subdomains. This is the primary 
+     method for discovering hidden subdomains based on existing ones by applying common 
+     transformation rules. It reads from a file and outputs results to the console, allowing 
+     researchers to find variations like dev-target.com from target.com.
+   command: "alterx -list {{subdomains_file}}"
+
+ - title: alterx - save results to file
+   desc: |
+     Generate alterations from a subdomain list and save the results to a specific file. 
+     This is crucial for automation pipelines where the output needs to be passed to 
+     other tools like httpx or dnsx. Saving to a file ensures that large wordlists 
+     are preserved for future analysis without rerunning the generation process.
+   command: "alterx -list {{subdomains_file}} -output {{output_file|output.txt}}"
+
+# === PATTERN & PAYLOAD MANIPULATION ===
+ - title: alterx - custom pattern permutation
+   desc: |
+     Use a Domain Specific Language (DSL) pattern to generate highly targeted subdomains. 
+     This allows the user to define exactly how suffixes, prefixes, and separators 
+     are combined with the base domain. It is extremely effective when targeting 
+     specific naming conventions within an organization, such as environment-based prefixes.
+   command: "alterx -list {{subdomains_file}} -pattern {{custom_pattern|'{{word}}-{{sub}}.{{suffix}}'}}"
+
+ - title: alterx - custom payload wordlist
+   desc: |
+     Inject custom words from a local text file into the permutation engine using a 
+     key-value format. By using the payload flag, you can replace specific variables 
+     defined in your patterns with custom values from your own wordlists. This is 
+     essential for testing organizational-specific department names or internal codes.
+   command: "alterx -list {{subdomains_file}} -pp {{payload_mapping|'word=words.txt'}}"
+
+# === ADVANCED CONFIGURATION ===
+ - title: alterx - enrich wordlist from input
+   desc: |
+     Extract unique words from the provided subdomain list to create more relevant 
+     permutations dynamically. The enrichment process analyzes the input file to 
+     identify common naming strings and adds them to the internal wordlist used for 
+     generation. This makes the tool context-aware for the specific target infrastructure.
+   command: "alterx -list {{subdomains_file}} -enrich"
+
+ - title: alterx - estimate permutation count
+   desc: |
+     Calculate the total number of subdomains that would be generated without actually 
+     running the permutation process. This prevents filling up disk space or 
+     overwhelming network resources with massive, unmanageable wordlists. It is a 
+     highly recommended first step before executing complex or broad patterns.
+   command: "alterx -list {{subdomains_file}} -estimate"
+
+ - title: alterx - limit output results
+   desc: |
+     Restrict the number of generated subdomains to a specific integer count. 
+     This is useful when you only want a quick sample of potential subdomains 
+     rather than an exhaustive list that might take too long to resolve. It 
+     helps in managing the speed and scope of subsequent DNS resolution phases.
+   command: "alterx -list {{subdomains_file}} -limit {{result_limit|1000}}"
+
+# === WORKFLOW INTEGRATION ===
+ - title: alterx - silent mode for piping
+   desc: |
+     Run the tool in silent mode to only display the generated results in the standard output. 
+     This is the preferred method when piping the output directly into other command-line 
+     tools like dnsx for immediate resolution. It removes headers, banners, and 
+     informational logs that would otherwise break the input of the next tool.
+   command: "alterx -list {{subdomains_file}} -silent | {{next_tool|dnsx}}"
+
+ - title: alterx - update to latest version
+   desc: |
+     Check for and install the latest version of the tool directly from the source repository. 
+     Keeping the tool updated ensures you have the latest permutation patterns and 
+     DSL features. It is a good practice to run this periodically to maintain 
+     the efficiency of your reconnaissance toolkit.
+   command: "alterx -update"

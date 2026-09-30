@@ -1,0 +1,120 @@
+tool: wp
+tags: [wordpress, cms, management, security, pentest, administration, automation]
+
+actions:
+# === CORE & CONFIGURATION ===
+ - title: wp - download wordpress core
+   desc: |
+     Download the WordPress core files to the current directory or a specified path. 
+     This is the first step in setting up a new installation from the command line. 
+     You can specify a version number or use the latest stable release.
+   command: "wp core download --version={{version|latest}} --path={{path|.}}"
+
+ - title: wp - install wordpress
+   desc: |
+     Run the WordPress installation script to set up the database and initial admin user. 
+     This replaces the web-based installation process and requires an existing database configuration. 
+     Ensure you provide a strong admin password to prevent unauthorized access.
+   command: "wp core install --url={{url}} --title={{site_title|WordPress Site}} --admin_user={{admin_user|admin}} --admin_password={{admin_password}} --admin_email={{admin_email}}"
+
+ - title: wp - generate config file
+   desc: |
+     Generate a new wp-config.php file with database credentials. 
+     This command is used during setup to link the WordPress files to the SQL database. 
+     Make sure the database and user are already created in your SQL server before running this.
+   command: "wp config create --dbname={{db_name}} --dbuser={{db_user}} --dbpass={{db_password}} --dbhost={{db_host|localhost}}"
+
+# === DATABASE OPERATIONS ===
+ - title: wp - export database
+   desc: |
+     Export the WordPress database to a SQL file for backup or migration purposes. 
+     It uses the credentials stored in the wp-config.php file to connect to the database. 
+     This is a critical step before performing any major site updates or search-and-replace operations.
+   command: "wp db export {{filename|backup.sql}}"
+
+ - title: wp - search and replace strings
+   desc: |
+     Search for a string and replace it with another across the entire database. 
+     This is specifically designed to handle serialized PHP data correctly, which is vital for WordPress migrations. 
+     It is highly recommended to use the --dry-run flag first to verify changes before they are written.
+   command: "wp search-replace {{old_string}} {{new_string}} --dry-run"
+
+ - title: wp - execute sql query
+   desc: |
+     Run arbitrary SQL queries directly against the WordPress database. 
+     This provides a quick way to inspect tables or modify data without entering a MySQL shell. 
+     Use caution as direct database manipulation can bypass WordPress safety checks.
+   command: "wp db query '{{sql_query|SELECT * FROM wp_users LIMIT 5;}}'"
+
+# === USER MANAGEMENT ===
+ - title: wp - create user
+   desc: |
+     Create a new user account with a specified role and password. 
+     This is useful for adding team members or creating service accounts without dashboard access. 
+     Available roles typically include administrator, editor, author, contributor, and subscriber.
+   command: "wp user create {{username}} {{email}} --role={{role|administrator}} --user_pass={{password}}"
+
+ - title: wp - update user password
+   desc: |
+     Reset the password for an existing WordPress user account. 
+     This is often used to regain access to a site when the administrator password is lost or compromised. 
+     The user can be identified by their ID, username, or email address.
+   command: "wp user update {{user_identifier|1}} --user_pass={{new_password}}"
+
+ - title: wp - list all users
+   desc: |
+     Display a list of all users registered on the WordPress site. 
+     The output includes user IDs, login names, display names, emails, and roles. 
+     This is a standard enumeration step for security audits to identify accounts with high privileges.
+   command: "wp user list --fields={{fields|ID,user_login,roles}}"
+
+# === PLUGIN & THEME MANAGEMENT ===
+ - title: wp - list and filter plugins
+   desc: |
+     List all installed plugins and show their status (active, inactive, update available). 
+     This helps administrators quickly audit what is running on the site. 
+     You can filter the list to show only active or inactive plugins to streamline management.
+   command: "wp plugin list --status={{status|active}}"
+
+ - title: wp - install and activate plugin
+   desc: |
+     Download, install, and activate a plugin from the WordPress.org repository. 
+     You can specify a plugin slug, a URL to a ZIP file, or a local file path. 
+     This is an efficient way to set up standard security or performance tools across multiple sites.
+   command: "wp plugin install {{plugin_slug}} --activate"
+
+ - title: wp - update all plugins
+   desc: |
+     Update all currently installed plugins to their latest versions. 
+     Keeping plugins updated is the most important step in maintaining WordPress security. 
+     Always ensure you have a fresh database backup before running bulk updates.
+   command: "wp plugin update --all"
+
+ - title: wp - activate a theme
+   desc: |
+     Switch the site's active theme to a different installed theme. 
+     This is useful for troubleshooting site-wide display issues or performing design refreshes. 
+     The theme must already be installed on the server for this command to succeed.
+   command: "wp theme activate {{theme_name}}"
+
+# === MAINTENANCE & SHELL ===
+ - title: wp - toggle maintenance mode
+   desc: |
+     Activate or deactivate the built-in WordPress maintenance mode. 
+     When active, visitors will see a notification that the site is temporarily down for maintenance. 
+     This is useful during file migrations or when making significant structural changes to the site.
+   command: "wp maintenance-mode {{action|activate}}"
+
+ - title: wp - interactive php shell
+   desc: |
+     Open an interactive PHP shell (REPL) within the context of the WordPress environment. 
+     This allows you to run WordPress functions, test code snippets, or inspect variables in real-time. 
+     It is an invaluable tool for developers debugging plugin or theme logic.
+   command: "wp shell"
+
+ - title: wp - evaluate php code
+   desc: |
+     Execute a string of PHP code after loading the WordPress environment. 
+     This is useful for quick one-off tasks like checking a specific option or triggering a hook. 
+     Be careful with the code provided, as it has full execution privileges over the site.
+   command: "wp eval '{{php_code|var_dump(get_option(\"siteurl\"));}}'"

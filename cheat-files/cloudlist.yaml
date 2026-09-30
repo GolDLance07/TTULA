@@ -1,0 +1,88 @@
+tool: cloudlist
+tags: [cloud, reconnaissance, pentest, enumeration, asset-discovery, security]
+
+# === ENUMERATION ===
+
+actions:
+  - title: cloudlist - list all cloud assets
+    desc: |
+      List all available assets across all configured cloud providers. This is the primary 
+      command used to gather a comprehensive overview of your cloud infrastructure. 
+      It requires a properly configured provider-config file containing credentials 
+      for services like AWS, GCP, or Azure.
+    command: "cloudlist"
+
+  - title: cloudlist - filter by specific providers
+    desc: |
+      Display assets belonging only to the specified cloud providers. Use this when 
+      you want to limit the scope of discovery to a single environment like AWS or DigitalOcean. 
+      Multiple providers can be provided as a comma-separated list to narrow down results.
+    command: "cloudlist -provider {{providers|aws,gcp,digitalocean}}"
+
+  - title: cloudlist - filter by specific services
+    desc: |
+      Query and display results for specific cloud services such as S3, EC2, or Route53. 
+      This is useful for identifying specific resource types that might be vulnerable 
+      or require auditing. It helps in focusing the enumeration on high-value targets 
+      like storage buckets or compute instances.
+    command: "cloudlist -service {{services|s3,ec2,lambda}}"
+
+  - title: cloudlist - filter by provider ID
+    desc: |
+      Display results for specific account or provider IDs defined in your configuration. 
+      This is particularly useful if you have multiple accounts for the same provider 
+      configured and need to isolate one. It ensures that the output is restricted 
+      to the exact account context you are interested in.
+    command: "cloudlist -id {{provider_id}}"
+
+# === OUTPUT FILTERING ===
+
+  - title: cloudlist - extract only IP addresses
+    desc: |
+      Modify the output to display only the IP addresses of the discovered assets. 
+      This is ideal for piping the results into network scanners or other security 
+      tools that require a list of IP targets. It removes all hostnames and metadata 
+      to provide a clean list of network endpoints.
+    command: "cloudlist -ip"
+
+  - title: cloudlist - extract only hostnames
+    desc: |
+      Display only the hostnames or domain names of the discovered cloud assets. 
+      Use this command when performing DNS reconnaissance or preparing targets for 
+      web-based vulnerability scanners. It provides a focused list of FQDNs for 
+      further analysis or automated testing.
+    command: "cloudlist -host"
+
+  - title: cloudlist - exclude private IP addresses
+    desc: |
+      Filter the output to exclude any private or internal IP addresses from the results. 
+      This is essential during external penetration tests to ensure you are only 
+      targeting publicly accessible infrastructure. It reduces noise by hiding 
+      resources that are not reachable from the internet.
+    command: "cloudlist -exclude-private"
+
+# === CONFIGURATION & EXPORT ===
+
+  - title: cloudlist - use custom configuration files
+    desc: |
+      Specify custom paths for the main config file and the provider credentials file. 
+      This is necessary when managing multiple client environments or keeping 
+      sensitive credentials in non-default locations. Ensure the provided paths 
+      are reachable and the YAML files are correctly formatted for the tool to function.
+    command: "cloudlist -config {{config_path|~/.config/cloudlist/config.yaml}} -pc {{provider_config|~/.config/cloudlist/provider-config.yaml}}"
+
+  - title: cloudlist - export results to JSON
+    desc: |
+      Generate the discovery results in JSON format for structured data processing. 
+      JSON output is highly recommended for automation scripts and integration into 
+      larger security pipelines. It includes all available metadata for each asset, 
+      providing more context than the standard text output.
+    command: "cloudlist -json -o {{output_file|cloud_assets.json}}"
+
+  - title: cloudlist - verbose and silent modes
+    desc: |
+      Toggle between verbose output for debugging and silent output for scripting. 
+      Verbose mode provides extra information about the discovery process and potential errors. 
+      Silent mode is best used when you only want the final results to be printed to the 
+      console, making it easier to pipe the output to other utilities.
+    command: "cloudlist {{mode|-silent}}"

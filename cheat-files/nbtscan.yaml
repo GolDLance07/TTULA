@@ -1,0 +1,70 @@
+tool: nbtscan
+tags: [network, pentest, enumeration, netbios, reconnaissance, scanner]
+
+actions:
+  # === ENUMERATION AND SCANNING ===
+  - title: nbtscan - basic network scan
+    desc: |
+      Scans a specified range of IP addresses for NetBIOS information. 
+      It identifies NetBIOS names, IP addresses, and MAC addresses for hosts responding on the local network. 
+      This is the standard way to identify Windows-based machines and their associated workgroups or domains during the reconnaissance phase.
+    command: "nbtscan {{target_range}}"
+
+  - title: nbtscan - verbose service enumeration
+    desc: |
+      Performs a detailed scan to list all NetBIOS names received from each host. 
+      When combined with the -h flag, it translates hex service codes into human-readable descriptions like 'Workstation' or 'File Server'. 
+      This provides essential insight into the specific roles and services running on a target machine.
+    command: "nbtscan -v -h {{target}}"
+
+  - title: nbtscan - scan range using dash notation
+    desc: |
+      Scans a specific range of IP addresses defined by a start and end address. 
+      This is useful when you want to target a specific subset of a network without scanning the entire subnet. 
+      The results will include the NetBIOS name, user, and MAC address for every responding host in that range.
+    command: "nbtscan {{start_ip}}-{{end_ip}}"
+
+  # === ADVANCED CONFIGURATION ===
+  - title: nbtscan - win95 compatibility scan
+    desc: |
+      Forces the scan to originate from the local UDP port 137, which is the standard NetBIOS Name Service port. 
+      This option is required for scanning older Windows 95 boxes as they typically only respond to queries from this specific port. 
+      Note that you usually need root or administrative privileges to bind to port 137 on Unix-like systems.
+    command: "sudo nbtscan -r {{target_range}}"
+
+  - title: nbtscan - adjusted performance and retransmits
+    desc: |
+      Modifies the timeout and the number of retransmission attempts for each query. 
+      Increasing these values is helpful when scanning high-latency networks or segments with packet loss where hosts might be slow to respond. 
+      Lowering the timeout can significantly speed up scans on fast, reliable local networks.
+    command: "nbtscan -t {{timeout_ms|1000}} -m {{retransmits|2}} {{target_range}}"
+
+  # === OUTPUT FORMATTING ===
+  - title: nbtscan - script-friendly output
+    desc: |
+      Formats the scan results using a specific character as a field separator, making the output easy to parse. 
+      It suppresses banners and column headers, which is ideal for piping the data into other tools like grep, awk, or custom automation scripts. 
+      This allows for the seamless integration of NetBIOS data into larger security reporting pipelines.
+    command: "nbtscan -s {{separator|:}} {{target_range}}"
+
+  - title: nbtscan - generate hosts file format
+    desc: |
+      Outputs the discovered host information in the standard /etc/hosts file format. 
+      This can be useful for quickly populating a local name resolution file during a penetration test. 
+      It maps the discovered IP addresses directly to their NetBIOS names for easier navigation.
+    command: "nbtscan -e {{target_range}}"
+
+  - title: nbtscan - generate lmhosts format
+    desc: |
+      Produces output in the LMHOSTS format, which is a legacy Windows name resolution format. 
+      This is useful for environments that still rely on or interact with legacy NetBIOS name resolution mechanisms. 
+      The resulting list can be saved to a file to assist Windows systems in finding specific hosts without DNS.
+    command: "nbtscan -l {{target_range}}"
+
+  # === INPUT MANAGEMENT ===
+  - title: nbtscan - scan targets from file
+    desc: |
+      Reads a list of target IP addresses or network ranges from a specified text file. 
+      This feature is invaluable when you have already identified relevant targets via other tools and want to perform a batch NetBIOS scan. 
+      The file should contain one IP address or CIDR range per line.
+    command: "nbtscan -f {{input_file}}"

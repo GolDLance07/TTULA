@@ -1,0 +1,119 @@
+tool: ldeep
+tags: [active-directory, ldap, enumeration, pentest, security, authentication]
+
+actions:
+  # === AUTHENTICATION & IDENTITY ===
+  - title: ldeep - verify current identity
+    desc: |
+      Verify the identity of the user currently authenticated against the LDAP server. 
+      This is useful to confirm that the provided credentials or Kerberos tickets are valid before running more intensive commands.
+      It returns the Distinguished Name (DN) and SID of the authenticated account.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} whoami"
+
+  - title: ldeep - authenticate with NTLM hash
+    desc: |
+      Perform LDAP enumeration by authenticating with an NTLM hash instead of a plaintext password.
+      This technique, known as Pass-the-Hash, is essential when a user's password is unknown but their hash has been recovered.
+      The hash must be provided in the LM:NT or just NT format.
+    command: "ldeep ldap -u {{username}} -H {{ntlm_hash}} -d {{domain}} -s {{ldap_server}} users"
+
+  - title: ldeep - authenticate with Kerberos
+    desc: |
+      Use Kerberos authentication to query the LDAP server.
+      This requires a valid Kerberos ticket (TGT) to be present in the environment, usually pointed to by the KRB5CCNAME variable.
+      This method is stealthier as it avoids sending passwords or hashes over the network.
+    command: "ldeep ldap -k -d {{domain}} -s {{ldap_server}} users"
+
+  # === ENUMERATION ===
+  - title: ldeep - comprehensive domain dump
+    desc: |
+      Collect and store a wide variety of Active Directory information in a single run.
+      This command gathers users, groups, computers, GPOs, organizational units, and trust relationships.
+      The results are saved into the specified output directory for offline analysis using the cache mode.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} all {{output_path|./backup}}"
+
+  - title: ldeep - list domain users
+    desc: |
+      Retrieve a list of all users within the Active Directory domain.
+      This is a fundamental step in reconnaissance to identify potential targets for password spraying or social engineering.
+      By default, it returns basic user attributes, but you can use verbose flags for more detail.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} users"
+
+  - title: ldeep - enumerate group memberships
+    desc: |
+      List all the groups that a specific account belongs to.
+      This helps in understanding the privileges and access levels assigned to a particular user or computer.
+      Use this when you have compromised an account and want to see what resources it can access.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} memberships {{target_account}}"
+
+  - title: ldeep - list group members
+    desc: |
+      Retrieve a list of all members belonging to a specific Active Directory group.
+      This is particularly useful for identifying high-privileged users by auditing groups like 'Domain Admins' or 'Enterprise Admins'.
+      It provides a clear view of which accounts inherit the permissions of the target group.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} membersof {{group_name|Domain Admins}}"
+
+  - title: ldeep - discover constrained and unconstrained delegations
+    desc: |
+      Search for accounts configured with any form of Kerberos delegation.
+      Delegation settings (Unconstrained, Constrained, or Resource-Based Constrained Delegation) are primary targets for privilege escalation.
+      This command identifies misconfigurations that could allow an attacker to impersonate other users.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} delegations"
+
+  - title: ldeep - extract LAPS passwords
+    desc: |
+      Retrieve Local Administrator Password Solution (LAPS) passwords for domain computers.
+      This command only works if the authenticated user has the necessary permissions to read the 'ms-MCS-AdmPwd' attribute.
+      It is a high-value action during internal pentests to gain local administrative access to workstations and servers.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} laps"
+
+  - title: ldeep - list domain trusts
+    desc: |
+      Enumerate the trust relationships between the current domain and other domains or forests.
+      Understanding trusts is crucial for cross-domain or cross-forest lateral movement.
+      The output details the trust direction and type, identifying potential paths to other environments.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} trusts"
+
+  - title: ldeep - extract BitLocker recovery keys
+    desc: |
+      Query Active Directory for BitLocker recovery passwords stored in computer objects.
+      Accessing these keys requires specific administrative permissions within the domain.
+      This is useful for forensic purposes or for gaining access to encrypted drives on domain-joined machines.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} bitlockerkeys"
+
+  - title: ldeep - list FSMO roles
+    desc: |
+      Identify the Flexible Single Master Operation (FSMO) role holders in the domain.
+      This tells you which Domain Controllers are responsible for specific critical tasks like schema updates or password changes.
+      Identifying the PDC Emulator, for example, is vital for certain types of advanced AD attacks.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} fsmo"
+
+  # === MODIFICATION & EXPLOITATION ===
+  - title: ldeep - unlock a user account
+    desc: |
+      Attempt to unlock a user account that has been locked out due to too many failed login attempts.
+      This action requires administrative privileges or specific delegated rights over the target user object.
+      It is useful during operations to restore access to a compromised account that was accidentally locked.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} unlock {{target_user}}"
+
+  - title: ldeep - add user to a group
+    desc: |
+      Add a specified user to a target Active Directory group.
+      This is a direct way to escalate privileges if you have administrative control over the LDAP directory.
+      Exercise caution as this leaves a significant trail in the Windows Security event logs.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} add_to_group {{target_user}} {{target_group}}"
+
+  - title: ldeep - modify user password
+    desc: |
+      Change the password for a specific user account directly via LDAP.
+      This typically requires the 'Reset Password' permission or full administrative rights over the user object.
+      This is often used as a last resort for persistence or to regain control over an account.
+    command: "ldeep ldap -u {{username}} -p {{password}} -d {{domain}} -s {{ldap_server}} modify_password {{target_user}} {{new_password}}"
+
+  # === CACHE MODE ===
+  - title: ldeep - query offline cache
+    desc: |
+      Query data previously saved using the 'all' command from the local filesystem.
+      This allows you to perform enumeration and analysis without generating further traffic to the target Domain Controller.
+      It is an excellent way to maintain a low profile and work in a disconnected environment.
+    command: "ldeep cache -d {{backup_directory}} -p {{project_name}} users"

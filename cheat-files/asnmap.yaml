@@ -1,0 +1,79 @@
+tool: asnmap
+tags: [network, reconnaissance, enumeration, pentest, osint, security, cloud]
+
+actions:
+# === BASIC RECONNAISSANCE ===
+
+ - title: asnmap - domain lookup
+   desc: |
+     Resolve a domain name to its associated Autonomous System Number (ASN) and IP ranges. 
+     This is highly effective for mapping the network perimeter of a specific organization. 
+     It helps security researchers identify the hosting infrastructure and whether the target is using a CDN or private data center.
+   command: "asnmap -d {{domain}}"
+
+ - title: asnmap - ip address lookup
+   desc: |
+     Identify the ASN information and network ownership for a specific IP address. 
+     Use this when you have an IP and need to determine which service provider or organization it belongs to. 
+     The tool supports both IPv4 and IPv6 addresses for comprehensive coverage.
+   command: "asnmap -i {{ip_address}}"
+
+ - title: asnmap - lookup by asn number
+   desc: |
+     Retrieve all IP CIDR blocks associated with a specific ASN number. 
+     This is essential for discovering the full IP space assigned to an entity to define a scope for further scanning. 
+     Ensure the ASN is prefixed with "AS" for proper identification by the tool.
+   command: "asnmap -a {{asn_number|AS13335}}"
+
+ - title: asnmap - lookup by organization name
+   desc: |
+     Search for network assets and ASN details using the name of an organization or company. 
+     This feature is powerful for broad reconnaissance when you do not yet have specific domains or IPs. 
+     Note that common names might return multiple results, so it is best used with specific corporate names.
+   command: "asnmap -org {{org_name|GOOGLE}}"
+
+# === INPUT AND OUTPUT OPERATIONS ===
+
+ - title: asnmap - bulk lookup from file
+   desc: |
+     Process multiple targets simultaneously by providing an input file containing a list of domains, IPs, or ASNs. 
+     This is the most efficient way to handle large-scale reconnaissance tasks during the initial phase of an engagement. 
+     The input file should contain one target per line to ensure accurate parsing.
+   command: "asnmap -f {{input_file|targets.txt}}"
+
+ - title: asnmap - formatted json output
+   desc: |
+     Generate results in JSON format which is ideal for integration with other automation scripts or tools like jq. 
+     The JSON output provides detailed metadata including timestamps, AS names, and country codes. 
+     Using the silent flag alongside JSON helps in keeping the output clean for piping to other processes.
+   command: "asnmap -d {{domain}} -j -silent"
+
+ - title: asnmap - csv export
+   desc: |
+     Export the reconnaissance results into a CSV file for structured analysis. 
+     This is useful for creating reports or performing data analysis in spreadsheet software like Excel. 
+     It provides a clear tabular view of the relationship between inputs, ASNs, and their respective ranges.
+   command: "asnmap -d {{domain}} -c -o {{output_file|results.csv}}"
+
+# === ADVANCED CONFIGURATION ===
+
+ - title: asnmap - include ipv6 ranges
+   desc: |
+     Explicitly request the tool to display IPv6 CIDR ranges in the command-line output. 
+     As modern infrastructures increasingly use IPv6, this ensures you do not miss any part of the target's network footprint. 
+     This flag is particularly important when auditing cloud environments or large ISP networks.
+   command: "asnmap -d {{domain}} -v6"
+
+ - title: asnmap - custom resolvers
+   desc: |
+     Specify a list of custom DNS resolvers to use for the lookups. 
+     Using reliable or private resolvers can help bypass potential rate limits or DNS poisoning in certain environments. 
+     Provide multiple resolvers separated by commas for redundancy during the lookup process.
+   command: "asnmap -d {{domain}} -r {{resolvers|8.8.8.8,1.1.1.1}}"
+
+ - title: asnmap - update tool
+   desc: |
+     Update the asnmap utility to the latest version directly from the official repository. 
+     Staying updated ensures that you have the latest features and the most stable lookup mechanisms. 
+     It is recommended to run this periodically to maintain tool efficacy.
+   command: "asnmap -up"

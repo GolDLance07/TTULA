@@ -1,0 +1,98 @@
+tool: tlsx
+tags: [network, security, tls, ssl, recon, enumeration, pentest]
+
+actions:
+  # === BASIC SCANNING & INPUT ===
+  - title: tlsx - basic host scan
+    desc: |
+      Perform a basic TLS handshake against a single target to verify connectivity. 
+      This command is useful for a quick check to see if the target service supports TLS on the default port.
+      It returns the host and port if the connection is successful, serving as a baseline connectivity test.
+    command: "tlsx -u {{target}}"
+
+  - title: tlsx - scan from list
+    desc: |
+      Process multiple targets from a text file for bulk TLS analysis.
+      This is the standard approach when performing reconnaissance on large IP ranges or domain lists.
+      Ensure the input file contains one target per line to avoid parsing errors during execution.
+    command: "tlsx -list {{input_file|hosts.txt}}"
+
+  - title: tlsx - custom port scanning
+    desc: |
+      Scan specific ports for TLS services instead of the default 443.
+      This is useful when looking for management interfaces or alternative web services like 8443 or 9443.
+      You can provide multiple ports separated by commas to increase the scope of your enumeration.
+    command: "tlsx -u {{target}} -p {{ports|443,8443,9443}}"
+
+  # === ENUMERATION & PROBES ===
+  - title: tlsx - extract SAN and CN names
+    desc: |
+      Extract Subject Alternative Names (SAN) and Common Names (CN) from the certificate.
+      This helps in discovering hidden subdomains or related infrastructure associated with a specific IP.
+      Use the -resp-only flag if you want to pipe just the discovered hostnames into other tools like dnsx or httpx.
+    command: "tlsx -u {{target}} -san -cn -resp-only"
+
+  - title: tlsx - tls version and cipher display
+    desc: |
+      Identify the specific TLS version and cipher suite used by the target server.
+      This information is critical for identifying weak encryption protocols like SSLv3 or TLS 1.0.
+      It allows security auditors to verify if the server complies with modern encryption standards.
+    command: "tlsx -u {{target}} -tls-version -cipher"
+
+  - title: tlsx - jarm fingerprinting
+    desc: |
+      Generate a JARM fingerprint for the target server's TLS stack.
+      JARM is a tool that allows for active fingerprinting of TLS servers to identify malicious infrastructure or similar setups.
+      Comparing JARM hashes can help link different IP addresses to the same software or organization.
+    command: "tlsx -u {{target}} -jarm"
+
+  - title: tlsx - ja3 fingerprinting
+    desc: |
+      Generate a JA3 fingerprint for the connection using the ztls engine.
+      This provides a unique identifier based on the client-server handshake parameters.
+      Note that this requires the scan mode to be compatible with ztls for accurate fingerprinting.
+    command: "tlsx -u {{target}} -ja3"
+
+  - title: tlsx - full cipher enumeration
+    desc: |
+      Enumerate all supported ciphers on the target server to find weak or insecure options.
+      This probe tests various suites to see which ones the server accepts during the handshake.
+      It is an essential step for compliance testing and identifying vulnerabilities like SWEET32 or weak export ciphers.
+    command: "tlsx -u {{target}} -cipher-enum -ct {{cipher_type|all}}"
+
+  # === SECURITY & MISCONFIGURATION ===
+  - title: tlsx - check for misconfigurations
+    desc: |
+      Detect various certificate issues such as expiration, self-signed status, or revocation.
+      This command is highly effective for finding low-hanging fruit in infrastructure security.
+      Identifying mismatched or untrusted certificates can indicate potential man-in-the-middle risks or neglected assets.
+    command: "tlsx -l {{target_list}} -expired -self-signed -mismatched -revoked -untrusted"
+
+  - title: tlsx - verify certificate chain
+    desc: |
+      Enable full verification of the server's certificate chain.
+      This determines if the certificate is signed by a trusted CA and if the chain is complete.
+      It is particularly useful when troubleshooting "untrusted certificate" warnings in browsers or automated scripts.
+    command: "tlsx -u {{target}} -vc -tc"
+
+  # === ADVANCED CONFIGURATIONS ===
+  - title: tlsx - custom sni scanning
+    desc: |
+      Specify a custom Server Name Indication (SNI) for the TLS handshake.
+      This is useful when a single IP hosts multiple sites (Virtual Hosting) and you need to reach a specific one.
+      If the SNI doesn't match the host, many servers will return a different certificate or refuse the connection.
+    command: "tlsx -u {{target_ip}} -sni {{domain_name}}"
+
+  - title: tlsx - json output for automation
+    desc: |
+      Export all gathered TLS data into a structured JSON format.
+      This is the preferred method for integrating tlsx results with other automation scripts or databases.
+      The output includes detailed fields for fingerprints, certificate dates, and all extracted subject names.
+    command: "tlsx -u {{target}} -json -o {{output_file|results.json}}"
+
+  - title: tlsx - optimized high-concurrency scan
+    desc: |
+      Run the tool with increased concurrency and specific timeouts for large-scale scanning.
+      Adjusting the -c flag allows for faster processing of large CIDR blocks or long lists of domains.
+      Be careful with high concurrency as it may trigger rate limits or impact the performance of the target network.
+    command: "tlsx -l {{list}} -c {{concurrency|500}} -timeout {{timeout|10}} -retry {{retries|2}}"

@@ -1,0 +1,73 @@
+tool: findomain
+tags: [subdomain-enumeration, reconnaissance, pentest, osint, security, network-security]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: findomain - basic enumeration
+    desc: |
+      Perform a basic subdomain discovery against a single target domain. This command uses public APIs to find subdomains quickly without performing any active resolution by default. It is the primary way to start gathering information about a target's infrastructure. No special privileges or API keys are required for the default operation.
+    command: "findomain -t {{target}}"
+
+  - title: findomain - resolved subdomains only
+    desc: |
+      Filter the discovery results to show only subdomains that successfully resolve to an IP address. This is useful for eliminating stale DNS records and focusing on active infrastructure. It performs DNS lookups on every discovered subdomain to verify its existence. Use this when you want a clean list of targets for further vulnerability scanning.
+    command: "findomain -t {{target}} -r"
+
+  - title: findomain - show ip addresses
+    desc: |
+      Discover subdomains and display their associated IP addresses in the output. This provides immediate insight into the network mapping and hosting providers used by the target. It combines enumeration with DNS resolution to provide a more detailed overview. Note that this will increase the time taken for the scan compared to a simple API search.
+    command: "findomain -t {{target}} -i"
+
+  # === OUTPUT MANAGEMENT ===
+  - title: findomain - automatic output file
+    desc: |
+      Run a scan and automatically save the results to a text file named after the target. This ensures that you have a persistent record of the discovery for later analysis. The file is created in the current working directory. It is a standard practice during the reconnaissance phase of a penetration test.
+    command: "findomain -t {{target}} -o"
+
+  - title: findomain - custom output filename
+    desc: |
+      Save the discovery results to a specific filename of your choice. This is useful when you want to organize your project files or append results to a specific log. It provides more control over output management compared to the automatic naming convention. Ensure you have write permissions in the target directory to avoid errors.
+    command: "findomain -t {{target}} -u {{output_file|results.txt}}"
+
+  # === ADVANCED DISCOVERY ===
+  - title: findomain - bruteforce mode
+    desc: |
+      Perform a subdomain bruteforce attack using a provided wordlist. This is used to find "hidden" subdomains that are not indexed by public search engines or certificate transparency logs. Using this option automatically enables active resolution. Be aware that this generates significant DNS traffic and may be logged by the target's DNS infrastructure.
+    command: "findomain -t {{target}} -w {{wordlist|/usr/share/wordlists/dirb/common.txt}}"
+
+  - title: findomain - external tool integration
+    desc: |
+      Extend the search capabilities by integrating results from Amass and Subfinder. This command requires these tools to be installed and accessible in your system path. By combining multiple tools, you achieve a more comprehensive coverage of the target's attack surface. It is the most thorough way to perform subdomain enumeration using findomain.
+    command: "findomain -t {{target}} --external-subdomains"
+
+  - title: findomain - exclude specific sources
+    desc: |
+      Exclude specific data sources from the search to avoid rate limits or unreliable data. This is helpful if a particular API is slow or if you want to skip sources that you have already queried. It helps in customizing the reconnaissance process to be as efficient as possible. Provide a comma-separated list of sources to exclude.
+    command: "findomain -t {{target}} --exclude-sources {{sources|facebook,virustotalapikey}}"
+
+  # === ANALYSIS & PROBING ===
+  - title: findomain - check http status
+    desc: |
+      Check the HTTP response status code for every discovered subdomain. This helps identify which subdomains are running web servers and what their current state is (e.g., 200 OK, 403 Forbidden). It is essential for prioritizing targets that have active web interfaces. This involves sending active HTTP requests to the target subdomains.
+    command: "findomain -t {{target}} --http-status"
+
+  - title: findomain - port scanning
+    desc: |
+      Enable the built-in port scanner to identify open ports on discovered subdomains. By default, it scans a range of common ports to find active services. This is a critical step in moving from reconnaissance to service identification. You can define the port range using additional flags like --iport and --lport.
+    command: "findomain -t {{target}} --pscan --iport {{start_port|0}} --lport {{end_port|1000}}"
+
+  - title: findomain - capture screenshots
+    desc: |
+      Automatically take screenshots of active web services found during the discovery. This provides a visual representation of the target's web assets, making it easier to identify interesting pages or login panels. It requires Chrome or Chromium to be installed on the system. Results are saved to the specified path for later review.
+    command: "findomain -t {{target}} -s {{screenshot_path|./screenshots}}"
+
+  # === MASS PROCESSING ===
+  - title: findomain - scan from file
+    desc: |
+      Read a list of target domains from a file and perform enumeration on each one. This is highly efficient for large-scale assessments involving multiple parent domains. The tool will process each domain sequentially or according to configured thread limits. Ensure the file contains one domain per line.
+    command: "findomain -f {{input_file|domains.txt}}"
+
+  - title: findomain - read from stdin
+    desc: |
+      Accept target domains via standard input (stdin). This allows you to pipe output from other tools directly into findomain for processing. It is perfect for automation scripts and complex reconnaissance pipelines. It enables findomain to act as a modular component in a larger security toolset.
+    command: "cat {{input_file}} | findomain --stdin"

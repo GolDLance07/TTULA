@@ -1,0 +1,73 @@
+tool: urlfinder
+tags: [recon, reconnaissance, web, discovery, enumeration, urls, pentest]
+
+actions:
+  # === BASIC USAGE ===
+  - title: urlfinder - basic domain enumeration
+    desc: |
+      Perform a basic discovery of URLs associated with a specific target domain. This is the most common starting point for reconnaissance to build a list of endpoints for further security testing. It queries various sources to find archived or indexed links that may still be active or contain sensitive data.
+    command: "urlfinder -d {{domain}}"
+
+  - title: urlfinder - list-based enumeration
+    desc: |
+      Enumerate URLs for multiple domains stored in a text file simultaneously. This is highly efficient when performing reconnaissance on a large attack surface with multiple root domains or subdomains. Ensure the input file contains one domain per line to avoid parsing errors.
+    command: "urlfinder -list {{input_file|domains.txt}}"
+
+  # === SOURCE MANAGEMENT ===
+  - title: urlfinder - exhaustive discovery using all sources
+    desc: |
+      Use every available data source to find URLs, which significantly increases the thoroughness of the discovery. While this is the most comprehensive mode, it may be slower than the default configuration. It is recommended for deep reconnaissance phases where identifying every possible endpoint is critical.
+    command: "urlfinder -d {{domain}} -all"
+
+  - title: urlfinder - filter by specific sources
+    desc: |
+      Limit the URL discovery process to specific providers such as AlienVault or CommonCrawl. This helps in reducing execution time by ignoring slower sources or focusing on providers known to have better coverage for the target. You can view the list of all available source names by using the -ls flag.
+    command: "urlfinder -d {{domain}} -s {{sources|alienvault,commoncrawl}}"
+
+  - title: urlfinder - exclude specific sources
+    desc: |
+      Exclude specific providers from the discovery process. This is useful if a particular source is providing redundant data or is experiencing high latency that slows down the tool. It allows for a more streamlined search without losing the benefits of other default sources.
+    command: "urlfinder -d {{domain}} -es {{exclude_sources|waybackarchive}}"
+
+  # === FILTERING AND SCOPE ===
+  - title: urlfinder - pattern-based matching
+    desc: |
+      Filter the results to include only URLs that match specific keywords or patterns. For example, you might want to isolate URLs related to administrative interfaces or shopping carts. Multiple patterns can be provided as a comma-separated list or via a file.
+    command: "urlfinder -d {{domain}} -m {{match_pattern|admin,login,api}}"
+
+  - title: urlfinder - exclude specific patterns
+    desc: |
+      Filter out URLs that match specific unwanted patterns or file extensions. This is helpful for removing noise such as CSS files, images, or legal policies from your results. Using this flag helps keep the output focused on functional application endpoints.
+    command: "urlfinder -d {{domain}} -f {{filter_pattern|png,jpg,css,privacy}}"
+
+  - title: urlfinder - field-based scoping
+    desc: |
+      Define the scope of discovery based on the domain name (dn), root domain (rdn), or fully qualified domain name (fqdn). By default, the tool uses "rdn" to catch subdomains, but changing it to "fqdn" makes the search much more restrictive. This prevents the tool from returning URLs belonging to external third-party services that might be linked.
+    command: "urlfinder -d {{domain}} -fs {{scope_field|fqdn}}"
+
+  # === OUTPUT MANAGEMENT ===
+  - title: urlfinder - save results to file
+    desc: |
+      Write the discovered URLs to a specific output file for documentation and further analysis. Saving to a file is essential for maintaining an audit trail during a professional penetration test. This prevents the loss of data if the terminal session is closed or if the output is too large for the buffer.
+    command: "urlfinder -d {{domain}} -o {{output_file|results.txt}}"
+
+  - title: urlfinder - structured JSONL output
+    desc: |
+      Generate output in JSON Lines format, which includes detailed metadata like the discovery source for each URL. This structured format is ideal for programmatic processing and integration into automated vulnerability scanning pipelines. Each line in the output file represents a complete, valid JSON object.
+    command: "urlfinder -d {{domain}} -j -o {{output_file|results.jsonl}}"
+
+  # === OPTIMIZATION AND AUTOMATION ===
+  - title: urlfinder - silent mode for automation
+    desc: |
+      Run the tool in silent mode, which suppresses all banners and progress information, outputting only the found URLs. This is particularly useful when piping the output directly into other command-line tools like 'httpx' or 'nuclei'. It ensures the resulting data stream is clean and ready for immediate consumption by other scripts.
+    command: "urlfinder -d {{domain}} -silent"
+
+  - title: urlfinder - set global rate limits
+    desc: |
+      Control the speed of the discovery by setting a maximum number of HTTP requests allowed per second. This is important to avoid triggering Web Application Firewalls (WAF) or hitting API rate limits on the data providers. Use a conservative value if you notice connection timeouts or being blocked by sources.
+    command: "urlfinder -d {{domain}} -rl {{rate_limit|10}}"
+
+  - title: urlfinder - set enumeration timeout
+    desc: |
+      Specify the maximum amount of time in minutes that the enumeration process is allowed to run. This prevents the tool from hanging on extremely large domains or slow sources indefinitely. It is a vital setting for automated workflows where time slots are strictly allocated.
+    command: "urlfinder -d {{domain}} -max-time {{minutes|5}}"

@@ -1,0 +1,81 @@
+tool: ad-miner
+tags: [active-directory, security, pentest, enumeration, bloodhound, neo4j, windows]
+
+# === BASIC USAGE ===
+
+actions:
+  - title: AD-miner - generate standard report
+    desc: |
+      This command initiates a standard analysis of Active Directory data stored in a Neo4j database. 
+      It connects to the database using the provided credentials and generates a security report based on the ingested BloodHound data. 
+      Use this as a starting point to identify common attack paths and configuration weaknesses within the domain.
+    command: "AD-miner -u {{username|neo4j}} -p {{password|bloodhoundcommunityedition}} -cf {{report_name|AD_Assessment}}"
+
+  - title: AD-miner - connection to remote neo4j
+    desc: |
+      Connect to a Neo4j database hosted on a remote server or a non-standard port using the Bolt protocol. 
+      This is useful when the analysis database is centralized rather than running on the local machine. 
+      Ensure that the network allows traffic on the specified port, typically 7687 for Bolt connections.
+    command: "AD-miner -b bolt://{{ip|127.0.0.1}}:{{port|7687}} -u {{username|neo4j}} -p {{password|password}} -cf {{report_name|Remote_Report}}"
+
+# === DATA MANAGEMENT & CACHING ===
+
+  - title: AD-miner - resume with cache
+    desc: |
+      This command uses local cache files located in the cache_neo4j folder to speed up or resume an analysis. 
+      It is highly recommended for large environments where querying the database multiple times is time-consuming. 
+      The cache prefix provided must match the prefix used during the initial data extraction process.
+    command: "AD-miner -c -cf {{report_name|My_Report}} -u {{username|neo4j}} -p {{password|password}}"
+
+  - title: AD-miner - filter by extraction date
+    desc: |
+      Specify a specific extraction date to filter the Active Directory data for the analysis. 
+      This is useful when the Neo4j database contains historical data and you want to analyze the state of the domain at a particular point in time. 
+      The date should be provided in the format YYYYMMDD, such as 20230515.
+    command: "AD-miner -e {{date|20230101}} -cf {{report_name|Historical_Analysis}}"
+
+# === PERFORMANCE OPTIMIZATION ===
+
+  - title: AD-miner - optimized parallel execution
+    desc: |
+      Fine-tune the performance of the tool by manually specifying the number of CPU cores and data chunks for parallel processing. 
+      Increasing the number of cores can significantly reduce execution time on powerful workstations. 
+      The chunks parameter determines how the Neo4j requests are split; higher values can help manage memory usage during large queries.
+    command: "AD-miner -cf {{report_name|Fast_Report}} -co {{cores|8}} -ch {{chunks|160}}"
+
+  - title: AD-miner - fast GPO query
+    desc: |
+      Perform a faster but less detailed analysis of Group Policy Objects (GPOs) using the low-detail flag. 
+      Use this when you need a quick overview of the environment and are willing to sacrifice granular GPO path details for speed. 
+      This is particularly effective in environments with thousands of complex GPO links.
+    command: "AD-miner --gpo_low -cf {{report_name|Quick_GPO_Report}} -u {{username|neo4j}} -p {{password|password}}"
+
+# === ADVANCED CONFIGURATION ===
+
+  - title: AD-miner - custom password renewal policy
+    desc: |
+      Adjust the password renewal policy threshold used to calculate account staleness and risk. 
+      By default, the tool assumes a 90-day renewal policy, but many organizations use different settings like 180 or 365 days. 
+      Setting this correctly ensures that the report accurately reflects which accounts are out of compliance with the actual corporate policy.
+    command: "AD-miner -r {{days|180}} -cf {{report_name|Policy_Compliance}} -u {{username|neo4j}}"
+
+  - title: AD-miner - include RDP attack paths
+    desc: |
+      Explicitly include the CanRDP edge in the generated security graphs and vulnerability analysis. 
+      This reveals lateral movement paths where users have permission to log in via Remote Desktop Protocol to various systems. 
+      It is a critical check for identifying paths that lead to sensitive servers or domain controllers via administrative jump boxes.
+    command: "AD-miner --rdp -cf {{report_name|RDP_Analysis}} -u {{username|neo4j}} -p {{password|password}}"
+
+  - title: AD-miner - cluster mode distribution
+    desc: |
+      Distribute Neo4j queries across multiple nodes in a database cluster to handle massive Active Directory datasets. 
+      The cluster string format requires the host, port, and core count for each node (e.g., host:port:cores). 
+      This is an advanced feature used in enterprise-scale assessments where a single Neo4j instance cannot handle the query load efficiently.
+    command: "AD-miner -cf {{report_name|Cluster_Run}} --cluster {{nodes|192.168.1.10:7687:16,192.168.1.11:7687:16}}"
+
+  - title: AD-miner - temporal evolution analysis
+    desc: |
+      Analyze how the Active Directory security posture has evolved over time by pointing the tool to a directory of previous JSON data files. 
+      This comparison helps in tracking improvements or regressions in domain security across different assessment periods. 
+      Provide the relative or absolute path to the folder containing the historical JSON results.
+    command: "AD-miner --evolution {{path_to_jsons|./historical_data/}} -cf {{report_name|Evolution_Report}}"

@@ -1,0 +1,86 @@
+tool: trufflehog
+tags: [security, secrets-scanning, pentest, reconnaissance, credentials, git, devops, cloud]
+
+actions:
+# === REPOSITORY SCANNING ===
+
+  - title: trufflehog - basic git scan
+    desc: |
+      Scan a local or remote Git repository for secrets within the commit history. 
+      This is the most common use case for identifying accidentally committed credentials like API keys or passwords. 
+      The tool analyzes every commit to ensure no sensitive data is left in the version control system.
+    command: "trufflehog git {{repo_url}}"
+
+  - title: trufflehog - github organization scan
+    desc: |
+      Scan all repositories belonging to a specific GitHub organization. 
+      This command requires a valid GitHub Personal Access Token to authenticate and list the repositories. 
+      It is an essential command for security teams to perform bulk audits across an entire company's codebase.
+    command: "trufflehog github --token={{github_token}} --org={{org_name}}"
+
+  - title: trufflehog - gitlab repository scan
+    desc: |
+      Search for secrets within a GitLab repository using a GitLab access token. 
+      This is useful for auditing internal GitLab instances or private projects that are not hosted on GitHub. 
+      Ensure the token provided has the necessary permissions to read the repository and its history.
+    command: "trufflehog gitlab --token={{gitlab_token}} --repo={{repo_url}}"
+
+# === CLOUD AND INFRASTRUCTURE ===
+
+  - title: trufflehog - filesystem scan
+    desc: |
+      Scan a local directory or specific files for potential secrets outside of a Git context. 
+      This is ideal for checking configuration files, scripts, or backups on a local machine or server. 
+      It helps identify hardcoded secrets in environments that do not use version control or within ignored files.
+    command: "trufflehog filesystem {{path|./}}"
+
+  - title: trufflehog - s3 bucket scan
+    desc: |
+      Scan Amazon S3 buckets for publicly accessible or misconfigured files containing credentials. 
+      This action is critical for cloud security assessments to prevent data breaches originating from open storage. 
+      The tool iterates through bucket objects and matches them against various secret detectors.
+    command: "trufflehog s3 --bucket {{bucket_name}}"
+
+  - title: trufflehog - docker image scan
+    desc: |
+      Scan a Docker image to find secrets hidden within its filesystem layers. 
+      This is a vital step in DevSecOps to ensure that credentials are not baked into container images during the build process. 
+      It can identify sensitive information left in environment variables or configuration files within the container.
+    command: "trufflehog docker --image {{image_name|ubuntu:latest}}"
+
+# === ADVANCED FILTERING AND OUTPUT ===
+
+  - title: trufflehog - json output for automation
+    desc: |
+      Generate scan results in a structured JSON format for automated processing. 
+      This format is highly recommended for integrating TruffleHog into custom security pipelines or SOC dashboards. 
+      It provides detailed metadata about the findings, including the detector type and the specific file location.
+    command: "trufflehog git {{repo_url}} --json"
+
+  - title: trufflehog - scan with no verification
+    desc: |
+      Perform a scan without verifying the discovered credentials against their respective service APIs. 
+      Use this flag when scanning in an air-gapped environment or when you want to avoid making external network calls. 
+      Be aware that this may increase the number of false positives since the validity of the keys is not confirmed.
+    command: "trufflehog git {{repo_url}} --no-verification"
+
+  - title: trufflehog - fail on results for CI/CD
+    desc: |
+      Force the tool to exit with a non-zero status code if any secrets are found during the scan. 
+      This is specifically used in CI/CD pipelines to automatically block pull requests or builds that contain leaked secrets. 
+      It serves as a hard gate to prevent sensitive information from reaching the main branch or production.
+    command: "trufflehog git {{repo_url}} --fail"
+
+  - title: trufflehog - filter by specific detectors
+    desc: |
+      Limit the scan to specific types of secrets by including only certain detectors. 
+      This helps focus the scan on high-priority targets like AWS keys or SSH private keys, reducing scan time and noise. 
+      You can provide a comma-separated list of detector IDs or names to refine the search parameters.
+    command: "trufflehog git {{repo_url}} --include-detectors={{detectors|aws,ssh,github}}"
+
+  - title: trufflehog - scan from standard input
+    desc: |
+      Pipe data directly into TruffleHog to scan for secrets in real-time. 
+      This is useful for scanning the output of other commands or checking text snippets without saving them to a file. 
+      It is a flexible way to integrate secret detection into various command-line workflows.
+    command: "cat {{file_name}} | trufflehog stdin"

@@ -1,0 +1,91 @@
+tool: cdncheck
+tags: [network, reconnaissance, security, pentest, enumeration, cdn, cloud, waf]
+
+actions:
+  # === BASIC ENUMERATION ===
+  - title: cdncheck - basic check
+    desc: |
+      Perform a basic identification scan on a single IP or domain name. This command checks the target against 
+      known ranges of CDNs, Cloud providers, and WAFs. It is the most common starting point for initial 
+      infrastructure reconnaissance to determine if a target is behind a protective layer.
+    command: "cdncheck -i {{target}}"
+
+  - title: cdncheck - silent mode for piping
+    desc: |
+      Run the tool in silent mode to output only the results without banners or metadata. This is ideal for 
+      piping results into other tools or saving them directly to a list for further processing. It reduces 
+      noise in the terminal and simplifies automation scripts.
+    command: "cdncheck -i {{target}} -silent"
+
+  - title: cdncheck - detect and display technology
+    desc: |
+      Identify the infrastructure and display the specific technology or provider name in the output. This 
+      adds a "response" field showing exactly which service (e.g., Cloudflare, Akamai, AWS) is being used. 
+      Use this when you need to know the specific vendor to tailor your testing methodology.
+    command: "cdncheck -i {{target}} -resp"
+
+  # === DETECTION FILTERS ===
+  - title: cdncheck - identify CDN only
+    desc: |
+      Filter the scan results to display only those targets that are identified as part of a Content Delivery Network. 
+      This is useful when you want to isolate the edge distribution nodes from the backend or cloud infrastructure. 
+      It helps map out how a target's content is distributed globally.
+    command: "cdncheck -i {{target}} -cdn"
+
+  - title: cdncheck - identify Cloud providers only
+    desc: |
+      Filter the scan results to display only targets hosted on cloud infrastructure like AWS, Azure, or GCP. 
+      This helps in identifying the hosting environment of the target, which is crucial for determining the 
+      applicable security policies and legal boundaries. It excludes WAF and CDN-specific IP ranges.
+    command: "cdncheck -i {{target}} -cloud"
+
+  - title: cdncheck - identify WAF only
+    desc: |
+      Narrow the output to show only targets protected by a Web Application Firewall (WAF). This is vital for 
+      penetration testers to identify which endpoints will require WAF bypass techniques or specific payload 
+      encoding. Knowing the WAF presence early prevents unnecessary account lockouts or detection.
+    command: "cdncheck -i {{target}} -waf"
+
+  # === ADVANCED MATCHING AND FILTERING ===
+  - title: cdncheck - match specific providers
+    desc: |
+      Filter results to show only matches for specific, user-defined providers like Cloudfront or Fastly. This 
+      allows for highly targeted reconnaissance when looking for specific infrastructure misconfigurations. 
+      You can provide a comma-separated list of providers to match against multiple vendors simultaneously.
+    command: "cdncheck -i {{target_list}} -mcdn {{provider|cloudfront,fastly}}"
+
+  - title: cdncheck - exclude detected infrastructure
+    desc: |
+      Exclude any IP addresses that match known CDN, Cloud, or WAF ranges from the final output. This is 
+      a powerful technique for "Origin Discovery," as it filters out the noise to reveal potential backend 
+      IP addresses. This is often used after a large-scale DNS brute-force or port scan.
+    command: "cdncheck -i {{target_list}} -e"
+
+  - title: cdncheck - filter out specific WAF providers
+    desc: |
+      Run a scan but explicitly hide results that belong to a specific WAF provider like Cloudflare. This 
+      is helpful when you already know certain segments are protected and you want to focus on less 
+      protected parts of the network. It helps in prioritizing targets that might have fewer security layers.
+    command: "cdncheck -i {{target_list}} -fwaf {{provider|cloudflare}}"
+
+  # === OUTPUT AND CONFIGURATION ===
+  - title: cdncheck - export results to JSON
+    desc: |
+      Save the identification results in JSONL format for programmatic parsing and data analysis. This 
+      format is highly compatible with log aggregators and custom Python/Go scripts for automated 
+      security pipelines. Using the output flag ensures that the data is persisted to a file for later review.
+    command: "cdncheck -i {{target}} -j -o {{output_file|results.json}}"
+
+  - title: cdncheck - custom resolvers and retries
+    desc: |
+      Configure the tool to use a specific list of DNS resolvers and increase the retry count for better accuracy. 
+      Custom resolvers can help bypass local DNS caching issues or rate limits imposed by public providers. 
+      Increasing retries is recommended when scanning over unstable network connections to avoid false negatives.
+    command: "cdncheck -i {{target}} -r {{resolvers_file|resolvers.txt}} -retry {{retry_count|3}}"
+
+  - title: cdncheck - update tool
+    desc: |
+      Update the cdncheck utility to the latest version directly from the source. Regular updates are 
+      important because infrastructure provider IP ranges change frequently, and staying up-to-date 
+      ensures the highest detection accuracy. This command requires an active internet connection.
+    command: "cdncheck -up"

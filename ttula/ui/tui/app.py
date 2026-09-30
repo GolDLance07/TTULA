@@ -112,6 +112,40 @@ class TTULATUIApp(App):
         margin-right: 1;
     }
 
+    #arsenal_vars_status {
+        height: 1;
+        color: #38bdf8;
+    }
+
+    #input_arsenal_set_var {
+        width: 28;
+    }
+
+    #arsenal_detail_row {
+        height: 4;
+        margin: 1 0;
+    }
+
+    #arsenal_cmd_preview {
+        width: 1fr;
+        height: 100%;
+        background: #06090e;
+        color: #00ff88;
+        border: solid #00f0ff;
+        padding: 0 1;
+        text-style: bold;
+    }
+
+    #arsenal_cmd_desc {
+        width: 1fr;
+        height: 100%;
+        background: #0f172a;
+        color: #94a3b8;
+        border: solid #334155;
+        padding: 0 1;
+        overflow-y: scroll;
+    }
+
     .cmd-preview {
         background: #06090e;
         color: #38bdf8;
@@ -120,6 +154,7 @@ class TTULATUIApp(App):
         height: 3;
         text-style: bold;
     }
+
 
     .badge-auth {
         color: #00ff88;
@@ -254,20 +289,25 @@ class TTULATUIApp(App):
                     with Horizontal(classes="btn-row"):
                         yield Button("⚡ Clean URLs with Uro", id="btn_run_uro", variant="primary")
 
-            # TAB 4: ARSENAL CHEATS
-            with TabPane("📚 [4] Arsenal Cheats", id="tab_arsenal"):
+            # TAB 4: ARSENAL-NG PLAYBOOKS
+            with TabPane("⚡ [4] Arsenal-NG", id="tab_arsenal"):
                 with Vertical(classes="glass-box"):
-                    yield Label("Curated Command Playbooks", classes="card-title")
+                    yield Label("Arsenal-NG Multi-Tool Playbooks (247+ Tools, 2,900+ Actions)", classes="card-title")
                     yield Static(id="arsenal_target_status")
+                    yield Static(id="arsenal_vars_status")
                     with Horizontal(classes="input-row"):
-                        yield Input(placeholder="Search tag (e.g. nmap, web, scan)", id="input_arsenal_query")
+                        yield Input(placeholder="Search Arsenal (e.g. nmap, curl, impacket, syn, smb)", id="input_arsenal_query")
                         yield Button("🔍 Search", id="btn_search_arsenal", variant="primary")
-                        yield Input(placeholder="Port", value="80", id="input_arsenal_port")
+                        yield Input(placeholder="Set Var (e.g. port=8080, user=admin)", id="input_arsenal_set_var")
+                        yield Button("💾 Set Var", id="btn_arsenal_set_var")
                         yield Button("Simulate Lab Target", id="btn_arsenal_sim_node")
                     yield DataTable(id="arsenal_table")
-                    yield Static("$ [Select a command template above]", id="arsenal_cmd_preview", classes="cmd-preview")
+                    with Horizontal(id="arsenal_detail_row"):
+                        yield Static("$ [Select a command template above]", id="arsenal_cmd_preview")
+                        yield Static("[Select command for documentation]", id="arsenal_cmd_desc")
                     with Horizontal(classes="btn-row"):
                         yield Button("▶ Execute in PTY Terminal (Enter)", id="btn_exec_arsenal", variant="success")
+
 
             # TAB 5: LEGBA AUTH TESTING
             with TabPane("🔐 [5] Legba Auth", id="tab_legba"):
@@ -324,7 +364,8 @@ class TTULATUIApp(App):
         # Setup Arsenal Table
         dt_arsenal = self.query_one("#arsenal_table", DataTable)
         dt_arsenal.cursor_type = "row"
-        dt_arsenal.add_columns("Title", "Tool", "Description")
+        dt_arsenal.add_columns("Tool", "Action Title", "Requires Lab")
+
 
         # Log initial terminal banner
         self._log_terminal("[bold cyan][*] TTULA Interactive PTY Session active. Zero-injection argv executor ready.[/bold cyan]")
@@ -346,10 +387,20 @@ class TTULATUIApp(App):
             pass
 
     def watch_active_target(self, target: Optional[Target]) -> None:
-        """Update status bar whenever active target changes."""
+        """Update status bar and Arsenal-NG session variables whenever active target changes."""
+        if target:
+            self.engine.set_session_variable("target", target.tailscale_ip)
+            self.engine.set_session_variable("ip", target.tailscale_ip)
+            self.engine.set_session_variable("host", target.tailscale_ip)
+            self.engine.set_session_variable("rhost", target.tailscale_ip)
+            self.engine.set_session_variable("hostname", target.hostname or target.name)
+            port = self.engine.get_session_variables().get("port", "80")
+            self.engine.set_session_variable("url", f"http://{target.tailscale_ip}:{port}")
+
         self._update_status_bar()
         self._update_legba_preview()
         self._update_arsenal_preview()
+
 
     def _update_status_bar(self) -> None:
         status = self.engine.get_tailscale_status()
@@ -489,6 +540,8 @@ class TTULATUIApp(App):
             self._handle_tookie_run()
         elif inp_id in ("input_arsenal_query", "input_arsenal_port"):
             self._populate_arsenal()
+        elif inp_id == "input_arsenal_set_var":
+            self._handle_set_arsenal_var()
         elif inp_id == "term_input":
             self._send_pty_input()
 
@@ -538,6 +591,8 @@ class TTULATUIApp(App):
             self._handle_uro_run()
         elif btn_id == "btn_search_arsenal":
             self._populate_arsenal()
+        elif btn_id == "btn_arsenal_set_var":
+            self._handle_set_arsenal_var()
         elif btn_id == "btn_exec_arsenal":
             self._execute_selected_arsenal()
         elif btn_id == "btn_exec_legba":
@@ -546,6 +601,7 @@ class TTULATUIApp(App):
             self._send_pty_input()
         elif btn_id == "btn_clear_pty":
             self.query_one("#term_log", RichLog).clear()
+
 
     def _handle_tookie_run(self) -> None:
         inps = self.query("#input_tookie_user")
@@ -588,6 +644,13 @@ class TTULATUIApp(App):
                 legba_users = self.query("#input_legba_user")
                 if legba_users and user:
                     legba_users.first().value = user
+
+                # Auto-populate Arsenal-NG session variables
+                if user:
+                    self.engine.set_session_variable("user", user)
+                    self.engine.set_session_variable("username", user)
+                    self._update_arsenal_preview()
+
 
                 self._log_terminal(
                     f"[bold green][+] Tookie finished: {col.count()} URLs discovered for '{user}'.[/bold green]"
@@ -656,8 +719,9 @@ class TTULATUIApp(App):
         if dt_list:
             dt = dt_list.first()
             dt.clear()
-            for i, cmd in enumerate(cmds):
-                dt.add_row(cmd.title, cmd.source_tool, cmd.description, key=str(i))
+            for i, cmd in enumerate(cmds[:250]):
+                lab_badge = "[bold red]Yes[/bold red]" if cmd.requires_authorized_lab else "[bold green]No[/bold green]"
+                dt.add_row(cmd.source_tool, cmd.title, lab_badge, key=str(i))
 
         if cmds:
             self._current_cmds = cmds
@@ -679,13 +743,26 @@ class TTULATUIApp(App):
                     "[bold yellow]⚠️ No active target selected. Go to [1] Tailnet Mesh (or click 'Simulate Lab Target')[/bold yellow]"
                 )
 
+        vars_widgets = self.query("#arsenal_vars_status")
+        if vars_widgets and self.engine.arsenal:
+            v = self.engine.get_session_variables()
+            disp_parts = []
+            for k in ("ip", "port", "user", "url", "domain"):
+                val = v.get(k)
+                if val:
+                    disp_parts.append(f"[bold cyan]{k}:[/bold cyan] {val}")
+                else:
+                    disp_parts.append(f"[dim]{k}: (unset)[/dim]")
+            vars_widgets.first().update(" | ".join(disp_parts))
+
         previews = self.query("#arsenal_cmd_preview")
-        if not previews:
-            return
-        preview_widget = previews.first()
+        desc_widgets = self.query("#arsenal_cmd_desc")
 
         if not hasattr(self, "_current_cmds") or not self._current_cmds:
-            preview_widget.update("$ [Select a command template]")
+            if previews:
+                previews.first().update("$ [Select a command template]")
+            if desc_widgets:
+                desc_widgets.first().update("[No command selected]")
             return
 
         dt = self.query("#arsenal_table")
@@ -696,16 +773,32 @@ class TTULATUIApp(App):
                 row_idx = min(dt_widget.cursor_row, len(self._current_cmds) - 1)
 
         cmd = self._current_cmds[row_idx]
-        port_val = "80"
-        port_inputs = self.query("#input_arsenal_port")
-        if port_inputs and port_inputs.first().value:
-            port_val = port_inputs.first().value.strip()
+        if desc_widgets:
+            desc_text = cmd.description or "No description provided."
+            desc_widgets.first().update(f"[bold cyan]{cmd.source_tool}:[/bold cyan] {desc_text}")
 
-        try:
-            prep = self.engine.prepare_command(cmd, target=self.active_target, extra_params={"port": port_val})
-            preview_widget.update(f"$ {prep.display_string}")
-        except Exception as e:
-            preview_widget.update(f"⛔ {e}")
+        if previews:
+            try:
+                prep = self.engine.prepare_command(cmd, target=self.active_target)
+                previews.first().update(f"$ {prep.display_string}")
+            except Exception as e:
+                previews.first().update(f"⛔ {e}")
+
+    def _handle_set_arsenal_var(self) -> None:
+        inps = self.query("#input_arsenal_set_var")
+        if not inps:
+            return
+        inp = inps.first()
+        val = inp.value.strip()
+        if not val:
+            return
+        cmd_str = val if val.startswith("set ") else f"set {val}"
+        resp = self.engine.arsenal.handle_command(cmd_str)
+        if resp:
+            self._log_terminal(f"\n[bold cyan]{resp}[/bold cyan]")
+            self.notify(f"Arsenal Variable: {val}")
+        inp.value = ""
+        self._update_arsenal_preview()
 
     def _execute_selected_arsenal(self) -> None:
         dt_list = self.query("#arsenal_table")
@@ -737,21 +830,15 @@ class TTULATUIApp(App):
                     self.notify(f"Safety Gate: Target '{target_name}' unauthorized.", severity="error")
                     return
 
-            port_val = "80"
-            port_inputs = self.query("#input_arsenal_port")
-            if port_inputs and port_inputs.first().value:
-                port_val = port_inputs.first().value.strip()
-
             try:
-                prep = self.engine.prepare_command(
-                    cmd, target=self.active_target, extra_params={"port": port_val}
-                )
+                prep = self.engine.prepare_command(cmd, target=self.active_target)
                 self.exec_mgr.send(self.session_id, prep)
                 self._log_terminal(f"\n[bold green]$ {prep.display_string}[/bold green]")
                 self.notify(f"▶ Dispatched '{prep.title}' to live PTY.")
             except Exception as e:
                 self._log_terminal(f"\n[bold red]⛔ Command Preparation Error: {e}[/bold red]")
                 self.notify(f"Safety Gate: {e}", severity="error")
+
 
     def _update_legba_preview(self) -> None:
         previews = self.query("#legba_cmd_preview")
@@ -816,9 +903,19 @@ class TTULATUIApp(App):
         inp = self.query_one("#term_input", Input)
         val = inp.value.strip()
         if val:
+            # Check for Arsenal-NG interactive commands (set/unset/variables/tools)
+            if self.engine.arsenal and (val.startswith("set ") or val.startswith("unset ") or val.lower() in ("variables", "vars", "tools")):
+                resp = self.engine.arsenal.handle_command(val)
+                if resp:
+                    self._log_terminal(f"\n{resp}")
+                    self._update_arsenal_preview()
+                    inp.value = ""
+                    return
+
             self.exec_mgr.send(self.session_id, val)
             self.query_one("#term_log", RichLog).write(f"$ {val}")
             inp.value = ""
+
 
 
 def run_tui():

@@ -1,0 +1,104 @@
+tool: proxify
+tags: [network, proxy, security, pentest, enumeration, debugging, web]
+
+actions:
+# === BASIC USAGE & NETWORK CONFIGURATION ===
+
+ - title: proxify - start default proxy
+   desc: |
+     Starts the proxify tool using default settings. It listens for HTTP traffic on port 8888 and SOCKS5 traffic on port 10080 by default.
+     This is the quickest way to start intercepting local traffic for analysis.
+     Ensure that your browser or application is configured to use these ports as its proxy.
+   command: "proxify"
+
+ - title: proxify - custom listening addresses
+   desc: |
+     Configures the tool to listen on specific IP addresses and ports for both HTTP and SOCKS traffic.
+     This is useful when the default ports are already occupied by other services or when you need to expose the proxy on a specific network interface.
+     Always verify that the chosen ports are allowed through your local firewall to prevent connection issues.
+   command: "proxify -http-addr {{listen_ip_port|127.0.0.1:8081}} -sa {{socks_ip_port|127.0.0.1:10081}}"
+
+ - title: proxify - dns server and mapping
+   desc: |
+     Starts a local DNS server and applies custom domain-to-IP mappings.
+     This feature allows you to redirect traffic for specific domains to a target IP without modifying the system's hosts file.
+     It is highly effective for testing virtual hosts or bypassing DNS-based load balancers during a penetration test.
+   command: "proxify -da {{dns_addr|127.0.0.1:53}} -dm {{mapping|example.com:1.2.3.4}}"
+
+# === INTERCEPTION & LOGGING ===
+
+ - title: proxify - log raw traffic to directory
+   desc: |
+     Captures and stores all raw HTTP requests and responses into a specified output directory.
+     Each request and response pair is saved as a separate file, making it easy to grep through historical traffic.
+     This is essential for long-running engagements where you need to preserve evidence or perform deep manual analysis later.
+   command: "proxify -sr -o {{output_directory|proxify_logs}}"
+
+ - title: proxify - structured output logging
+   desc: |
+     Saves intercepted traffic metadata into a single structured file using JSONL or YAML format.
+     This is ideal for piping the proxy output into other tools or custom scripts for automated analysis.
+     You can specify the format and the filename to organize your reconnaissance data efficiently.
+   command: "proxify -o {{output_file|logs.jsonl}} -of {{format|jsonl}}"
+
+ - title: proxify - dump requests only
+   desc: |
+     Filters the output to only record HTTP requests while ignoring the responses.
+     Use this when you are only interested in the outgoing payloads, headers, and endpoints being accessed.
+     It helps reduce the size of log files significantly when the server responses are large or repetitive.
+   command: "proxify -dump-req -o {{output_file|requests.jsonl}}"
+
+# === UPSTREAM PROXYING & CHAINING ===
+
+ - title: proxify - chain to upstream http proxy
+   desc: |
+     Forwards all intercepted traffic to an upstream HTTP proxy like Burp Suite or ZAP.
+     This allows you to use Proxify for initial filtering or modification before passing the traffic to a GUI-based interceptor.
+     It is a common setup for complex workflows where you need the features of both a CLI and a GUI proxy.
+   command: "proxify -http-proxy {{upstream_url|http://127.0.0.1:8080}}"
+
+ - title: proxify - chain to upstream socks5 proxy
+   desc: |
+     Routes all traffic through an upstream SOCKS5 proxy, such as the TOR network or an SSH tunnel.
+     This is particularly useful for anonymizing your source IP or accessing internal resources via a pivot point.
+     Multiple upstream proxies can be provided to rotate the exit IP address for each request.
+   command: "proxify -socks5-proxy {{upstream_socks|127.0.0.1:9050}}"
+
+# === FILTERING & MANIPULATION ===
+
+ - title: proxify - request filtering with dsl
+   desc: |
+     Applies Domain Specific Language (DSL) filters to capture only specific types of requests.
+     This allows you to ignore noise and focus on relevant traffic, such as requests containing a specific keyword in the body or header.
+     DSL filtering is extremely powerful for targeted debugging of modern web applications.
+   command: "proxify -req-fd {{dsl_filter|'contains(request, \"api/v1\")'}}"
+
+ - title: proxify - match and replace in requests
+   desc: |
+     Automatically finds and replaces strings within requests on the fly using DSL rules.
+     This is useful for injecting custom headers, modifying User-Agents, or changing parameter values globally.
+     Be careful with regex patterns to avoid unintentionally breaking the application's logic or authentication tokens.
+   command: "proxify -req-mrd {{match_replace_rule|'replace(request, \"User-Agent\", \"Security-Scanner\")'}}"
+
+ - title: proxify - response match and replace
+   desc: |
+     Modifies server responses before they reach the client based on specified DSL criteria.
+     This can be used to bypass client-side controls, disable security headers like CSP, or inject debug scripts into the HTML body.
+     It is a key technique for advanced web exploitation and testing client-side vulnerabilities.
+   command: "proxify -resp-mrd {{match_replace_rule|'replace(response, \"<head>\", \"<head><script>alert(1)</script>\")'}}"
+
+# === ADVANCED CONFIGURATION ===
+
+ - title: proxify - tls passthrough
+   desc: |
+     Specifies domains that should pass through the proxy without TLS termination.
+     Use this for domains that utilize certificate pinning or for services where you do not want to interfere with the encrypted stream.
+     It prevents "Your connection is not private" errors in browsers for specific, trusted endpoints.
+   command: "proxify -pt {{domain_regex|'(.*\\.)?google\\.com.*'}}"
+
+ - title: proxify - access control list
+   desc: |
+     Restricts the proxy usage to a specific list of allowed IP addresses or CIDR ranges.
+     This is a critical security measure when running Proxify on a remote server to prevent unauthorized users from using your proxy.
+     Anyone attempting to connect from an IP not in the allow list will be denied access.
+   command: "proxify -allow {{allowed_ips|192.168.1.0/24,10.0.0.5}}"

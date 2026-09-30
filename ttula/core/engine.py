@@ -146,7 +146,21 @@ class TTULAEngine:
     ) -> Command:
         """Prepares a command by filling placeholders and enforcing lab safety."""
         node = self.get_default_execution_node()
-        return fill_command_placeholders(command, target=target, execution_node=node, extra_params=extra_params)
+        params = dict(self.arsenal.get_variables()) if (self.arsenal and hasattr(self.arsenal, "get_variables")) else {}
+        if extra_params:
+            params.update(extra_params)
+        return fill_command_placeholders(command, target=target, execution_node=node, extra_params=params)
+
+    def set_session_variable(self, key: str, value: str) -> None:
+        """Set a global session variable across Arsenal-NG playbooks."""
+        if self.arsenal and hasattr(self.arsenal, "set_variable"):
+            self.arsenal.set_variable(key, value)
+
+    def get_session_variables(self) -> Dict[str, str]:
+        """Retrieve all active Arsenal-NG session variables."""
+        if self.arsenal and hasattr(self.arsenal, "get_variables"):
+            return self.arsenal.get_variables()
+        return {}
 
     # Legba Authentication Testing
     def build_legba_command(
