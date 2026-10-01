@@ -493,8 +493,7 @@ class TTULATUIApp(App):
                             classes="home-tagline",
                         )
                         yield Static(
-                            "High-throughput attack surface mapping, deep endpoint crawling, "
-                            "identity discovery, URL normalization, 247+ cheat playbooks, and zero-trust lab gating.",
+                            "[bold #A6E22E]Credits:[/] [bold #F8F8F2]Developed by - Aarush Rahul Patel[/]  •  [bold #FD971F]Research and Development Partner - Shreya Singh[/]",
                             classes="home-summary",
                         )
                         yield Static(
@@ -551,15 +550,9 @@ class TTULATUIApp(App):
 
                         yield Static("─" * 60, classes="home-divider")
 
-                        # Bottom of Home Page - Positioned on the Side
+                        # Bottom of Home Page
                         with Horizontal(classes="home-footer-row"):
-                            with Vertical(classes="home-footer-left"):
-                                yield Label("Web Crawler • Reconnaissance Workspace v1.0.0", classes="home-footer-status")
-                                yield Label("🔒 Zero-Trust Boundary Enforced | WireGuard Mesh", classes="home-footer-sub")
-                            with Vertical(classes="home-credits-sidebox"):
-                                yield Label("Credits", classes="home-credits-heading")
-                                yield Label("Developed by - Aarush Rahul Patel", classes="home-credits-dev")
-                                yield Label("Research and Development Partner - Shreya Singh", classes="home-credits-rd")
+                            yield Label("Web Crawler • Reconnaissance Workspace v1.0.0  •  🔒 Zero-Trust WireGuard Mesh Active", classes="home-footer-status")
 
                 # TAB 1: WEB CRAWLER
                 with TabPane("🕸️ [1] Web Crawler", id="tab_crawler"):

@@ -39,16 +39,14 @@ def render_home_page(on_navigate=None) -> None:
         </div>
         <div style="
             color: #F8F8F2;
-            opacity: 0.92;
-            font-size: 0.98rem;
-            line-height: 1.65;
-            max-width: 900px;
+            font-size: 0.96rem;
             margin-bottom: 18px;
+            font-family: 'JetBrains Mono', monospace;
         ">
-            An operator-focused security reconnaissance workspace engineered for high-velocity attack surface discovery,
-            deep recursive HTTP link extraction, multi-domain digital persona OSINT footprinting, intelligent URL normalization
-            and parameter de-duplication, curated knowledge across 247+ security tool cheat playbooks,
-            and strict boundary-enforced lab credential testing through a zero-trust Tailscale WireGuard mesh.
+            <span style="color: #A6E22E; font-weight: 700;">Credits:</span>
+            <span style="color: #F8F8F2; font-weight: 600;">Developed by - Aarush Rahul Patel</span>
+            <span style="color: #75715E; margin: 0 8px;">•</span>
+            <span style="color: #FD971F; font-weight: 600;">Research and Development Partner - Shreya Singh</span>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <span style="background: #272822; border: 1px solid #3E3D32; color: #A6E22E; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">RECONNAISSANCE</span>
@@ -234,23 +232,8 @@ def render_home_page(on_navigate=None) -> None:
             <div>Automated Security Reconnaissance • Monokai v1.0.0</div>
             <div>🔒 Zero-Trust Boundary Enforced | WireGuard Mesh</div>
         </div>
-        <div style="
-            text-align: right;
-            background: #181818;
-            border: 1px solid #3E3D32;
-            border-right: 4px solid #A6E22E;
-            border-radius: 12px;
-            padding: 12px 20px;
-        ">
-            <div style="color: #A6E22E; font-weight: 800; font-size: 0.95rem; font-family: 'JetBrains Mono', monospace; margin-bottom: 3px;">
-                Credits
-            </div>
-            <div style="color: #F8F8F2; font-weight: 600; font-size: 0.90rem; font-family: 'JetBrains Mono', monospace;">
-                Developed by - Aarush Rahul Patel
-            </div>
-            <div style="color: #FD971F; font-weight: 600; font-size: 0.88rem; font-family: 'JetBrains Mono', monospace;">
-                Research and Development Partner - Shreya Singh
-            </div>
+        <div style="color: #75715E; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace;">
+            v1.0.0 • Active
         </div>
     </div>
     """
