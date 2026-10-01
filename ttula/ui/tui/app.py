@@ -38,6 +38,7 @@ from ttula.core.engine import TTULAEngine, create_default_engine
 from ttula.core.models import Target, Command, URLCollection
 from ttula.execution.manager import get_execution_manager
 from ttula.config.tools import TOOLS, CATEGORY_COLORS, get_tool_metadata
+from rich.markup import escape
 
 
 class TTULATUIApp(App):
@@ -98,7 +99,7 @@ class TTULATUIApp(App):
     .glass-box {
         background: #11161D;
         border: round #232D3B;
-        padding: 1;
+        padding: 0 1;
         height: 1fr;
     }
 
@@ -122,7 +123,8 @@ class TTULATUIApp(App):
     .home-box {
         align: center middle;
         text-align: center;
-        padding: 2;
+        padding: 1;
+        overflow-y: auto;
     }
 
     .home-brand-title {
@@ -130,14 +132,14 @@ class TTULATUIApp(App):
         text-style: bold;
         text-align: center;
         width: 100%;
-        margin-top: 1;
+        margin-top: 0;
     }
 
     .home-tagline {
         color: #34d399;
         text-align: center;
         width: 100%;
-        margin-bottom: 1;
+        margin-bottom: 0;
     }
 
     .home-summary {
@@ -169,7 +171,7 @@ class TTULATUIApp(App):
     .home-actions-row {
         align: center middle;
         height: 3;
-        margin-top: 1;
+        margin-top: 0;
     }
 
     .home-actions-row Button {
@@ -177,18 +179,30 @@ class TTULATUIApp(App):
     }
 
     .home-footer-row {
-        align: center middle;
         height: 2;
         margin-top: 1;
+        width: 100%;
+        align: right middle;
     }
 
-    .home-version {
+    .home-footer-spacer {
+        width: 1fr;
+    }
+
+    .home-creators-box {
+        width: auto;
+        padding-right: 2;
+    }
+
+    .home-creators-label {
         color: #64748B;
-        margin-right: 4;
+        text-align: right;
     }
 
-    .home-creators {
-        color: #94A3B8;
+    .home-creators-names {
+        color: #10b981;
+        text-style: bold;
+        text-align: right;
     }
 
     .card-title {
@@ -200,7 +214,7 @@ class TTULATUIApp(App):
 
     .input-row {
         height: 3;
-        margin: 1 0;
+        margin: 0 0 1 0;
     }
 
     .input-row Input {
@@ -225,7 +239,7 @@ class TTULATUIApp(App):
 
     .btn-row {
         height: 3;
-        margin-top: 1;
+        margin-top: 0;
     }
 
     .btn-row Button {
@@ -242,8 +256,8 @@ class TTULATUIApp(App):
     }
 
     #arsenal_detail_row {
-        height: 4;
-        margin: 1 0;
+        height: 3;
+        margin: 0;
     }
 
     #arsenal_cmd_preview {
@@ -299,13 +313,13 @@ class TTULATUIApp(App):
 
     DataTable {
         height: 1fr;
-        min-height: 4;
+        min-height: 8;
         background: #11161D;
         border: solid #232D3B;
     }
 
     #terminal_pane {
-        height: 16;
+        height: 7;
         border-top: solid #232D3B;
         background: #0A0D12;
     }
@@ -320,7 +334,7 @@ class TTULATUIApp(App):
         background: #0A0D12;
         color: #a7f3d0;
         height: 1fr;
-        min-height: 8;
+        min-height: 3;
     }
 
     #term_input_row {
@@ -411,9 +425,12 @@ class TTULATUIApp(App):
                         yield Button("🔍 Identity OSINT", id="btn_home_tookie")
                         yield Button("📚 Security Cheats", id="btn_home_arsenal")
                         yield Button("🌐 Tailnet Mesh", id="btn_home_mesh")
+                    yield Static("─" * 60, classes="home-divider")
                     with Horizontal(classes="home-footer-row"):
-                        yield Static("[dim]TTULA Multi-Tool Pipeline[/dim]", classes="home-version")
-                        yield Static("[dim]Created by[/dim] [bold #10b981]Aarush Rahul Patel · Shreya Singh[/bold #10b981]", classes="home-creators")
+                        yield Static(" ", classes="home-footer-spacer")
+                        with Vertical(classes="home-creators-box"):
+                            yield Label("Created by", classes="home-creators-label")
+                            yield Label("Aarush Rahul Patel · Shreya Singh", classes="home-creators-names")
 
             # TAB 1: WEB CRAWLER
             with TabPane("🕸️ [1] Web Crawler", id="tab_crawler"):
@@ -490,12 +507,8 @@ class TTULATUIApp(App):
             # TAB 5: ARSENAL-NG PLAYBOOKS
             with TabPane("📚 [5] Arsenal-NG", id="tab_arsenal"):
                 with Vertical(classes="glass-box"):
-                    yield Label("ARSENAL-NG", classes="tool-header-title")
-                    yield Label("Security command knowledge and operation reference (247+ Tools, 2,900+ Actions)", classes="tool-header-tagline")
-                    yield Static(id="arsenal_target_status")
-                    yield Static(id="arsenal_vars_status")
                     with Horizontal(classes="input-row"):
-                        yield Input(placeholder="Search Arsenal (e.g. nmap, curl, impacket, syn, smb)", id="input_arsenal_query")
+                        yield Input(placeholder="Search Arsenal (e.g. nmap, curl, impacket, syn, smb, windapsearch)", id="input_arsenal_query")
                         yield Button("🔍 Search", id="btn_search_arsenal", variant="primary")
                         yield Input(placeholder="Set Var (e.g. port=8080, user=admin)", id="input_arsenal_set_var")
                         yield Button("💾 Set Var", id="btn_arsenal_set_var")
@@ -573,7 +586,7 @@ class TTULATUIApp(App):
         # Setup Arsenal Table
         dt_arsenal = self.query_one("#arsenal_table", DataTable)
         dt_arsenal.cursor_type = "row"
-        dt_arsenal.add_columns("Tool", "YAML Tags", "Action Title", "Requires Lab")
+        dt_arsenal.add_columns("Tool & Tags", "Action Title", "Requires Lab")
 
         # Log initial terminal banner
         self._log_terminal("[bold #10b981][*] TTULA Web Crawler PTY Session active. Zero-injection argv executor ready.[/bold #10b981]")
@@ -1078,8 +1091,12 @@ class TTULATUIApp(App):
             lab_badge = "[bold red]YES[/bold red]" if c.requires_authorized_lab else "[green]NO[/green]"
             tool_name = getattr(c, "source_tool", "misc")
             cmd_tags = getattr(c, "tags", [])
-            tags_str = ", ".join(cmd_tags[:3]) if cmd_tags else "general"
-            dt.add_row(tool_name.upper(), f"[{tags_str}]", c.title, lab_badge)
+            if cmd_tags:
+                tags_str = ", ".join(cmd_tags)
+                tool_display = f"[bold #10b981]{tool_name}[/bold #10b981]  [dim]\\[{escape(tags_str)}\\][/dim]"
+            else:
+                tool_display = f"[bold #10b981]{tool_name}[/bold #10b981]"
+            dt.add_row(tool_display, c.title, lab_badge)
 
         self._update_arsenal_vars_display()
         if cmds:
@@ -1123,12 +1140,11 @@ class TTULATUIApp(App):
                 if desc_widget:
                     tool_val = getattr(cmd, "source_tool", "misc")
                     cmd_tags = getattr(cmd, "tags", [])
-                    tags_display = " · ".join(f"#{t}" for t in cmd_tags) if cmd_tags else "#general"
+                    tags_display = f"[{', '.join(cmd_tags)}]" if cmd_tags else "[]"
                     desc_text = (
-                        f"Tool: {tool_val.upper()}  |  Tags: [{tags_display}]\n"
-                        f"Action: {cmd.title}\n"
-                        f"Requires Lab: {cmd.requires_authorized_lab}\n"
-                        f"Description:\n{cmd.description}"
+                        f"Tool: {tool_val}  {tags_display}\n"
+                        f"Action: {cmd.title}  |  Requires Lab: {cmd.requires_authorized_lab}\n"
+                        f"{cmd.description}"
                     )
                     desc_widget.update(desc_text)
             except Exception as e:
