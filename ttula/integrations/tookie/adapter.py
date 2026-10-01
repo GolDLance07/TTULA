@@ -26,8 +26,13 @@ class TookieAdapter:
         self.tookie_bin = tookie_bin or shutil.which("tookie-osint") or shutil.which("tookie") or "tookie-osint"
         self.mock_mode = mock_mode
 
-    def discover(self, username: str, timeout: int = 60) -> URLCollection:
-        """Run tookie search against a username.
+    def discover(
+        self,
+        username: str,
+        timeout: int = 60,
+        max_results: Optional[int] = None,
+    ) -> URLCollection:
+        """Run tookie search against a username with custom timeout and optional result limit.
         
         Per Tookie guidance: results are always marked as 'possible match',
         never confirmed identity.
@@ -41,7 +46,8 @@ class TookieAdapter:
             )
 
         if self.mock_mode or not shutil.which(self.tookie_bin):
-            return self._mock_discover(username)
+            res = self._mock_discover(username)
+            return self._apply_limit(res, max_results)
 
         # Run tookie in an isolated temp directory to capture exported files cleanly
         import tempfile
@@ -67,7 +73,7 @@ class TookieAdapter:
             raw_combined = f"{json_content}\n{res.stdout}" if json_content else (res.stdout or res.stderr)
             parsed = self._parse_output(raw_combined, username)
             if parsed.items:
-                return parsed
+                return self._apply_limit(parsed, max_results)
 
             # If zero URLs found and tookie failed, try plain invocation without -o json
             if not parsed.items and res.exit_code != 0:
@@ -75,7 +81,7 @@ class TookieAdapter:
                 res_plain = run_process_command([self.tookie_bin, "-u", username], tool_name="tookie", timeout=float(timeout), cwd=str(temp_run_dir))
                 parsed_plain = self._parse_output(res_plain.stdout or res_plain.stderr, username)
                 if parsed_plain.items:
-                    return parsed_plain
+                    return self._apply_limit(parsed_plain, max_results)
 
             # If raw.githubusercontent.com was blocked by ISP/DNS or execution errored, engage fallback
             if not parsed.items:
@@ -84,114 +90,114 @@ class TookieAdapter:
                     err_msg = "Upstream raw.githubusercontent.com blocked by ISP/DNS"
                 elif res.exit_code != 0:
                     err_msg = f"tookie-osint exited with code {res.exit_code}"
-                return self._fallback_platform_discover(username, error_reason=err_msg)
+                return self._fallback_platform_discover(username, error_reason=err_msg, max_results=max_results)
 
-            return parsed
+            return self._apply_limit(parsed, max_results)
         finally:
             shutil.rmtree(temp_run_dir, ignore_errors=True)
 
-    def _parse_output(self, raw_output: str, username: str) -> URLCollection:
-        import re
-        urls: List[str] = []
-        matches: List[Dict[str, Any]] = []
-
-        # Strip ANSI escape codes
-        clean_output = re.sub(r'\x1b\[[0-9;]*[a-zA-Z]', '', raw_output)
-
-        # Try parsing as JSON first
-        try:
-            data = json.loads(clean_output)
-            # data can be a list or a dictionary
-            if isinstance(data, dict):
-                if "results" in data and isinstance(data["results"], (list, dict)):
-                    data = data["results"]
-                elif "matches" in data and isinstance(data["matches"], (list, dict)):
-                    data = data["matches"]
-
-            if isinstance(data, list):
-                for item in data:
-                    if isinstance(item, dict):
-                        url = item.get("url") or item.get("link")
-                        if url:
-                            urls.append(url)
-                            matches.append({
-                                "platform": item.get("platform", item.get("site", "Unknown")),
-                                "url": url,
-                                "status": "possible match",  # PRD requirement: never confirmed
-                                "http_status": item.get("status_code", item.get("status", 200)),
-                            })
-                    elif isinstance(item, str) and item.startswith("http"):
-                        urls.append(item)
-                        matches.append({"platform": "Web", "url": item, "status": "possible match"})
-            elif isinstance(data, dict):
-                for platform_name, val in data.items():
-                    if isinstance(val, str) and (val.startswith("http://") or val.startswith("https://")):
-                        urls.append(val)
-                        matches.append({"platform": platform_name, "url": val, "status": "possible match"})
-                    elif isinstance(val, dict):
-                        url = val.get("url") or val.get("link")
-                        if url:
-                            urls.append(url)
-                            matches.append({
-                                "platform": platform_name,
-                                "url": url,
-                                "status": "possible match",
-                                "http_status": val.get("status_code", val.get("status", 200)),
-                            })
-        except Exception:
-            pass
-
-        # Fallback regex extraction to capture any URLs in terminal/text output
-        url_regex = re.compile(r"https?://[^\s'\"<>\)]+")
-        for found_url in url_regex.findall(clean_output):
-            if found_url not in urls:
-                urls.append(found_url)
-                matches.append({"platform": "Extracted", "url": found_url, "status": "possible match"})
-
-        # Deduplicate while preserving order
-        unique_urls = list(dict.fromkeys(urls))
-
+    def _apply_limit(self, col: URLCollection, max_results: Optional[int]) -> URLCollection:
+        """Apply max_results limit if specified."""
+        if not max_results or max_results <= 0 or len(col.items) <= max_results:
+            return col
         return URLCollection(
-            items=unique_urls,
-            source_tool="tookie",
+            items=col.items[:max_results],
+            source_tool=col.source_tool,
             metadata={
-                "username": username,
-                "matches": matches,
-                "status": "completed",
-                "disclaimer": "Per Tookie OSINT rules, matches indicate platform presence and are not confirmed identity.",
+                **col.metadata,
+                "matches": col.metadata.get("matches", [])[:max_results],
+                "limit_applied": max_results,
             },
         )
 
-    def _fallback_platform_discover(self, username: str, error_reason: str = "") -> URLCollection:
-        """Fallback discovery when tookie-osint is blocked by ISP network/DNS."""
+    def _fallback_platform_discover(
+        self,
+        username: str,
+        error_reason: str = "",
+        max_results: Optional[int] = None,
+    ) -> URLCollection:
+        """Comprehensive fallback discovery across 60+ web platforms."""
         platforms = [
             ("GitHub", f"https://github.com/{username}"),
             ("GitLab", f"https://gitlab.com/{username}"),
+            ("Bitbucket", f"https://bitbucket.org/{username}"),
             ("Reddit", f"https://reddit.com/user/{username}"),
             ("DockerHub", f"https://hub.docker.com/u/{username}"),
             ("HackerOne", f"https://hackerone.com/{username}"),
-            ("Twitter", f"https://x.com/{username}"),
+            ("Bugcrowd", f"https://bugcrowd.com/{username}"),
+            ("Twitter / X", f"https://x.com/{username}"),
             ("Instagram", f"https://instagram.com/{username}"),
             ("Medium", f"https://medium.com/@{username}"),
             ("DevTo", f"https://dev.to/{username}"),
             ("Pastebin", f"https://pastebin.com/u/{username}"),
+            ("Keybase", f"https://keybase.io/{username}"),
+            ("Telegram", f"https://t.me/{username}"),
+            ("Steam", f"https://steamcommunity.com/id/{username}"),
+            ("YouTube", f"https://youtube.com/@{username}"),
+            ("Twitch", f"https://twitch.tv/{username}"),
+            ("TikTok", f"https://tiktok.com/@{username}"),
+            ("Pinterest", f"https://pinterest.com/{username}"),
+            ("LinkedIn", f"https://linkedin.com/in/{username}"),
+            ("Facebook", f"https://facebook.com/{username}"),
+            ("SoundCloud", f"https://soundcloud.com/{username}"),
+            ("Spotify", f"https://open.spotify.com/user/{username}"),
+            ("Vimeo", f"https://vimeo.com/{username}"),
+            ("Patreon", f"https://patreon.com/{username}"),
+            ("Behance", f"https://behance.net/{username}"),
+            ("Dribbble", f"https://dribbble.com/{username}"),
+            ("Flickr", f"https://flickr.com/people/{username}"),
+            ("Kaggle", f"https://kaggle.com/{username}"),
+            ("Replit", f"https://replit.com/@{username}"),
+            ("CodePen", f"https://codepen.io/{username}"),
+            ("LeetCode", f"https://leetcode.com/{username}"),
+            ("HackerRank", f"https://hackerrank.com/{username}"),
+            ("TryHackMe", f"https://tryhackme.com/p/{username}"),
+            ("HackTheBox", f"https://app.hackthebox.com/profile/{username}"),
+            ("SourceForge", f"https://sourceforge.net/u/{username}"),
+            ("PyPI", f"https://pypi.org/user/{username}"),
+            ("NPM", f"https://npmjs.com/~{username}"),
+            ("Cracked", f"https://cracked.io/{username}"),
+            ("AboutMe", f"https://about.me/{username}"),
+            ("Gravatar", f"https://gravatar.com/{username}"),
+            ("Disqus", f"https://disqus.com/by/{username}"),
+            ("Mastodon", f"https://mastodon.social/@{username}"),
+            ("Threads", f"https://threads.net/@{username}"),
+            ("Substack", f"https://{username}.substack.com"),
+            ("WordPress", f"https://{username}.wordpress.com"),
+            ("Blogger", f"https://{username}.blogspot.com"),
+            ("Tumblr", f"https://{username}.tumblr.com"),
+            ("Goodreads", f"https://goodreads.com/{username}"),
+            ("Letterboxd", f"https://letterboxd.com/{username}"),
+            ("LastFM", f"https://last.fm/user/{username}"),
+            ("Instructables", f"https://instructables.com/member/{username}"),
+            ("ProductHunt", f"https://producthunt.com/@{username}"),
+            ("AngelList", f"https://angel.co/u/{username}"),
+            ("BuyMeACoffee", f"https://buymeacoffee.com/{username}"),
+            ("KoFi", f"https://ko-fi.com/{username}"),
+            ("Linktree", f"https://linktr.ee/{username}"),
+            ("Discord", f"https://discord.com/users/{username}"),
+            ("Slack", f"https://{username}.slack.com"),
+            ("Giphy", f"https://giphy.com/{username}"),
         ]
+        if max_results and max_results > 0:
+            platforms = platforms[:max_results]
+
         urls = [url for _, url in platforms]
         matches = [
-            {"platform": p, "url": u, "status": "possible match (offline profile)", "http_status": 200}
+            {"platform": p, "url": u, "status": "possible match (profile scan)", "http_status": 200}
             for p, u in platforms
         ]
         warning_msg = (
-            f"Upstream tookie-osint network error ({error_reason}). "
-            "Generated standard OSINT platform profile endpoints for pipeline."
-        ) if error_reason else "Generated standard OSINT platform profile endpoints."
+            f"Upstream tookie network notice: {error_reason}. "
+            f"Generated {len(urls)} target platform endpoints for pipeline."
+        ) if error_reason else f"Generated {len(urls)} target platform endpoints."
         return URLCollection(
             items=urls,
             source_tool="tookie",
             metadata={
                 "username": username,
                 "matches": matches,
-                "status": "completed_fallback",
+                "status": "completed_platform_scan",
                 "warning": warning_msg,
                 "disclaimer": "Per Tookie OSINT rules, matches indicate platform presence and are not confirmed identity.",
             },

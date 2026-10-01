@@ -34,7 +34,7 @@ st.set_page_config(
 # Background: #0B0F14 | Surface 1: #111820 | Surface 2: #17212B | Border: #27323D
 CUSTOM_CSS = """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -43,16 +43,16 @@ CUSTOM_CSS = """
         font-family: 'JetBrains Mono', monospace !important;
     }
 
-    /* Base Theme Overrides */
+    /* Base Dark Obsidian Theme */
     .stApp {
-        background-color: #0B0F14;
+        background-color: #0A0D12;
         color: #F1F5F9;
     }
 
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
-        background-color: #111820 !important;
-        border-right: 1px solid #27323D !important;
+        background-color: #12171F !important;
+        border-right: 1px solid #232D3B !important;
     }
 
     .sidebar-brand-title {
@@ -66,32 +66,33 @@ CUSTOM_CSS = """
         gap: 8px;
     }
     .sidebar-brand-subtitle {
-        color: #94A3B8;
-        font-size: 0.80rem;
+        color: #8E9DAE;
+        font-size: 0.78rem;
         text-transform: uppercase;
         letter-spacing: 0.6px;
-        font-weight: 500;
+        font-weight: 600;
         margin-bottom: 1.25rem;
     }
 
     /* Cards and Surfaces */
     .card-surface {
-        background: #111820;
-        border: 1px solid #27323D;
+        background: #12171F;
+        border: 1px solid #232D3B;
         border-radius: 8px;
         padding: 1.25rem;
         margin-bottom: 1rem;
     }
     .card-surface-interactive {
-        background: #17212B;
-        border: 1px solid #27323D;
+        background: #151C26;
+        border: 1px solid #283446;
         border-radius: 8px;
         padding: 1.25rem;
         margin-bottom: 1rem;
-        transition: border-color 0.2s ease;
+        transition: border-color 0.2s ease, background 0.2s ease;
     }
     .card-surface-interactive:hover {
-        border-color: #384A5C;
+        border-color: #384A60;
+        background: #182230;
     }
 
     /* Lab Status Badges */
@@ -102,7 +103,7 @@ CUSTOM_CSS = """
         padding: 3px 8px;
         border-radius: 6px;
         font-size: 0.72rem;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 0.5px;
     }
     .badge-unauthorized {
@@ -112,36 +113,52 @@ CUSTOM_CSS = """
         padding: 3px 8px;
         border-radius: 6px;
         font-size: 0.72rem;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 0.5px;
+    }
+
+    /* Tool YAML Tags Styling */
+    .yaml-tag {
+        background: #19222E;
+        border: 1px solid #2B3A4F;
+        color: #CBD5E1;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+        display: inline-block;
+        margin-right: 4px;
+        margin-bottom: 3px;
+        letter-spacing: 0.2px;
     }
 
     /* Terminal Console Display */
     .terminal-container {
-        background: #070B0E;
-        border: 1px solid #27323D;
+        background: #06080B;
+        border: 1px solid #232D3B;
         border-radius: 8px;
-        padding: 14px;
-        color: #38BDF8;
+        padding: 16px;
+        color: #E2E8F0;
         font-size: 0.88rem;
         min-height: 280px;
-        max-height: 420px;
+        max-height: 440px;
         overflow-y: auto;
         white-space: pre-wrap;
     }
 
     /* Command Preview Box */
     .cmd-preview-box {
-        background: #070B0E;
-        border-left: 3px solid #00F0FF;
-        border-top: 1px solid #27323D;
-        border-right: 1px solid #27323D;
-        border-bottom: 1px solid #27323D;
+        background: #06080B;
+        border-left: 3px solid #10B981;
+        border-top: 1px solid #232D3B;
+        border-right: 1px solid #232D3B;
+        border-bottom: 1px solid #232D3B;
         padding: 10px 14px;
         border-radius: 4px;
         font-family: 'JetBrains Mono', monospace;
-        color: #00F0FF;
-        font-size: 0.90rem;
+        color: #34D399;
+        font-size: 0.88rem;
         margin: 10px 0;
     }
 
@@ -153,7 +170,7 @@ CUSTOM_CSS = """
         transition: all 0.15s ease;
     }
     div.stButton > button:hover {
-        border-color: #00F0FF;
+        border-color: #10B981;
     }
 </style>
 """
@@ -318,17 +335,23 @@ elif menu == "🔍 Tookie (OSINT)":
     with st.container():
         st.markdown('<div class="card-surface">', unsafe_allow_html=True)
         with st.form("tookie_form"):
-            username = st.text_input("Target Username / Persona Handle", placeholder="e.g. labuser or testoperator")
-            timeout = st.slider("Query Timeout (seconds)", min_value=10, max_value=120, value=45)
+            c_u, c_l, c_t = st.columns([2, 1, 1])
+            with c_u:
+                username = st.text_input("Target Username / Persona Handle", placeholder="e.g. labuser or testoperator")
+            with c_l:
+                max_urls = st.number_input("Max URLs / Profiles (0 = All)", min_value=0, max_value=500, value=50, step=10)
+            with c_t:
+                timeout = st.slider("Query Timeout (seconds)", min_value=10, max_value=180, value=45)
             submitted = st.form_submit_button("🚀 Run Tookie Discovery", type="primary")
 
         if submitted:
             if not username.strip():
                 st.error("Please specify a valid username.")
             else:
-                with st.spinner(f"Querying 500+ web platforms for '{username}'..."):
+                limit_val = max_urls if max_urls > 0 else None
+                with st.spinner(f"Querying public web platforms for '{username}' (limit: {limit_val or 'all'}, timeout: {timeout}s)..."):
                     try:
-                        collection = engine.run_tookie(username.strip(), timeout=timeout)
+                        collection = engine.run_tookie(username.strip(), timeout=timeout, max_results=limit_val)
                         st.session_state["last_url_collection"] = collection
                         # Auto-update Arsenal-NG session variables
                         if engine.arsenal:
@@ -406,25 +429,55 @@ elif menu == "🧹 Uro (URL Processing)":
 # VIEW 4: ARSENAL-NG
 # ==============================================================================
 elif menu == "📚 Arsenal-NG":
-    render_tool_header("arsenal")
+    # Header without hardcoded category badges
+    st.markdown(
+        """
+        <div style="margin-bottom: 18px;">
+            <div style="font-size: 1.65rem; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px;">
+                📚 ARSENAL COMMAND PLAYBOOKS
+            </div>
+            <div style="color: #8E9DAE; font-size: 0.92rem; margin-top: 2px;">
+                Curated security actions from 190+ tool YAML cheatfiles with side-by-side tags & live session variables.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     # Global Session Variables Display Bar
     if engine.arsenal:
-        st.markdown('<div class="card-surface" style="padding: 10px 16px;">', unsafe_allow_html=True)
+        st.markdown('<div class="card-surface" style="padding: 10px 16px; margin-bottom: 14px;">', unsafe_allow_html=True)
         v = engine.get_session_variables()
         var_items = [f"**{k}**: `{v.get(k) or '(unset)'}`" for k in ("ip", "port", "user", "url", "domain")]
         st.markdown("⚡ **Active Session Variables:** " + " &nbsp;|&nbsp; ".join(var_items))
         st.markdown('</div>', unsafe_allow_html=True)
 
-    col_q, col_cat = st.columns([3, 2])
+    col_q, col_tag, col_tool = st.columns([3, 2, 2])
     with col_q:
-        search_query = st.text_input("Search 247+ tools & 2,900+ playbooks", placeholder="e.g. nmap, curl, impacket, syn, smb, fuzz...")
-    with col_cat:
-        available_cats = ["All Categories"] + (engine.arsenal.list_categories() if engine.arsenal else [])
-        selected_cat = st.selectbox("Category Filter", available_cats)
+        search_query = st.text_input("Search playbooks, commands or actions", placeholder="e.g. nmap, curl, impacket, syn, smb, fuzz...")
+    with col_tag:
+        all_tags = ["All Tags"] + (engine.arsenal.list_all_tags() if engine.arsenal else [])
+        selected_tag = st.selectbox("Tag Filter (YAML)", all_tags)
+    with col_tool:
+        all_tools = ["All Tools"] + (engine.arsenal.list_tools() if engine.arsenal else [])
+        selected_tool = st.selectbox("Tool Filter", all_tools)
 
-    query = search_query if search_query else ("" if selected_cat == "All Categories" else selected_cat)
+    query = search_query.strip() if search_query.strip() else ""
     candidate_cmds = engine.find_commands(query)
+
+    # Apply tool filter if selected
+    if selected_tool != "All Tools":
+        tool_l = selected_tool.lower()
+        candidate_cmds = [c for c in candidate_cmds if getattr(c, "source_tool", "").lower() == tool_l]
+
+    # Apply tag filter if selected
+    if selected_tag != "All Tags":
+        tag_l = selected_tag.lower()
+        candidate_cmds = [
+            c for c in candidate_cmds
+            if tag_l in [t.lower() for t in getattr(c, "tags", [])]
+            or tag_l in [t.lower() for t in (engine.arsenal.get_tool_tags(c.source_tool) if engine.arsenal else [])]
+        ]
 
     st.markdown(f"Found **{len(candidate_cmds)}** matching playbooks.")
 
@@ -439,7 +492,8 @@ elif menu == "📚 Arsenal-NG":
         engine.set_session_variable("target", chosen_target.tailscale_ip)
         engine.set_session_variable("ip", chosen_target.tailscale_ip)
 
-    for i, cmd in enumerate(candidate_cmds[:150]):
+    # Command Cards with Tool Name and YAML Tags side by side
+    for i, cmd in enumerate(candidate_cmds[:60]):
         with st.container():
             st.markdown('<div class="card-surface-interactive">', unsafe_allow_html=True)
             col_t_title, col_t_badge = st.columns([4, 1])
@@ -451,7 +505,23 @@ elif menu == "📚 Arsenal-NG":
                 else:
                     st.markdown('<span class="badge-authorized" style="float: right;">PASSIVE / SAFE</span>', unsafe_allow_html=True)
 
-            st.caption(f"Tool: `{cmd.source_tool}` • {cmd.description}")
+            # Render Tool Name and YAML tags side by side
+            cmd_tags = getattr(cmd, "tags", [])
+            if not cmd_tags and engine.arsenal:
+                cmd_tags = engine.arsenal.get_tool_tags(cmd.source_tool)
+
+            tags_html = " ".join([f'<span class="yaml-tag">{t}</span>' for t in cmd_tags[:8]]) if cmd_tags else '<span style="color:#64748B; font-size:0.75rem;">(no tags)</span>'
+
+            meta_line = f"""
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+                <span style="font-weight: 700; color: #10B981; font-size: 0.88rem; background: #182230; border: 1px solid #283648; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">{cmd.source_tool}</span>
+                <span style="color: #64748B; font-size: 0.80rem; font-weight: 600;">TAGS:</span>
+                {tags_html}
+            </div>
+            """
+            st.markdown(meta_line, unsafe_allow_html=True)
+            if cmd.description:
+                st.caption(cmd.description)
 
             try:
                 prepared = engine.prepare_command(cmd, target=chosen_target)
@@ -472,8 +542,62 @@ elif menu == "📚 Arsenal-NG":
                     if st.button("▶ Execute in PTY Terminal", key=f"run_pty_{i}", type="primary"):
                         exec_mgr.send(st.session_state["active_session_id"], prepared)
                         st.session_state["terminal_log"] += f"\n$ {prepared.display_string}\n"
-                        st.success("Dispatched to persistent terminal session!")
+                        time.sleep(0.2)
+                        fresh_term = exec_mgr.read(st.session_state["active_session_id"], timeout=0.3)
+                        if fresh_term:
+                            st.session_state["terminal_log"] += fresh_term
+                        st.success("Dispatched to live terminal session below!")
+                        st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
+
+    # ==========================================================================
+    # ENLARGED PTY TERMINAL ON ARSENAL PAGE
+    # ==========================================================================
+    st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+    st.markdown("### 💻 Live PTY Terminal Execution Stream")
+
+    # Read fresh output
+    try:
+        fresh_term = exec_mgr.read(st.session_state["active_session_id"], timeout=0.05)
+        if fresh_term:
+            st.session_state["terminal_log"] += fresh_term
+    except Exception:
+        pass
+
+    # Enlarged container with min-height: 480px, max-height: 650px
+    st.markdown(
+        f'<div class="terminal-container" style="min-height: 480px; max-height: 650px; font-size: 0.90rem;">{st.session_state["terminal_log"]}</div>',
+        unsafe_allow_html=True,
+    )
+
+    with st.form("arsenal_terminal_form", clear_on_submit=True):
+        c_tin, c_tsnd, c_tclr = st.columns([5, 1, 1])
+        with c_tin:
+            arsenal_cmd_input = st.text_input("Send command to persistent PTY", placeholder="e.g. echo $USER, nmap -sV 100.64.0.50, or set ip=100.64.0.50", label_visibility="collapsed")
+        with c_tsnd:
+            send_cmd_btn = st.form_submit_button("Send ⏎", type="primary", use_container_width=True)
+        with c_tclr:
+            clear_cmd_btn = st.form_submit_button("Clear", use_container_width=True)
+
+    if send_cmd_btn and arsenal_cmd_input.strip():
+        cmd_str = arsenal_cmd_input.strip()
+        if engine.arsenal and (cmd_str.startswith("set ") or cmd_str.startswith("unset ") or cmd_str.lower() in ("variables", "vars", "tools")):
+            resp = engine.arsenal.handle_command(cmd_str)
+            if resp:
+                st.session_state["terminal_log"] += f"\n$ {cmd_str}\n{resp}\n"
+        else:
+            exec_mgr.send(st.session_state["active_session_id"], cmd_str)
+            st.session_state["terminal_log"] += f"\n$ {cmd_str}\n"
+
+        time.sleep(0.15)
+        fresh_after = exec_mgr.read(st.session_state["active_session_id"], timeout=0.3)
+        if fresh_after:
+            st.session_state["terminal_log"] += fresh_after
+        st.rerun()
+
+    if clear_cmd_btn:
+        st.session_state["terminal_log"] = "[*] Terminal cleared.\n"
+        st.rerun()
 
 
 # ==============================================================================

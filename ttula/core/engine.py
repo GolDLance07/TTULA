@@ -101,11 +101,11 @@ class TTULAEngine:
         return self.tailscale.get_status()
 
     # Tookie Reconnaissance
-    def run_tookie(self, query: str, timeout: int = 60) -> URLCollection:
-        """Run Tookie OSINT discovery for a username or query."""
+    def run_tookie(self, query: str, timeout: int = 60, max_results: Optional[int] = None) -> URLCollection:
+        """Run Tookie OSINT discovery for a username or query with optional max_results limit."""
         if not self.tookie:
             raise RuntimeError("Tookie adapter not configured.")
-        result_collection = self.tookie.discover(query, timeout=timeout)
+        result_collection = self.tookie.discover(query, timeout=timeout, max_results=max_results)
         self._last_url_collection = result_collection
         return result_collection
 
@@ -122,9 +122,9 @@ class TTULAEngine:
         return cleaned
 
     # End-to-end Tookie -> Uro Pipeline
-    def run_tookie_uro_pipeline(self, query: str, timeout: int = 60) -> Dict[str, Any]:
+    def run_tookie_uro_pipeline(self, query: str, timeout: int = 60, max_results: Optional[int] = None) -> Dict[str, Any]:
         """Execute complete recon pipeline without manual file transfer."""
-        raw_collection = self.run_tookie(query, timeout=timeout)
+        raw_collection = self.run_tookie(query, timeout=timeout, max_results=max_results)
         cleaned_collection = self.run_uro(raw_collection)
         return {
             "query": query,

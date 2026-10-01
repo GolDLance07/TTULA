@@ -47,63 +47,63 @@ class TTULATUIApp(App):
     SUB_TITLE = "Security Reconnaissance Workspace"
     CSS = """
     Screen {
-        background: #0B0F14;
+        background: #0A0D12;
         color: #e2e8f0;
     }
 
     Header {
-        background: #0B0F14;
-        color: #00f0ff;
+        background: #0A0D12;
+        color: #10b981;
         dock: top;
-        border-bottom: solid #27323D;
+        border-bottom: solid #232D3B;
     }
 
     Footer {
-        background: #0B0F14;
+        background: #0A0D12;
         color: #94a3b8;
         dock: bottom;
-        border-top: solid #27323D;
+        border-top: solid #232D3B;
     }
 
     #status_bar {
-        background: #111820;
-        color: #00f0ff;
-        border-bottom: solid #27323D;
+        background: #11161D;
+        color: #34d399;
+        border-bottom: solid #232D3B;
         padding: 0 1;
         height: 3;
     }
 
     #main_tabs {
         height: 1fr;
-        background: #0B0F14;
+        background: #0A0D12;
     }
 
     TabbedContent Tabs {
-        background: #111820;
-        border-bottom: solid #27323D;
+        background: #11161D;
+        border-bottom: solid #232D3B;
     }
 
     Tab {
         color: #94a3b8;
-        background: #111820;
+        background: #11161D;
     }
 
     Tab.-active {
-        color: #00f0ff;
-        background: #17212B;
+        color: #34d399;
+        background: #18202C;
         text-style: bold;
-        border-bottom: tall #00f0ff;
+        border-bottom: tall #10b981;
     }
 
     .glass-box {
-        background: #111820;
-        border: round #27323D;
+        background: #11161D;
+        border: round #232D3B;
         padding: 1;
         height: 1fr;
     }
 
     .tool-header-title {
-        color: #00f0ff;
+        color: #10b981;
         text-style: bold;
         height: 1;
     }
@@ -126,7 +126,7 @@ class TTULATUIApp(App):
     }
 
     .home-brand-title {
-        color: #00f0ff;
+        color: #10b981;
         text-style: bold;
         text-align: center;
         width: 100%;
@@ -134,7 +134,21 @@ class TTULATUIApp(App):
     }
 
     .home-tagline {
+        color: #34d399;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 1;
+    }
+
+    .home-summary {
         color: #94a3b8;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 1;
+    }
+
+    .home-steps {
+        color: #cbd5e1;
         text-align: center;
         width: 100%;
         margin-bottom: 1;
@@ -147,24 +161,9 @@ class TTULATUIApp(App):
     }
 
     .home-divider {
-        color: #27323D;
+        color: #232D3B;
         text-align: center;
         width: 100%;
-    }
-
-    .home-creators-label {
-        color: #64748B;
-        text-align: center;
-        width: 100%;
-        margin-top: 1;
-    }
-
-    .home-creators-names {
-        color: #00f0ff;
-        text-style: bold;
-        text-align: center;
-        width: 100%;
-        margin-bottom: 1;
     }
 
     .home-actions-row {
@@ -177,8 +176,23 @@ class TTULATUIApp(App):
         margin: 0 1;
     }
 
+    .home-footer-row {
+        align: center middle;
+        height: 2;
+        margin-top: 1;
+    }
+
+    .home-version {
+        color: #64748B;
+        margin-right: 4;
+    }
+
+    .home-creators {
+        color: #94A3B8;
+    }
+
     .card-title {
-        color: #00f0ff;
+        color: #10b981;
         text-style: bold;
         margin-bottom: 0;
         height: 1;
@@ -201,6 +215,10 @@ class TTULATUIApp(App):
         width: 14;
     }
 
+    #input_tookie_limit {
+        width: 24;
+    }
+
     #input_crawler_max_pages {
         width: 16;
     }
@@ -216,7 +234,7 @@ class TTULATUIApp(App):
 
     #arsenal_vars_status {
         height: 1;
-        color: #38bdf8;
+        color: #34d399;
     }
 
     #input_arsenal_set_var {
@@ -231,9 +249,9 @@ class TTULATUIApp(App):
     #arsenal_cmd_preview {
         width: 1fr;
         height: 100%;
-        background: #0B0F14;
+        background: #0A0D12;
         color: #10b981;
-        border: solid #27323D;
+        border: solid #232D3B;
         padding: 0 1;
         text-style: bold;
     }
@@ -241,17 +259,17 @@ class TTULATUIApp(App):
     #arsenal_cmd_desc {
         width: 1fr;
         height: 100%;
-        background: #17212B;
+        background: #18202C;
         color: #94a3b8;
-        border: solid #27323D;
+        border: solid #232D3B;
         padding: 0 1;
         overflow-y: scroll;
     }
 
     .cmd-preview {
-        background: #0B0F14;
-        color: #00f0ff;
-        border: solid #27323D;
+        background: #0A0D12;
+        color: #34d399;
+        border: solid #232D3B;
         padding: 0 1;
         height: 3;
         text-style: bold;
@@ -268,40 +286,41 @@ class TTULATUIApp(App):
     }
 
     Input {
-        background: #17212B;
+        background: #18202C;
         color: #e2e8f0;
-        border: tall #27323D;
+        border: tall #232D3B;
     }
 
     Input:focus {
-        border: tall #00f0ff;
-        background: #111820;
+        border: tall #10b981;
+        background: #11161D;
         color: #ffffff;
     }
 
     DataTable {
         height: 1fr;
         min-height: 4;
-        background: #111820;
-        border: solid #27323D;
+        background: #11161D;
+        border: solid #232D3B;
     }
 
     #terminal_pane {
-        height: 11;
-        border-top: solid #27323D;
-        background: #0B0F14;
+        height: 16;
+        border-top: solid #232D3B;
+        background: #0A0D12;
     }
 
     #lbl_pty_title {
         height: 1;
-        color: #94a3b8;
+        color: #34d399;
+        text-style: bold;
     }
 
     #term_log {
-        background: #0B0F14;
-        color: #38bdf8;
+        background: #0A0D12;
+        color: #a7f3d0;
         height: 1fr;
-        min-height: 4;
+        min-height: 8;
     }
 
     #term_input_row {
@@ -309,15 +328,15 @@ class TTULATUIApp(App):
     }
 
     #term_input {
-        background: #17212B;
+        background: #18202C;
         color: #e2e8f0;
-        border: tall #27323D;
+        border: tall #232D3B;
         width: 1fr;
     }
 
     #term_input:focus {
-        border: tall #00f0ff;
-        background: #111820;
+        border: tall #10b981;
+        background: #11161D;
     }
 
     Button {
@@ -369,26 +388,32 @@ class TTULATUIApp(App):
                 with Vertical(classes="glass-box home-box"):
                     yield Label("WEB CRAWLER", classes="home-brand-title")
                     yield Label(
-                        "A unified security reconnaissance workspace for web crawling, "
-                        "identity discovery, URL processing, OSINT workflows, and security command knowledge.",
+                        "Unified Security Reconnaissance Workspace",
                         classes="home-tagline",
                     )
                     yield Static(
-                        "[bold #14b8a6][ RECON ][/]  "
-                        "[bold #8b5cf6][ OSINT ][/]  "
-                        "[bold #06b6d4][ WEB RECON ][/]  "
-                        "[bold #64748b][ SECURITY AUTOMATION ][/]",
-                        classes="home-badges",
+                        "Automated attack surface mapping, deep endpoint crawling, "
+                        "identity discovery, URL processing, and zero-trust lab gating.",
+                        classes="home-summary",
                     )
                     yield Static("─" * 60, classes="home-divider")
-                    yield Label("Created by", classes="home-creators-label")
-                    yield Label("Aarush Rahul Patel · Shreya Singh", classes="home-creators-names")
+                    yield Static(
+                        "[bold #10b981]Steps to Use:[/bold #10b981]\n"
+                        "[dim]1.[/dim] [bold]Discover[/bold] – Crawl target web endpoints or run Tookie identity OSINT\n"
+                        "[dim]2.[/dim] [bold]Clean[/bold] – Pipe endpoints into Uro to deduplicate and strip noise\n"
+                        "[dim]3.[/dim] [bold]Select[/bold] – Browse 247+ tools & YAML commands in Arsenal-NG\n"
+                        "[dim]4.[/dim] [bold]Execute[/bold] – Dispatch safely to the live persistent PTY terminal",
+                        classes="home-steps",
+                    )
                     yield Static("─" * 60, classes="home-divider")
                     with Horizontal(classes="home-actions-row"):
                         yield Button("🕸️ Start Crawling", id="btn_home_crawl", variant="primary")
                         yield Button("🔍 Identity OSINT", id="btn_home_tookie")
                         yield Button("📚 Security Cheats", id="btn_home_arsenal")
                         yield Button("🌐 Tailnet Mesh", id="btn_home_mesh")
+                    with Horizontal(classes="home-footer-row"):
+                        yield Static("[dim]TTULA Multi-Tool Pipeline[/dim]", classes="home-version")
+                        yield Static("[dim]Created by[/dim] [bold #10b981]Aarush Rahul Patel · Shreya Singh[/bold #10b981]", classes="home-creators")
 
             # TAB 1: WEB CRAWLER
             with TabPane("🕸️ [1] Web Crawler", id="tab_crawler"):
@@ -396,9 +421,9 @@ class TTULATUIApp(App):
                     yield Label("WEB CRAWLER", classes="tool-header-title")
                     yield Label("Web crawling and endpoint discovery", classes="tool-header-tagline")
                     yield Static(
-                        "[bold #06b6d4][ WEB RECON ][/]  "
-                        "[bold #0ea5e9][ INFORMATION GATHERING ][/]  "
-                        "[bold #14b8a6][ RECON ][/]",
+                        "[bold #10b981][ WEB RECON ][/]  "
+                        "[bold #34d399][ INFORMATION GATHERING ][/]  "
+                        "[bold #64748b][ RECON ][/]",
                         classes="tool-header-badges",
                     )
                     with Horizontal(classes="input-row"):
@@ -416,7 +441,7 @@ class TTULATUIApp(App):
                     yield Label("TAILSCALE", classes="tool-header-title")
                     yield Label("Secure peer-to-peer lab network boundary", classes="tool-header-tagline")
                     yield Static(
-                        "[bold #38bdf8][ NETWORK RECON ][/]  "
+                        "[bold #10b981][ NETWORK RECON ][/]  "
                         "[bold #64748b][ SECURITY AUTOMATION ][/]",
                         classes="tool-header-badges",
                     )
@@ -431,15 +456,16 @@ class TTULATUIApp(App):
             with TabPane("🔍 [3] Tookie OSINT", id="tab_tookie"):
                 with Vertical(classes="glass-box"):
                     yield Label("TOOKIE", classes="tool-header-title")
-                    yield Label("Username and identity OSINT tool", classes="tool-header-tagline")
+                    yield Label("Username and identity OSINT tool (60+ Platforms)", classes="tool-header-tagline")
                     yield Static(
-                        "[bold #8b5cf6][ OSINT ][/]  "
-                        "[bold #a78bfa][ IDENTITY DISCOVERY ][/]  "
-                        "[bold #14b8a6][ RECON ][/]",
+                        "[bold #10b981][ OSINT ][/]  "
+                        "[bold #34d399][ IDENTITY DISCOVERY ][/]  "
+                        "[bold #64748b][ RECON ][/]",
                         classes="tool-header-badges",
                     )
                     with Horizontal(classes="input-row"):
                         yield Input(placeholder="Target username (e.g. labadmin, root)", id="input_tookie_user")
+                        yield Input(placeholder="Max URLs (default 50)", value="50", id="input_tookie_limit")
                         yield Button("🚀 Run Discovery", id="btn_run_tookie", variant="primary")
                     yield DataTable(id="tookie_results_table")
                     with Horizontal(classes="btn-row"):
@@ -451,9 +477,9 @@ class TTULATUIApp(App):
                     yield Label("URO", classes="tool-header-title")
                     yield Label("URL normalization and deduplication utility", classes="tool-header-tagline")
                     yield Static(
-                        "[bold #06b6d4][ WEB RECON ][/]  "
+                        "[bold #10b981][ WEB RECON ][/]  "
                         "[bold #f59e0b][ URL PROCESSING ][/]  "
-                        "[bold #14b8a6][ RECON ][/]",
+                        "[bold #64748b][ RECON ][/]",
                         classes="tool-header-badges",
                     )
                     yield Static("Ready to filter URL collection...", id="uro_status_label")
@@ -466,14 +492,6 @@ class TTULATUIApp(App):
                 with Vertical(classes="glass-box"):
                     yield Label("ARSENAL-NG", classes="tool-header-title")
                     yield Label("Security command knowledge and operation reference (247+ Tools, 2,900+ Actions)", classes="tool-header-tagline")
-                    yield Static(
-                        "[bold #14b8a6][ RECON ][/]  "
-                        "[bold #10b981][ ENUMERATION ][/]  "
-                        "[bold #ef4444][ EXPLOITATION ][/]  "
-                        "[bold #ec4899][ WIRELESS SECURITY ][/]  "
-                        "[bold #10b981][ COMMAND REFERENCE ][/]",
-                        classes="tool-header-badges",
-                    )
                     yield Static(id="arsenal_target_status")
                     yield Static(id="arsenal_vars_status")
                     with Horizontal(classes="input-row"):
@@ -555,10 +573,10 @@ class TTULATUIApp(App):
         # Setup Arsenal Table
         dt_arsenal = self.query_one("#arsenal_table", DataTable)
         dt_arsenal.cursor_type = "row"
-        dt_arsenal.add_columns("Tool", "Action Title", "Requires Lab")
+        dt_arsenal.add_columns("Tool", "YAML Tags", "Action Title", "Requires Lab")
 
         # Log initial terminal banner
-        self._log_terminal("[bold cyan][*] TTULA Web Crawler PTY Session active. Zero-injection argv executor ready.[/bold cyan]")
+        self._log_terminal("[bold #10b981][*] TTULA Web Crawler PTY Session active. Zero-injection argv executor ready.[/bold #10b981]")
 
         # Initial refresh
         self.action_refresh_tailscale()
@@ -605,7 +623,7 @@ class TTULATUIApp(App):
         target_str = "[dim]None selected[/dim]"
         if self.active_target:
             auth_str = "[bold green][✓ LAB][/bold green]" if self.active_target.is_authorized_lab else "[bold red][✗ RESTRICTED][/bold red]"
-            target_str = f"[bold cyan]{self.active_target.name}[/bold cyan] ({self.active_target.tailscale_ip}) {auth_str}"
+            target_str = f"[bold #10b981]{self.active_target.name}[/bold #10b981] ({self.active_target.tailscale_ip}) {auth_str}"
 
         online_badge = "[bold green]ONLINE[/bold green]" if online else "[bold yellow]STANDALONE/OFFLINE[/bold yellow]"
         status_bar = self.query_one("#status_bar", Static)
@@ -919,13 +937,20 @@ class TTULATUIApp(App):
         if not user:
             self.notify("Please enter a username to discover.", severity="warning")
             return
-        self._run_tookie_worker(user)
+        max_inps = self.query("#input_tookie_limit")
+        max_urls = 50
+        if max_inps and max_inps.first().value.strip():
+            try:
+                max_urls = int(max_inps.first().value.strip())
+            except ValueError:
+                max_urls = 50
+        self._run_tookie_worker(user, max_results=max_urls)
 
     @work(exclusive=True, thread=True)
-    def _run_tookie_worker(self, user: str) -> None:
+    def _run_tookie_worker(self, user: str, max_results: int = 50) -> None:
         self.app.call_from_thread(
             self._log_terminal,
-            f"\n[bold cyan][*] Running Tookie OSINT discovery for username: '{user}'...[/bold cyan]",
+            f"\n[bold #10b981][*] Running Tookie OSINT discovery for username: '{user}' (limit: {max_results} URLs)...[/bold #10b981]",
         )
         self.app.call_from_thread(
             self._log_terminal,
@@ -933,7 +958,7 @@ class TTULATUIApp(App):
         )
         self.app.call_from_thread(self.notify, f"Running Tookie discovery for '{user}'...")
         try:
-            col = self.engine.run_tookie(user, timeout=45)
+            col = self.engine.run_tookie(user, max_results=max_results, timeout=60)
             self._last_collection = col
 
             def update_ui():
@@ -1052,7 +1077,9 @@ class TTULATUIApp(App):
         for c in cmds:
             lab_badge = "[bold red]YES[/bold red]" if c.requires_authorized_lab else "[green]NO[/green]"
             tool_name = getattr(c, "source_tool", "misc")
-            dt.add_row(tool_name.upper(), c.title, lab_badge)
+            cmd_tags = getattr(c, "tags", [])
+            tags_str = ", ".join(cmd_tags[:3]) if cmd_tags else "general"
+            dt.add_row(tool_name.upper(), f"[{tags_str}]", c.title, lab_badge)
 
         self._update_arsenal_vars_display()
         if cmds:
@@ -1065,7 +1092,7 @@ class TTULATUIApp(App):
         sess_vars = self.engine.get_session_variables()
         var_pairs = [f"{k}={v}" for k, v in list(sess_vars.items())[:6]]
         target_name = self.active_target.name if self.active_target else "None"
-        lbls.first().update(f"Active Vars: {', '.join(var_pairs)} | Target: [bold cyan]{target_name}[/bold cyan]")
+        lbls.first().update(f"Active Vars: {', '.join(var_pairs)} | Target: [bold #10b981]{target_name}[/bold #10b981]")
 
     def _update_arsenal_preview(self) -> None:
         previews = self.query("#arsenal_cmd_preview")
@@ -1095,7 +1122,14 @@ class TTULATUIApp(App):
                 preview_widget.update(f"$ {prep.display_string}")
                 if desc_widget:
                     tool_val = getattr(cmd, "source_tool", "misc")
-                    desc_text = f"Tool: {tool_val}\nAction: {cmd.title}\nRequires Lab: {cmd.requires_authorized_lab}\nDescription:\n{cmd.description}"
+                    cmd_tags = getattr(cmd, "tags", [])
+                    tags_display = " · ".join(f"#{t}" for t in cmd_tags) if cmd_tags else "#general"
+                    desc_text = (
+                        f"Tool: {tool_val.upper()}  |  Tags: [{tags_display}]\n"
+                        f"Action: {cmd.title}\n"
+                        f"Requires Lab: {cmd.requires_authorized_lab}\n"
+                        f"Description:\n{cmd.description}"
+                    )
                     desc_widget.update(desc_text)
             except Exception as e:
                 preview_widget.update(f"⛔ Error: {e}")

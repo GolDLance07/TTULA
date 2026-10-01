@@ -196,6 +196,7 @@ class ArsenalAdapter:
             argv=argv,
             placeholders=placeholders,
             requires_authorized_lab=requires_lab,
+            tags=tags,
         )
 
         self._commands_cache.append(cmd)
@@ -403,3 +404,19 @@ class ArsenalAdapter:
 
     def list_categories(self) -> List[str]:
         return sorted(list({item["category"] for item in self._metadata_cache}))
+
+    def get_tool_tags(self, tool_name: str) -> List[str]:
+        """Return the list of tags for a given tool from its cheatfile metadata."""
+        tool_lower = tool_name.lower()
+        tags_set = set()
+        for item in self._metadata_cache:
+            if item["tool"].lower() == tool_lower:
+                tags_set.update(item["tags"])
+        return sorted(list(tags_set))
+
+    def list_all_tags(self) -> List[str]:
+        """Return all distinct tags across the entire cheat corpus."""
+        tags_set = set()
+        for item in self._metadata_cache:
+            tags_set.update(item["tags"])
+        return sorted(list(tags_set))

@@ -194,5 +194,6 @@ def fill_command_placeholders(
         target=target,
         placeholders=filled_placeholders,
         requires_authorized_lab=command.requires_authorized_lab,
+        tags=list(command.tags) if hasattr(command, "tags") else [],
     )
 

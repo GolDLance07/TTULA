@@ -52,10 +52,10 @@ def cmd_tailscale():
         print(f" - {d['name']} ({d['ip']}) [{d.get('os', 'unknown')}]{lab_tag}")
 
 
-def cmd_recon(username: str):
+def cmd_recon(username: str, limit: Optional[int] = None, timeout: int = 60):
     engine = create_default_engine()
-    print(f"[*] Running OSINT discovery for username: {username}")
-    res = engine.run_tookie(username)
+    print(f"[*] Running OSINT discovery for username: {username} (timeout: {timeout}s, limit: {limit or 'none'})")
+    res = engine.run_tookie(username, timeout=timeout, max_results=limit)
     print(f"[+] Found {res.count()} endpoints.")
     for item in res.items:
         print(f"  -> {item}")
@@ -189,10 +189,14 @@ def main():
     # Recon command
     recon_parser = subparsers.add_parser("recon", help="Run Tookie OSINT discovery")
     recon_parser.add_argument("username", help="Target username to investigate")
+    recon_parser.add_argument("--limit", type=int, default=None, help="Maximum number of URLs to discover")
+    recon_parser.add_argument("--timeout", type=int, default=60, help="Query timeout in seconds (default: 60)")
 
     # Pipeline command
     pipe_parser = subparsers.add_parser("pipeline", help="Run Tookie -> Uro pipeline")
     pipe_parser.add_argument("username", help="Target username for end-to-end pipeline")
+    pipe_parser.add_argument("--limit", type=int, default=None, help="Maximum number of URLs to discover")
+    pipe_parser.add_argument("--timeout", type=int, default=60, help="Query timeout in seconds (default: 60)")
 
     # Cheats command
     cheats_parser = subparsers.add_parser("cheats", help="Search Arsenal cheat corpus")
@@ -219,7 +223,7 @@ def main():
     elif args.command == "tailscale":
         cmd_tailscale()
     elif args.command == "recon":
-        cmd_recon(args.username)
+        cmd_recon(args.username, limit=getattr(args, "limit", None), timeout=getattr(args, "timeout", 60))
     elif args.command == "pipeline":
         cmd_pipeline(args.username)
     elif args.command == "cheats":

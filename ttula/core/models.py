@@ -49,6 +49,7 @@ class Command:
     target: Optional[Target] = None
     placeholders: Dict[str, str] = field(default_factory=dict)
     requires_authorized_lab: bool = False
+    tags: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         if not isinstance(self.argv, list):
