@@ -121,5 +121,3 @@ class WebCrawlerAdapter:
             endpoints.add(full_url)
 
         return endpoints
-
-    _extract_endpoints = extract_endpoints

@@ -5,12 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ttula"
 version = "0.1.0"
-description = "Personal Kali-native security operations orchestration tool connecting Arsenal-NG, Tookie, Uro, and Legba over Tailscale"
+description = "Kali-native security reconnaissance workspace — Web Crawler, Arsenal-NG cheats, Tookie OSINT, Uro URL filtering, Legba auth testing, and Tailscale lab connectivity"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [
-    { name = "TTULA Security Operations" }
+    { name = "Aarush Rahul Patel" },
+    { name = "Shreya Singh" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -42,3 +43,7 @@ include = ["ttula*"]
 [tool.setuptools.package-data]
 "ttula.integrations.arsenal" = ["cheats/*.yaml", "cheats/*.yml"]
 "ttula.ui.streamlit" = ["*.py"]
+
+[tool.setuptools.data-files]
+# Include the full Arsenal-NG community cheat knowledge base at the repo root
+"share/ttula/cheat-files" = []

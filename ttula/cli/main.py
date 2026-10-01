@@ -10,6 +10,8 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Optional
+
 from ttula.core.engine import create_default_engine
 from ttula.execution.manager import get_execution_manager
 

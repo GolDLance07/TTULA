@@ -56,7 +56,7 @@ def test_web_crawler_html_parsing():
     """
 
     base_url = "https://example.com"
-    extracted = adapter._extract_endpoints(sample_html, base_url)
+    extracted = adapter.extract_endpoints(sample_html, base_url)
 
     # Should normalize relative URLs against base
     assert "https://example.com/dashboard" in extracted
