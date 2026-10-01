@@ -15,7 +15,7 @@ import time
 from typing import Optional, List, Dict, Any
 
 from textual.app import App, ComposeResult
-from textual.containers import Container, Horizontal, Vertical, Grid
+from textual.containers import Container, Horizontal, Vertical, Grid, VerticalScroll
 from textual.widgets import (
     Header,
     Footer,
@@ -74,8 +74,13 @@ class TTULATUIApp(App):
         height: 3;
     }
 
-    #main_tabs {
+    #main_scroll {
         height: 1fr;
+        overflow-y: auto;
+    }
+
+    #main_tabs {
+        height: auto;
         background: #0A0D12;
     }
 
@@ -100,7 +105,8 @@ class TTULATUIApp(App):
         background: #11161D;
         border: round #232D3B;
         padding: 0 1;
-        height: 1fr;
+        height: auto;
+        min-height: 10;
     }
 
     .tool-header-title {
@@ -312,16 +318,20 @@ class TTULATUIApp(App):
     }
 
     DataTable {
-        height: 1fr;
+        height: auto;
         min-height: 8;
+        max-height: 16;
         background: #11161D;
         border: solid #232D3B;
     }
 
     #terminal_pane {
-        height: 7;
+        height: auto;
+        min-height: 9;
         border-top: solid #232D3B;
         background: #0A0D12;
+        padding: 0 1;
+        margin-top: 1;
     }
 
     #lbl_pty_title {
@@ -333,12 +343,13 @@ class TTULATUIApp(App):
     #term_log {
         background: #0A0D12;
         color: #a7f3d0;
-        height: 1fr;
-        min-height: 3;
+        height: 6;
+        min-height: 4;
     }
 
     #term_input_row {
         height: 3;
+        margin: 1 0 0 0;
     }
 
     #term_input {
@@ -396,162 +407,163 @@ class TTULATUIApp(App):
         yield Header(show_clock=True)
         yield Static(id="status_bar")
 
-        with TabbedContent(initial="tab_tailscale", id="main_tabs"):
-            # TAB 0: HOME
-            with TabPane("⌂ [0] Home", id="tab_home"):
-                with Vertical(classes="glass-box home-box"):
-                    yield Label("WEB CRAWLER", classes="home-brand-title")
-                    yield Label(
-                        "Unified Security Reconnaissance Workspace",
-                        classes="home-tagline",
-                    )
-                    yield Static(
-                        "Automated attack surface mapping, deep endpoint crawling, "
-                        "identity discovery, URL processing, and zero-trust lab gating.",
-                        classes="home-summary",
-                    )
-                    yield Static("─" * 60, classes="home-divider")
-                    yield Static(
-                        "[bold #10b981]Steps to Use:[/bold #10b981]\n"
-                        "[dim]1.[/dim] [bold]Discover[/bold] – Crawl target web endpoints or run Tookie identity OSINT\n"
-                        "[dim]2.[/dim] [bold]Clean[/bold] – Pipe endpoints into Uro to deduplicate and strip noise\n"
-                        "[dim]3.[/dim] [bold]Select[/bold] – Browse 247+ tools & YAML commands in Arsenal-NG\n"
-                        "[dim]4.[/dim] [bold]Execute[/bold] – Dispatch safely to the live persistent PTY terminal",
-                        classes="home-steps",
-                    )
-                    yield Static("─" * 60, classes="home-divider")
-                    with Horizontal(classes="home-actions-row"):
-                        yield Button("🕸️ Start Crawling", id="btn_home_crawl", variant="primary")
-                        yield Button("🔍 Identity OSINT", id="btn_home_tookie")
-                        yield Button("📚 Security Cheats", id="btn_home_arsenal")
-                        yield Button("🌐 Tailnet Mesh", id="btn_home_mesh")
-                    yield Static("─" * 60, classes="home-divider")
-                    with Horizontal(classes="home-footer-row"):
-                        yield Static(" ", classes="home-footer-spacer")
-                        with Vertical(classes="home-creators-box"):
-                            yield Label("Created by", classes="home-creators-label")
-                            yield Label("Aarush Rahul Patel · Shreya Singh", classes="home-creators-names")
-
-            # TAB 1: WEB CRAWLER
-            with TabPane("🕸️ [1] Web Crawler", id="tab_crawler"):
-                with Vertical(classes="glass-box"):
-                    yield Label("WEB CRAWLER", classes="tool-header-title")
-                    yield Label("Web crawling and endpoint discovery", classes="tool-header-tagline")
-                    yield Static(
-                        "[bold #10b981][ WEB RECON ][/]  "
-                        "[bold #34d399][ INFORMATION GATHERING ][/]  "
-                        "[bold #64748b][ RECON ][/]",
-                        classes="tool-header-badges",
-                    )
-                    with Horizontal(classes="input-row"):
-                        yield Input(placeholder="Target URL (e.g. http://127.0.0.1:8000)", id="input_crawler_url")
-                        yield Input(placeholder="Max Pages (e.g. 15)", value="15", id="input_crawler_max_pages")
-                        yield Button("🕸️ Start Crawl", id="btn_run_crawler", variant="primary")
-                    yield DataTable(id="crawler_results_table")
-                    with Horizontal(classes="btn-row"):
-                        yield Button("🧹 Send Discovered URLs to Uro Pipeline", id="btn_crawler_to_uro", variant="success")
-                        yield Button("⚡ Crawl & Deduplicate (Auto-Pipe)", id="btn_crawler_pipe_uro")
-
-            # TAB 2: TAILSCALE MESH
-            with TabPane("🌐 [2] Tailnet Mesh", id="tab_tailscale"):
-                with Vertical(classes="glass-box"):
-                    yield Label("TAILSCALE", classes="tool-header-title")
-                    yield Label("Secure peer-to-peer lab network boundary", classes="tool-header-tagline")
-                    yield Static(
-                        "[bold #10b981][ NETWORK RECON ][/]  "
-                        "[bold #64748b][ SECURITY AUTOMATION ][/]",
-                        classes="tool-header-badges",
-                    )
-                    yield DataTable(id="devices_table")
-                    with Horizontal(classes="btn-row"):
-                        yield Button("Toggle Lab Authorization (Space)", id="btn_toggle_auth", variant="primary")
-                        yield Button("Set Active Target (Enter)", id="btn_set_target", variant="success")
-                        yield Button("Refresh Status (r)", id="btn_refresh_ts")
-                        yield Button("Simulate Lab Node", id="btn_sim_node")
-
-            # TAB 3: TOOKIE OSINT
-            with TabPane("🔍 [3] Tookie OSINT", id="tab_tookie"):
-                with Vertical(classes="glass-box"):
-                    yield Label("TOOKIE", classes="tool-header-title")
-                    yield Label("Username and identity OSINT tool (60+ Platforms)", classes="tool-header-tagline")
-                    yield Static(
-                        "[bold #10b981][ OSINT ][/]  "
-                        "[bold #34d399][ IDENTITY DISCOVERY ][/]  "
-                        "[bold #64748b][ RECON ][/]",
-                        classes="tool-header-badges",
-                    )
-                    with Horizontal(classes="input-row"):
-                        yield Input(placeholder="Target username (e.g. labadmin, root)", id="input_tookie_user")
-                        yield Input(placeholder="Max URLs (default 50)", value="50", id="input_tookie_limit")
-                        yield Button("🚀 Run Discovery", id="btn_run_tookie", variant="primary")
-                    yield DataTable(id="tookie_results_table")
-                    with Horizontal(classes="btn-row"):
-                        yield Button("🧹 Send Collection to Uro Pipeline", id="btn_tookie_to_uro", variant="success")
-
-            # TAB 4: URO FILTERING
-            with TabPane("🧹 [4] Uro URL Filter", id="tab_uro"):
-                with Vertical(classes="glass-box"):
-                    yield Label("URO", classes="tool-header-title")
-                    yield Label("URL normalization and deduplication utility", classes="tool-header-tagline")
-                    yield Static(
-                        "[bold #10b981][ WEB RECON ][/]  "
-                        "[bold #f59e0b][ URL PROCESSING ][/]  "
-                        "[bold #64748b][ RECON ][/]",
-                        classes="tool-header-badges",
-                    )
-                    yield Static("Ready to filter URL collection...", id="uro_status_label")
-                    yield DataTable(id="uro_results_table")
-                    with Horizontal(classes="btn-row"):
-                        yield Button("⚡ Clean URLs with Uro", id="btn_run_uro", variant="primary")
-
-            # TAB 5: ARSENAL-NG PLAYBOOKS
-            with TabPane("📚 [5] Arsenal-NG", id="tab_arsenal"):
-                with Vertical(classes="glass-box"):
-                    with Horizontal(classes="input-row"):
-                        yield Input(placeholder="Search Arsenal (e.g. nmap, curl, impacket, syn, smb, windapsearch)", id="input_arsenal_query")
-                        yield Button("🔍 Search", id="btn_search_arsenal", variant="primary")
-                        yield Input(placeholder="Set Var (e.g. port=8080, user=admin)", id="input_arsenal_set_var")
-                        yield Button("💾 Set Var", id="btn_arsenal_set_var")
-                        yield Button("Simulate Lab Target", id="btn_arsenal_sim_node")
-                    yield DataTable(id="arsenal_table")
-                    with Horizontal(id="arsenal_detail_row"):
-                        yield Static("$ [Select a command template above]", id="arsenal_cmd_preview")
-                        yield Static("[Select command for documentation]", id="arsenal_cmd_desc")
-                    with Horizontal(classes="btn-row"):
-                        yield Button("▶ Execute in PTY Terminal (Enter)", id="btn_exec_arsenal", variant="success")
-
-            # TAB 6: LEGBA AUTH TESTING
-            with TabPane("🔐 [6] Legba Auth", id="tab_legba"):
-                with Vertical(classes="glass-box"):
-                    yield Label("LEGBA", classes="tool-header-title")
-                    yield Label("Multi-protocol authentication testing utility (Strict Lab Gated)", classes="tool-header-tagline")
-                    yield Static(
-                        "[bold #f43f5e][ AUTHENTICATION ][/]  "
-                        "[bold #e11d48][ CREDENTIAL TESTING ][/]",
-                        classes="tool-header-badges",
-                    )
-                    yield Static("⚠️ Refuses execution unless target is marked [✓ AUTHORIZED LAB]", id="legba_warning")
-                    with Horizontal(classes="input-row"):
-                        yield Select(
-                            options=[("SSH", "ssh"), ("HTTP", "http"), ("SMB", "smb"), ("FTP", "ftp")],
-                            value="ssh",
-                            id="select_legba_proto",
+        with VerticalScroll(id="main_scroll"):
+            with TabbedContent(initial="tab_tailscale", id="main_tabs"):
+                # TAB 0: HOME
+                with TabPane("⌂ [0] Home", id="tab_home"):
+                    with Vertical(classes="glass-box home-box"):
+                        yield Label("WEB CRAWLER", classes="home-brand-title")
+                        yield Label(
+                            "Unified Security Reconnaissance Workspace",
+                            classes="home-tagline",
                         )
-                        yield Input(placeholder="Port (22 or 80)", value="22", id="input_legba_port")
-                        yield Input(placeholder="Username", value="admin", id="input_legba_user")
-                        yield Input(placeholder="Password", value="password123", id="input_legba_pass", password=True)
-                    yield Static("$ [Select target and protocol]", id="legba_cmd_preview", classes="cmd-preview")
-                    with Horizontal(classes="btn-row"):
-                        yield Button("🚀 Launch Legba Auth Test in PTY", id="btn_exec_legba", variant="error")
+                        yield Static(
+                            "Automated attack surface mapping, deep endpoint crawling, "
+                            "identity discovery, URL processing, and zero-trust lab gating.",
+                            classes="home-summary",
+                        )
+                        yield Static("─" * 60, classes="home-divider")
+                        yield Static(
+                            "[bold #10b981]Steps to Use:[/bold #10b981]\n"
+                            "[dim]1.[/dim] [bold]Discover[/bold] – Crawl target web endpoints or run Tookie identity OSINT\n"
+                            "[dim]2.[/dim] [bold]Clean[/bold] – Pipe endpoints into Uro to deduplicate and strip noise\n"
+                            "[dim]3.[/dim] [bold]Select[/bold] – Browse 247+ tools & YAML commands in Arsenal-NG\n"
+                            "[dim]4.[/dim] [bold]Execute[/bold] – Dispatch safely to the live persistent PTY terminal",
+                            classes="home-steps",
+                        )
+                        yield Static("─" * 60, classes="home-divider")
+                        with Horizontal(classes="home-actions-row"):
+                            yield Button("🕸️ Start Crawling", id="btn_home_crawl", variant="primary")
+                            yield Button("🔍 Identity OSINT", id="btn_home_tookie")
+                            yield Button("📚 Security Cheats", id="btn_home_arsenal")
+                            yield Button("🌐 Tailnet Mesh", id="btn_home_mesh")
+                        yield Static("─" * 60, classes="home-divider")
+                        with Horizontal(classes="home-footer-row"):
+                            yield Static(" ", classes="home-footer-spacer")
+                            with Vertical(classes="home-creators-box"):
+                                yield Label("Created by", classes="home-creators-label")
+                                yield Label("Aarush Rahul Patel · Shreya Singh", classes="home-creators-names")
 
-        # BOTTOM SPLIT: PERSISTENT PTY TERMINAL
-        with Vertical(id="terminal_pane"):
-            yield Label("💻 Live Persistent PTY Console Stream (survives interactions)", id="lbl_pty_title")
-            yield RichLog(id="term_log", highlight=True, markup=True)
-            with Horizontal(id="term_input_row"):
-                yield Input(placeholder="Send raw command to PTY (e.g. echo $USER or tailscale netcheck)", id="term_input")
-                yield Button("Send ⏎", id="btn_send_pty", variant="primary")
-                yield Button("Clear", id="btn_clear_pty")
+                # TAB 1: WEB CRAWLER
+                with TabPane("🕸️ [1] Web Crawler", id="tab_crawler"):
+                    with Vertical(classes="glass-box"):
+                        yield Label("WEB CRAWLER", classes="tool-header-title")
+                        yield Label("Web crawling and endpoint discovery", classes="tool-header-tagline")
+                        yield Static(
+                            "[bold #10b981][ WEB RECON ][/]  "
+                            "[bold #34d399][ INFORMATION GATHERING ][/]  "
+                            "[bold #64748b][ RECON ][/]",
+                            classes="tool-header-badges",
+                        )
+                        with Horizontal(classes="input-row"):
+                            yield Input(placeholder="Target URL (e.g. http://127.0.0.1:8000)", id="input_crawler_url")
+                            yield Input(placeholder="Max Pages (e.g. 15)", value="15", id="input_crawler_max_pages")
+                            yield Button("🕸️ Start Crawl", id="btn_run_crawler", variant="primary")
+                        yield DataTable(id="crawler_results_table")
+                        with Horizontal(classes="btn-row"):
+                            yield Button("🧹 Send Discovered URLs to Uro Pipeline", id="btn_crawler_to_uro", variant="success")
+                            yield Button("⚡ Crawl & Deduplicate (Auto-Pipe)", id="btn_crawler_pipe_uro")
+
+                # TAB 2: TAILSCALE MESH
+                with TabPane("🌐 [2] Tailnet Mesh", id="tab_tailscale"):
+                    with Vertical(classes="glass-box"):
+                        yield Label("TAILSCALE", classes="tool-header-title")
+                        yield Label("Secure peer-to-peer lab network boundary", classes="tool-header-tagline")
+                        yield Static(
+                            "[bold #10b981][ NETWORK RECON ][/]  "
+                            "[bold #64748b][ SECURITY AUTOMATION ][/]",
+                            classes="tool-header-badges",
+                        )
+                        yield DataTable(id="devices_table")
+                        with Horizontal(classes="btn-row"):
+                            yield Button("Toggle Lab Authorization (Space)", id="btn_toggle_auth", variant="primary")
+                            yield Button("Set Active Target (Enter)", id="btn_set_target", variant="success")
+                            yield Button("Refresh Status (r)", id="btn_refresh_ts")
+                            yield Button("Simulate Lab Node", id="btn_sim_node")
+
+                # TAB 3: TOOKIE OSINT
+                with TabPane("🔍 [3] Tookie OSINT", id="tab_tookie"):
+                    with Vertical(classes="glass-box"):
+                        yield Label("TOOKIE", classes="tool-header-title")
+                        yield Label("Username and identity OSINT tool (60+ Platforms)", classes="tool-header-tagline")
+                        yield Static(
+                            "[bold #10b981][ OSINT ][/]  "
+                            "[bold #34d399][ IDENTITY DISCOVERY ][/]  "
+                            "[bold #64748b][ RECON ][/]",
+                            classes="tool-header-badges",
+                        )
+                        with Horizontal(classes="input-row"):
+                            yield Input(placeholder="Target username (e.g. labadmin, root)", id="input_tookie_user")
+                            yield Input(placeholder="Max URLs (default 50)", value="50", id="input_tookie_limit")
+                            yield Button("🚀 Run Discovery", id="btn_run_tookie", variant="primary")
+                        yield DataTable(id="tookie_results_table")
+                        with Horizontal(classes="btn-row"):
+                            yield Button("🧹 Send Collection to Uro Pipeline", id="btn_tookie_to_uro", variant="success")
+
+                # TAB 4: URO FILTERING
+                with TabPane("🧹 [4] Uro URL Filter", id="tab_uro"):
+                    with Vertical(classes="glass-box"):
+                        yield Label("URO", classes="tool-header-title")
+                        yield Label("URL normalization and deduplication utility", classes="tool-header-tagline")
+                        yield Static(
+                            "[bold #10b981][ WEB RECON ][/]  "
+                            "[bold #f59e0b][ URL PROCESSING ][/]  "
+                            "[bold #64748b][ RECON ][/]",
+                            classes="tool-header-badges",
+                        )
+                        yield Static("Ready to filter URL collection...", id="uro_status_label")
+                        yield DataTable(id="uro_results_table")
+                        with Horizontal(classes="btn-row"):
+                            yield Button("⚡ Clean URLs with Uro", id="btn_run_uro", variant="primary")
+
+                # TAB 5: ARSENAL-NG PLAYBOOKS
+                with TabPane("📚 [5] Arsenal-NG", id="tab_arsenal"):
+                    with Vertical(classes="glass-box"):
+                        with Horizontal(classes="input-row"):
+                            yield Input(placeholder="Search Arsenal (e.g. nmap, curl, impacket, syn, smb, windapsearch)", id="input_arsenal_query")
+                            yield Button("🔍 Search", id="btn_search_arsenal", variant="primary")
+                            yield Input(placeholder="Set Var (e.g. port=8080, user=admin)", id="input_arsenal_set_var")
+                            yield Button("💾 Set Var", id="btn_arsenal_set_var")
+                            yield Button("Simulate Lab Target", id="btn_arsenal_sim_node")
+                        yield DataTable(id="arsenal_table")
+                        with Horizontal(id="arsenal_detail_row"):
+                            yield Static("$ [Select a command template above]", id="arsenal_cmd_preview")
+                            yield Static("[Select command for documentation]", id="arsenal_cmd_desc")
+                        with Horizontal(classes="btn-row"):
+                            yield Button("▶ Execute in PTY Terminal (Enter)", id="btn_exec_arsenal", variant="success")
+
+                # TAB 6: LEGBA AUTH TESTING
+                with TabPane("🔐 [6] Legba Auth", id="tab_legba"):
+                    with Vertical(classes="glass-box"):
+                        yield Label("LEGBA", classes="tool-header-title")
+                        yield Label("Multi-protocol authentication testing utility (Strict Lab Gated)", classes="tool-header-tagline")
+                        yield Static(
+                            "[bold #f43f5e][ AUTHENTICATION ][/]  "
+                            "[bold #e11d48][ CREDENTIAL TESTING ][/]",
+                            classes="tool-header-badges",
+                        )
+                        yield Static("⚠️ Refuses execution unless target is marked [✓ AUTHORIZED LAB]", id="legba_warning")
+                        with Horizontal(classes="input-row"):
+                            yield Select(
+                                options=[("SSH", "ssh"), ("HTTP", "http"), ("SMB", "smb"), ("FTP", "ftp")],
+                                value="ssh",
+                                id="select_legba_proto",
+                            )
+                            yield Input(placeholder="Port (22 or 80)", value="22", id="input_legba_port")
+                            yield Input(placeholder="Username", value="admin", id="input_legba_user")
+                            yield Input(placeholder="Password", value="password123", id="input_legba_pass", password=True)
+                        yield Static("$ [Select target and protocol]", id="legba_cmd_preview", classes="cmd-preview")
+                        with Horizontal(classes="btn-row"):
+                            yield Button("🚀 Launch Legba Auth Test in PTY", id="btn_exec_legba", variant="error")
+
+            # BOTTOM SPLIT: PERSISTENT PTY TERMINAL
+            with Vertical(id="terminal_pane"):
+                yield Label("💻 Live Persistent PTY Console Stream (survives interactions)", id="lbl_pty_title")
+                yield RichLog(id="term_log", highlight=True, markup=True)
+                with Horizontal(id="term_input_row"):
+                    yield Input(placeholder="Send raw command to PTY (e.g. echo $USER or tailscale netcheck)", id="term_input")
+                    yield Button("Send ⏎", id="btn_send_pty", variant="primary")
+                    yield Button("Clear", id="btn_clear_pty")
 
         yield Footer()
 
