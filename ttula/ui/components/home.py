@@ -13,13 +13,13 @@ def render_home_page(on_navigate=None) -> None:
     <div style="
         background: #181818;
         border: 1px solid #3E3D32;
-        border-radius: 10px;
+        border-radius: 14px;
         padding: 28px 32px;
         margin-bottom: 22px;
         position: relative;
     ">
         <div style="
-            font-size: 2.1rem;
+            font-size: 2.15rem;
             font-weight: 800;
             color: #A6E22E;
             letter-spacing: -0.5px;
@@ -29,24 +29,33 @@ def render_home_page(on_navigate=None) -> None:
             🕸️ WEB CRAWLER
         </div>
         <div style="
+            color: #FD971F;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-family: 'Inter', sans-serif;
+        ">
+            Unified Security Reconnaissance & Automated Toolchain Workspace
+        </div>
+        <div style="
             color: #F8F8F2;
-            opacity: 0.9;
-            font-size: 1.02rem;
+            opacity: 0.92;
+            font-size: 0.98rem;
             line-height: 1.65;
-            max-width: 860px;
+            max-width: 900px;
             margin-bottom: 18px;
         ">
-            A unified security reconnaissance workspace engineered for rapid attack surface discovery,
-            web spidering and endpoint extraction, digital persona OSINT footprinting, intelligent URL cleaning
-            and parameter deduplication, automated execution across 190+ security tool cheat playbooks,
-            and strict boundary-enforced lab credential testing through a zero-trust Tailscale mesh.
+            An operator-focused security reconnaissance workspace engineered for high-velocity attack surface discovery,
+            deep recursive HTTP link extraction, multi-domain digital persona OSINT footprinting, intelligent URL normalization
+            and parameter de-duplication, curated knowledge across 247+ security tool cheat playbooks,
+            and strict boundary-enforced lab credential testing through a zero-trust Tailscale WireGuard mesh.
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <span style="background: #272822; border: 1px solid #3E3D32; color: #A6E22E; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">RECONNAISSANCE</span>
-            <span style="background: #272822; border: 1px solid #3E3D32; color: #FD971F; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">IDENTITY OSINT</span>
-            <span style="background: #272822; border: 1px solid #3E3D32; color: #E6DB74; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">URL DE-NOISING</span>
-            <span style="background: #272822; border: 1px solid #3E3D32; color: #AE81FF; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">190+ CHEAT PLAYBOOKS</span>
-            <span style="background: #272822; border: 1px solid #3E3D32; color: #F92672; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">LAB SAFETY GATED</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #A6E22E; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">RECONNAISSANCE</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #FD971F; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">IDENTITY OSINT</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #E6DB74; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">URL DE-NOISING</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #AE81FF; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">247+ PLAYBOOKS</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #F92672; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">ZERO-TRUST GATED</span>
         </div>
     </div>
     """
@@ -78,30 +87,30 @@ def render_home_page(on_navigate=None) -> None:
     <div style="
         background: #181818;
         border: 1px solid #3E3D32;
-        border-radius: 10px;
+        border-radius: 14px;
         padding: 22px 24px;
-        margin-bottom: 14px;
+        margin-bottom: 24px;
     ">
         <div style="font-size: 1.15rem; font-weight: 700; color: #A6E22E; margin-bottom: 14px; font-family: 'JetBrains Mono', monospace;">
-            📋 Workflow & Steps to Use
+            📋 Operational Workflow & Steps to Use
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
-            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #A6E22E; border-radius: 6px; padding: 12px 14px;">
+            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #A6E22E; border-radius: 10px; padding: 14px 16px;">
                 <div style="color: #A6E22E; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 1 • Discover</div>
                 <div style="color: #F8F8F2; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Endpoint & Persona Recon</div>
                 <div style="color: #75715E; font-size: 0.82rem; line-height: 1.45;">Crawl target web ports with <b>Web Crawler</b> or discover user accounts across 60+ platforms with <b>Tookie</b>.</div>
             </div>
-            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #FD971F; border-radius: 6px; padding: 12px 14px;">
+            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #FD971F; border-radius: 10px; padding: 14px 16px;">
                 <div style="color: #FD971F; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 2 • Clean</div>
                 <div style="color: #F8F8F2; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Uro Normalization</div>
                 <div style="color: #75715E; font-size: 0.82rem; line-height: 1.45;">Pipe raw URL lists directly into <b>Uro</b> to strip static noise, tracking parameters, and duplicate endpoints.</div>
             </div>
-            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #E6DB74; border-radius: 6px; padding: 12px 14px;">
+            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #E6DB74; border-radius: 10px; padding: 14px 16px;">
                 <div style="color: #E6DB74; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 3 • Select</div>
                 <div style="color: #F8F8F2; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Tool Playbooks & Tags</div>
                 <div style="color: #75715E; font-size: 0.82rem; line-height: 1.45;">Search 190+ tool YAML cheats with side-by-side tags (Nmap, Impacket, FFUF) and automatic variable injection.</div>
             </div>
-            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #F92672; border-radius: 6px; padding: 12px 14px;">
+            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #F92672; border-radius: 10px; padding: 14px 16px;">
                 <div style="color: #F92672; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 4 • Execute</div>
                 <div style="color: #F8F8F2; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Safe PTY Dispatch</div>
                 <div style="color: #75715E; font-size: 0.82rem; line-height: 1.45;">Verify <b>Tailscale</b> authorized lab status and dispatch commands directly to the live, persistent <b>PTY Terminal</b>.</div>
@@ -111,42 +120,59 @@ def render_home_page(on_navigate=None) -> None:
     """
     st.markdown(steps_html, unsafe_allow_html=True)
 
-    # Credits Section positioned under the Steps to Use section
-    credits_html = """
+    # Core Capabilities Matrix & Architectural Breakdown
+    capabilities_html = """
     <div style="
-        background: #1E1E1E;
+        background: #181818;
         border: 1px solid #3E3D32;
-        border-left: 4px solid #A6E22E;
-        border-radius: 8px;
-        padding: 14px 22px;
+        border-radius: 14px;
+        padding: 22px 24px;
         margin-bottom: 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
     ">
-        <div style="
-            color: #A6E22E;
-            font-weight: 700;
-            font-size: 0.95rem;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 0.2px;
-        ">
-            Credits - Created by Aarush Rahul Patel
+        <div style="font-size: 1.15rem; font-weight: 700; color: #FD971F; margin-bottom: 14px; font-family: 'JetBrains Mono', monospace;">
+            🛡️ Core Architecture & Reconnaissance Subsystems
         </div>
-        <div style="
-            color: #FD971F;
-            font-weight: 600;
-            font-size: 0.92rem;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 0.2px;
-        ">
-            Research Partner  - Shreya Singh
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+            <div style="background: #272822; border: 1px solid #3E3D32; border-radius: 10px; padding: 14px;">
+                <div style="color: #A6E22E; font-weight: 700; font-size: 0.92rem; margin-bottom: 6px;">🕸️ Recursive Web Spidering</div>
+                <div style="color: #F8F8F2; font-size: 0.84rem; opacity: 0.85; line-height: 1.45;">
+                    High-throughput crawler extracts endpoints, sub-paths, form targets, and script assets. Automated fallback ensures zero crash loops.
+                </div>
+            </div>
+            <div style="background: #272822; border: 1px solid #3E3D32; border-radius: 10px; padding: 14px;">
+                <div style="color: #FD971F; font-weight: 700; font-size: 0.92rem; margin-bottom: 6px;">🔍 Tookie Identity Footprinting</div>
+                <div style="color: #F8F8F2; font-size: 0.84rem; opacity: 0.85; line-height: 1.45;">
+                    OSINT engine querying 60+ social platforms, code hosting sites, and hacker forums for digital username footprints with configurable depth.
+                </div>
+            </div>
+            <div style="background: #272822; border: 1px solid #3E3D32; border-radius: 10px; padding: 14px;">
+                <div style="color: #E6DB74; font-weight: 700; font-size: 0.92rem; margin-bottom: 6px;">🧹 Uro Normalization Pipeline</div>
+                <div style="color: #F8F8F2; font-size: 0.84rem; opacity: 0.85; line-height: 1.45;">
+                    Removes duplicate query structures, tracking parameters (utm, fbclid), and static noise (png, css, js) to streamline tool inputs.
+                </div>
+            </div>
+            <div style="background: #272822; border: 1px solid #3E3D32; border-radius: 10px; padding: 14px;">
+                <div style="color: #AE81FF; font-weight: 700; font-size: 0.92rem; margin-bottom: 6px;">📚 Arsenal-NG Knowledge Base</div>
+                <div style="color: #F8F8F2; font-size: 0.84rem; opacity: 0.85; line-height: 1.45;">
+                    190+ tool YAML cheatsheets with side-by-side tags, live session variable substitution, and instant PTY command dispatch.
+                </div>
+            </div>
+            <div style="background: #272822; border: 1px solid #3E3D32; border-radius: 10px; padding: 14px;">
+                <div style="color: #F92672; font-weight: 700; font-size: 0.92rem; margin-bottom: 6px;">🔒 Zero-Trust Mesh Coordinator</div>
+                <div style="color: #F8F8F2; font-size: 0.84rem; opacity: 0.85; line-height: 1.45;">
+                    Tailscale WireGuard mesh node safety gate verifies node authorizations before high-impact credential audits can execute.
+                </div>
+            </div>
+            <div style="background: #272822; border: 1px solid #3E3D32; border-radius: 10px; padding: 14px;">
+                <div style="color: #66D9EF; font-weight: 700; font-size: 0.92rem; margin-bottom: 6px;">💻 Interactive Persistent PTY</div>
+                <div style="color: #F8F8F2; font-size: 0.84rem; opacity: 0.85; line-height: 1.45;">
+                    Direct zero-injection shell session running persistently in background, streaming output seamlessly across tab and UI interactions.
+                </div>
+            </div>
         </div>
     </div>
     """
-    st.markdown(credits_html, unsafe_allow_html=True)
+    st.markdown(capabilities_html, unsafe_allow_html=True)
 
     # Integrated Tools Grid
     st.markdown("### Integrated Security Toolchain")
@@ -174,7 +200,7 @@ def render_home_page(on_navigate=None) -> None:
                 background: #181818;
                 border: 1px solid #3E3D32;
                 border-top: 3px solid {accent};
-                border-radius: 8px;
+                border-radius: 10px;
                 padding: 16px;
                 margin-bottom: 16px;
                 min-height: 145px;
@@ -190,25 +216,42 @@ def render_home_page(on_navigate=None) -> None:
             """
             st.markdown(card_html, unsafe_allow_html=True)
 
-    # Minimal clean bottom footer
-    clean_footer_html = """
+    # Bottom Footer with Credits positioned in the bottom of the home page on the side
+    footer_html = """
     <div style="
         border-top: 1px solid #3E3D32;
-        margin-top: 32px;
-        padding-top: 16px;
-        padding-bottom: 8px;
+        margin-top: 36px;
+        padding-top: 20px;
+        padding-bottom: 14px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 16px;
     ">
-        <div style="color: #75715E; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace;">
-            Web Crawler • Monokai Security Reconnaissance Workspace
+        <div style="color: #75715E; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace;">
+            <div style="color: #A6E22E; font-weight: 700; font-size: 0.95rem; margin-bottom: 2px;">Web Crawler Workspace</div>
+            <div>Automated Security Reconnaissance • Monokai v1.0.0</div>
+            <div>🔒 Zero-Trust Boundary Enforced | WireGuard Mesh</div>
         </div>
-        <div style="color: #75715E; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace;">
-            v1.0.0
+        <div style="
+            text-align: right;
+            background: #181818;
+            border: 1px solid #3E3D32;
+            border-right: 4px solid #A6E22E;
+            border-radius: 12px;
+            padding: 12px 20px;
+        ">
+            <div style="color: #A6E22E; font-weight: 800; font-size: 0.95rem; font-family: 'JetBrains Mono', monospace; margin-bottom: 3px;">
+                Credits
+            </div>
+            <div style="color: #F8F8F2; font-weight: 600; font-size: 0.90rem; font-family: 'JetBrains Mono', monospace;">
+                Developed by - Aarush Rahul Patel
+            </div>
+            <div style="color: #FD971F; font-weight: 600; font-size: 0.88rem; font-family: 'JetBrains Mono', monospace;">
+                Research and Development Partner - Shreya Singh
+            </div>
         </div>
     </div>
     """
-    st.markdown(clean_footer_html, unsafe_allow_html=True)
+    st.markdown(footer_html, unsafe_allow_html=True)

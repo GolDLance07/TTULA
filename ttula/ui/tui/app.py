@@ -180,21 +180,77 @@ class TTULATUIApp(App):
         width: 100%;
         margin: 1 0;
         background: #181818;
-        border: solid #3E3D32;
+        border: round #3E3D32;
         padding: 1;
     }
 
-    .home-credits-line1 {
+    .home-section-box {
+        background: #181818;
+        border: round #3E3D32;
+        padding: 1 2;
+        margin: 1 0;
+        text-align: left;
+    }
+
+    .home-section-title {
         color: #A6E22E;
         text-style: bold;
-        text-align: center;
+        margin-bottom: 0;
+    }
+
+    .home-section-content {
+        color: #F8F8F2;
+    }
+
+    .home-footer-row {
+        height: auto;
+        min-height: 5;
+        margin-top: 1;
+        padding: 0 1;
+    }
+
+    .home-footer-left {
+        width: 1fr;
+        height: auto;
+        align-vertical: middle;
+    }
+
+    .home-footer-status {
+        color: #A6E22E;
+        text-style: bold;
+    }
+
+    .home-footer-sub {
+        color: #75715E;
+    }
+
+    .home-credits-sidebox {
+        width: auto;
+        min-width: 52;
+        background: #181818;
+        border: round #A6E22E;
+        padding: 1 2;
+        align: right middle;
+    }
+
+    .home-credits-heading {
+        color: #A6E22E;
+        text-style: bold;
+        text-align: right;
         width: 100%;
     }
 
-    .home-credits-line2 {
+    .home-credits-dev {
+        color: #F8F8F2;
+        text-style: bold;
+        text-align: right;
+        width: 100%;
+    }
+
+    .home-credits-rd {
         color: #FD971F;
         text-style: bold;
-        text-align: center;
+        text-align: right;
         width: 100%;
     }
 
@@ -206,6 +262,7 @@ class TTULATUIApp(App):
 
     .home-actions-row Button {
         margin: 0 1;
+        border: round #3E3D32;
     }
 
     .card-title {
@@ -268,7 +325,7 @@ class TTULATUIApp(App):
         height: 100%;
         background: #121212;
         color: #A6E22E;
-        border: solid #3E3D32;
+        border: round #3E3D32;
         padding: 0 1;
         text-style: bold;
     }
@@ -278,7 +335,7 @@ class TTULATUIApp(App):
         height: 100%;
         background: #272822;
         color: #F8F8F2;
-        border: solid #3E3D32;
+        border: round #3E3D32;
         padding: 0 1;
         overflow-y: scroll;
     }
@@ -286,7 +343,7 @@ class TTULATUIApp(App):
     .cmd-preview {
         background: #121212;
         color: #A6E22E;
-        border: solid #3E3D32;
+        border: round #3E3D32;
         padding: 0 1;
         height: 3;
         text-style: bold;
@@ -305,11 +362,11 @@ class TTULATUIApp(App):
     Input {
         background: #272822;
         color: #F8F8F2;
-        border: tall #3E3D32;
+        border: round #3E3D32;
     }
 
     Input:focus {
-        border: tall #A6E22E;
+        border: round #A6E22E;
         background: #1E1E1E;
         color: #FFFFFF;
     }
@@ -319,13 +376,13 @@ class TTULATUIApp(App):
         min-height: 8;
         max-height: 16;
         background: #1E1E1E;
-        border: solid #3E3D32;
+        border: round #3E3D32;
     }
 
     #terminal_pane {
         height: auto;
         min-height: 9;
-        border-top: solid #3E3D32;
+        border: round #3E3D32;
         background: #121212;
         padding: 0 1;
         margin-top: 1;
@@ -352,31 +409,37 @@ class TTULATUIApp(App):
     #term_input {
         background: #272822;
         color: #F8F8F2;
-        border: tall #3E3D32;
+        border: round #3E3D32;
         width: 1fr;
     }
 
     #term_input:focus {
-        border: tall #A6E22E;
+        border: round #A6E22E;
         background: #1E1E1E;
     }
 
     Button {
         background: #272822;
         color: #F8F8F2;
-        border: solid #3E3D32;
+        border: round #3E3D32;
         margin: 0;
+    }
+
+    Button:focus {
+        border: round #A6E22E;
     }
 
     Button.-primary {
         background: #F92672;
         color: #FFFFFF;
+        border: round #F92672;
         text-style: bold;
     }
 
     Button.-success {
         background: #A6E22E;
         color: #121212;
+        border: round #A6E22E;
         text-style: bold;
     }
     """
@@ -426,33 +489,77 @@ class TTULATUIApp(App):
                     with Vertical(classes="glass-box home-box"):
                         yield Label("WEB CRAWLER", classes="home-brand-title")
                         yield Label(
-                            "Unified Security Reconnaissance Workspace",
+                            "Unified Security Reconnaissance & Automated Toolchain Workspace",
                             classes="home-tagline",
                         )
                         yield Static(
-                            "Automated attack surface mapping, deep endpoint crawling, "
-                            "identity discovery, URL processing, and zero-trust lab gating.",
+                            "High-throughput attack surface mapping, deep endpoint crawling, "
+                            "identity discovery, URL normalization, 247+ cheat playbooks, and zero-trust lab gating.",
                             classes="home-summary",
                         )
-                        yield Static("─" * 60, classes="home-divider")
                         yield Static(
-                            "[bold #A6E22E]Steps to Use:[/bold #A6E22E]\n"
-                            "[#75715E]1.[/#75715E] [bold]Discover[/bold] – Crawl target web endpoints or run Tookie identity OSINT\n"
-                            "[#75715E]2.[/#75715E] [bold]Clean[/bold] – Pipe endpoints into Uro to deduplicate and strip noise\n"
-                            "[#75715E]3.[/#75715E] [bold]Select[/bold] – Browse 247+ tools & YAML commands in Arsenal-NG\n"
-                            "[#75715E]4.[/#75715E] [bold]Execute[/bold] – Dispatch safely to the live persistent PTY terminal",
-                            classes="home-steps",
+                            "[bold #A6E22E]╭( 🕸️ RECON )╮[/bold #A6E22E]  "
+                            "[bold #FD971F]╭( 🔍 IDENTITY OSINT )╮[/bold #FD971F]  "
+                            "[bold #E6DB74]╭( 🧹 URO DE-NOISING )╮[/bold #E6DB74]  "
+                            "[bold #AE81FF]╭( 📚 247+ PLAYBOOKS )╮[/bold #AE81FF]  "
+                            "[bold #F92672]╭( 🔒 ZERO-TRUST GATED )╮[/bold #F92672]",
+                            classes="home-badges",
                         )
-                        yield Static("─" * 60, classes="home-divider")
-                        with Vertical(classes="home-credits-box"):
-                            yield Label("Credits - Created by Aarush Rahul Patel", classes="home-credits-line1")
-                            yield Label("Research Partner  - Shreya Singh", classes="home-credits-line2")
                         yield Static("─" * 60, classes="home-divider")
                         with Horizontal(classes="home-actions-row"):
                             yield Button("🕸️ Start Crawling", id="btn_home_crawl", variant="primary")
                             yield Button("🔍 Identity OSINT", id="btn_home_tookie")
                             yield Button("📚 Security Cheats", id="btn_home_arsenal")
                             yield Button("🌐 Tailnet Mesh", id="btn_home_mesh")
+                        yield Static("─" * 60, classes="home-divider")
+
+                        yield Static(
+                            "[bold #A6E22E]📋 Operational Workflow (Steps to Use):[/bold #A6E22E]\n"
+                            "[#75715E]1.[/#75715E] [bold]Discover[/bold] – Spider web endpoints or run Tookie OSINT username footprinting\n"
+                            "[#75715E]2.[/#75715E] [bold]Clean[/bold] – Pipe discovered endpoints into Uro to deduplicate and strip noise\n"
+                            "[#75715E]3.[/#75715E] [bold]Select[/bold] – Search 247+ tools & YAML commands with side-by-side tags in Arsenal-NG\n"
+                            "[#75715E]4.[/#75715E] [bold]Execute[/bold] – Verify Tailscale authorized lab status and dispatch safely to live PTY",
+                            classes="home-steps",
+                        )
+
+                        with Vertical(classes="home-section-box"):
+                            yield Label("🛡️ Core Workspace Capabilities", classes="home-section-title")
+                            yield Static(
+                                "[bold #A6E22E]• Web Spidering:[/] Automated recursive HTTP link extraction & asset discovery.\n"
+                                "[bold #FD971F]• Digital Identity OSINT:[/] Footprint usernames across 60+ social & dev domains.\n"
+                                "[bold #E6DB74]• URL De-noising:[/] Intelligent deduplication, tracking parameter cleanup & noise removal.\n"
+                                "[bold #AE81FF]• Arsenal-NG Knowledge:[/] 247+ tools and 2,900+ YAML commands with variable injection.\n"
+                                "[bold #F92672]• Zero-Trust Boundary:[/] Tailscale WireGuard mesh node safety gate and target verification.\n"
+                                "[bold #66D9EF]• Persistent Interactive PTY:[/] Zero-injection argv shell executor with live streaming.",
+                                classes="home-section-content",
+                            )
+
+                        with Vertical(classes="home-section-box"):
+                            yield Label("⚡ Workspace Hotkeys & Fast Navigation", classes="home-section-title")
+                            yield Static(
+                                "[bold #A6E22E][F1][/] Home  •  "
+                                "[bold #A6E22E][F2][/] Crawl  •  "
+                                "[bold #A6E22E][F3][/] Tailnet  •  "
+                                "[bold #A6E22E][F4][/] OSINT  •  "
+                                "[bold #A6E22E][F5][/] Uro  •  "
+                                "[bold #A6E22E][F6][/] Arsenal  •  "
+                                "[bold #A6E22E][F7][/] Legba  •  "
+                                "[bold #A6E22E][F12][/] Terminal  •  "
+                                "[bold #A6E22E][Space][/] Toggle Lab Auth",
+                                classes="home-section-content",
+                            )
+
+                        yield Static("─" * 60, classes="home-divider")
+
+                        # Bottom of Home Page - Positioned on the Side
+                        with Horizontal(classes="home-footer-row"):
+                            with Vertical(classes="home-footer-left"):
+                                yield Label("Web Crawler • Reconnaissance Workspace v1.0.0", classes="home-footer-status")
+                                yield Label("🔒 Zero-Trust Boundary Enforced | WireGuard Mesh", classes="home-footer-sub")
+                            with Vertical(classes="home-credits-sidebox"):
+                                yield Label("Credits", classes="home-credits-heading")
+                                yield Label("Developed by - Aarush Rahul Patel", classes="home-credits-dev")
+                                yield Label("Research and Development Partner - Shreya Singh", classes="home-credits-rd")
 
                 # TAB 1: WEB CRAWLER
                 with TabPane("🕸️ [1] Web Crawler", id="tab_crawler"):
