@@ -29,27 +29,27 @@ CATEGORIES: List[str] = [
     "Security Automation",
 ]
 
-# Semantic Category Accents for High-Contrast Badges
+# Semantic Category Accents for High-Contrast Badges (Monokai Palette)
 CATEGORY_COLORS: Dict[str, str] = {
-    "Recon": "#14B8A6",               # Teal
-    "OSINT": "#8B5CF6",               # Violet
-    "Web Recon": "#06B6D4",           # Cyan
-    "Network Recon": "#38BDF8",       # Sky
-    "Enumeration": "#10B981",         # Emerald
-    "Identity Discovery": "#A78BFA",  # Light Violet
-    "URL Processing": "#F59E0B",      # Amber
-    "Service Enumeration": "#34D399", # Mint
-    "Vulnerability Assessment": "#F97316", # Orange
-    "Exploitation": "#EF4444",        # Red
-    "Post-Exploitation": "#DC2626",   # Deep Red
-    "Wireless Security": "#EC4899",   # Pink
-    "Authentication": "#F43F5E",      # Rose
-    "Credential Testing": "#E11D48",  # Crimson
-    "Digital Forensics": "#6366F1",   # Indigo
-    "Incident Response": "#84CC16",   # Lime
-    "Information Gathering": "#0EA5E9", # Sky Blue
-    "Command Reference": "#10B981",   # Emerald
-    "Security Automation": "#64748B", # Slate
+    "Recon": "#A6E22E",               # Monokai Green
+    "OSINT": "#FD971F",               # Monokai Orange
+    "Web Recon": "#A6E22E",           # Monokai Green
+    "Network Recon": "#AE81FF",       # Monokai Purple
+    "Enumeration": "#E6DB74",         # Monokai Yellow
+    "Identity Discovery": "#FD971F",  # Monokai Orange
+    "URL Processing": "#E6DB74",      # Monokai Yellow
+    "Service Enumeration": "#A6E22E", # Monokai Green
+    "Vulnerability Assessment": "#FD971F", # Monokai Orange
+    "Exploitation": "#F92672",        # Monokai Pink
+    "Post-Exploitation": "#F92672",   # Monokai Pink
+    "Wireless Security": "#AE81FF",   # Monokai Purple
+    "Authentication": "#F92672",      # Monokai Pink
+    "Credential Testing": "#F92672",  # Monokai Pink
+    "Digital Forensics": "#66D9EF",   # Monokai Cyan
+    "Incident Response": "#A6E22E",   # Monokai Green
+    "Information Gathering": "#FD971F", # Monokai Orange
+    "Command Reference": "#A6E22E",   # Monokai Green
+    "Security Automation": "#75715E", # Monokai Comment Grey
 }
 
 # Centralized Tool Registry (Section 5)
@@ -61,7 +61,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "tagline": "Unified Security Reconnaissance Workspace",
         "description": "A unified security reconnaissance workspace for web crawling, identity discovery, URL processing, OSINT workflows, and security command knowledge.",
         "categories": ["Recon", "OSINT", "Web Recon", "Security Automation"],
-        "accent": "#00F0FF",
+        "accent": "#A6E22E",
         "icon": "⌂",
     },
     "web_crawler": {
@@ -71,7 +71,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "tagline": "Web crawling and endpoint discovery",
         "description": "High-throughput endpoint crawler and link extractor for target web services and mapped application ports.",
         "categories": ["Web Recon", "Information Gathering", "Recon"],
-        "accent": "#00F0FF",
+        "accent": "#A6E22E",
         "icon": "🕸️",
     },
     "tookie": {
@@ -81,7 +81,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "tagline": "Username and identity OSINT tool",
         "description": "High-performance digital identity and username reconnaissance engine querying 500+ web platforms.",
         "categories": ["OSINT", "Identity Discovery", "Recon"],
-        "accent": "#8B5CF6",
+        "accent": "#FD971F",
         "icon": "🔍",
     },
     "uro": {
@@ -91,7 +91,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "tagline": "URL normalization and deduplication utility",
         "description": "Specialized URL filtering engine that eliminates duplicate endpoints, cleans tracking parameters, and filters static file noise.",
         "categories": ["Web Recon", "URL Processing", "Recon"],
-        "accent": "#F59E0B",
+        "accent": "#E6DB74",
         "icon": "🧹",
     },
     "arsenal": {
@@ -101,7 +101,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "tagline": "Security command knowledge and operation reference",
         "description": "Curated security command repository with 247+ tools, 2,900+ actions, and live session variable substitution.",
         "categories": ["Recon", "Enumeration", "Exploitation", "Wireless Security", "Command Reference"],
-        "accent": "#10B981",
+        "accent": "#A6E22E",
         "icon": "📚",
     },
     "legba": {
@@ -111,7 +111,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "tagline": "Multi-protocol authentication testing utility",
         "description": "High-speed network authenticator auditing credentials across SSH, SMB, HTTP, and FTP in authorized lab environments.",
         "categories": ["Authentication", "Credential Testing"],
-        "accent": "#EF4444",
+        "accent": "#F92672",
         "icon": "🔐",
     },
     "tailscale": {
@@ -121,7 +121,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "tagline": "Secure peer-to-peer lab network boundary",
         "description": "Zero-trust WireGuard mesh coordinator providing authorized lab target discovery, health checks, and secure connectivity.",
         "categories": ["Network Recon", "Security Automation"],
-        "accent": "#14B8A6",
+        "accent": "#AE81FF",
         "icon": "🌐",
     },
     "terminal": {
@@ -131,7 +131,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "tagline": "Persistent interactive pseudoterminal session",
         "description": "Zero-injection argv executor running interactive shell sessions that persist across dashboard interactions.",
         "categories": ["Security Automation", "Command Reference"],
-        "accent": "#38BDF8",
+        "accent": "#66D9EF",
         "icon": "💻",
     },
 }

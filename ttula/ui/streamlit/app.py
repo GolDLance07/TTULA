@@ -30,43 +30,43 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Dark, Modern Cybersecurity Palette (Section 7 of implementation.md)
-# Background: #0B0F14 | Surface 1: #111820 | Surface 2: #17212B | Border: #27323D
+# Monokai Theme with Deep Black Background & Aesthetic Fonts
 CUSTOM_CSS = """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     code, pre, .terminal-text {
-        font-family: 'JetBrains Mono', monospace !important;
+        font-family: 'Fira Code', 'JetBrains Mono', monospace !important;
     }
 
-    /* Base Dark Obsidian Theme */
+    /* Base Monokai Deep Black Theme */
     .stApp {
-        background-color: #0A0D12;
-        color: #F1F5F9;
+        background-color: #0C0C0C;
+        color: #F8F8F2;
     }
 
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
-        background-color: #12171F !important;
-        border-right: 1px solid #232D3B !important;
+        background-color: #121212 !important;
+        border-right: 1px solid #3E3D32 !important;
     }
 
     .sidebar-brand-title {
         font-size: 1.45rem;
         font-weight: 800;
-        color: #FFFFFF;
+        color: #A6E22E;
         letter-spacing: 0.5px;
         margin-bottom: 2px;
         display: flex;
         align-items: center;
         gap: 8px;
+        font-family: 'JetBrains Mono', monospace;
     }
     .sidebar-brand-subtitle {
-        color: #8E9DAE;
+        color: #75715E;
         font-size: 0.78rem;
         text-transform: uppercase;
         letter-spacing: 0.6px;
@@ -76,30 +76,30 @@ CUSTOM_CSS = """
 
     /* Cards and Surfaces */
     .card-surface {
-        background: #12171F;
-        border: 1px solid #232D3B;
+        background: #181818;
+        border: 1px solid #3E3D32;
         border-radius: 8px;
         padding: 1.25rem;
         margin-bottom: 1rem;
     }
     .card-surface-interactive {
-        background: #151C26;
-        border: 1px solid #283446;
+        background: #1E1E1E;
+        border: 1px solid #3E3D32;
         border-radius: 8px;
         padding: 1.25rem;
         margin-bottom: 1rem;
         transition: border-color 0.2s ease, background 0.2s ease;
     }
     .card-surface-interactive:hover {
-        border-color: #384A60;
-        background: #182230;
+        border-color: #A6E22E;
+        background: #272822;
     }
 
     /* Lab Status Badges */
     .badge-authorized {
-        background: rgba(16, 185, 129, 0.15);
-        color: #10B981;
-        border: 1px solid rgba(16, 185, 129, 0.4);
+        background: rgba(166, 226, 46, 0.15);
+        color: #A6E22E;
+        border: 1px solid rgba(166, 226, 46, 0.4);
         padding: 3px 8px;
         border-radius: 6px;
         font-size: 0.72rem;
@@ -107,9 +107,9 @@ CUSTOM_CSS = """
         letter-spacing: 0.5px;
     }
     .badge-unauthorized {
-        background: rgba(239, 68, 68, 0.15);
-        color: #EF4444;
-        border: 1px solid rgba(239, 68, 68, 0.4);
+        background: rgba(249, 38, 114, 0.15);
+        color: #F92672;
+        border: 1px solid rgba(249, 38, 114, 0.4);
         padding: 3px 8px;
         border-radius: 6px;
         font-size: 0.72rem;
@@ -119,9 +119,9 @@ CUSTOM_CSS = """
 
     /* Tool YAML Tags Styling */
     .yaml-tag {
-        background: #19222E;
-        border: 1px solid #2B3A4F;
-        color: #CBD5E1;
+        background: #272822;
+        border: 1px solid #3E3D32;
+        color: #E6DB74;
         padding: 2px 8px;
         border-radius: 4px;
         font-size: 0.72rem;
@@ -135,42 +135,47 @@ CUSTOM_CSS = """
 
     /* Terminal Console Display */
     .terminal-container {
-        background: #06080B;
-        border: 1px solid #232D3B;
+        background: #000000;
+        border: 1px solid #3E3D32;
         border-radius: 8px;
         padding: 16px;
-        color: #E2E8F0;
+        color: #A6E22E;
         font-size: 0.88rem;
         min-height: 280px;
         max-height: 440px;
         overflow-y: auto;
         white-space: pre-wrap;
+        font-family: 'Fira Code', 'JetBrains Mono', monospace;
     }
 
     /* Command Preview Box */
     .cmd-preview-box {
-        background: #06080B;
-        border-left: 3px solid #10B981;
-        border-top: 1px solid #232D3B;
-        border-right: 1px solid #232D3B;
-        border-bottom: 1px solid #232D3B;
+        background: #000000;
+        border-left: 3px solid #A6E22E;
+        border-top: 1px solid #3E3D32;
+        border-right: 1px solid #3E3D32;
+        border-bottom: 1px solid #3E3D32;
         padding: 10px 14px;
         border-radius: 4px;
-        font-family: 'JetBrains Mono', monospace;
-        color: #34D399;
+        font-family: 'Fira Code', 'JetBrains Mono', monospace;
+        color: #A6E22E;
         font-size: 0.88rem;
         margin: 10px 0;
     }
 
     /* Button and Input Styling */
     div.stButton > button {
+        background: #272822;
+        color: #F8F8F2;
+        border: 1px solid #3E3D32;
         border-radius: 6px;
         font-weight: 600;
         font-size: 0.88rem;
         transition: all 0.15s ease;
     }
     div.stButton > button:hover {
-        border-color: #10B981;
+        border-color: #A6E22E;
+        color: #A6E22E;
     }
 </style>
 """
@@ -514,8 +519,8 @@ elif menu == "📚 Arsenal-NG":
 
             meta_line = f"""
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
-                <span style="font-weight: 700; color: #10B981; font-size: 0.88rem; background: #182230; border: 1px solid #283648; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">{cmd.source_tool}</span>
-                <span style="color: #64748B; font-size: 0.80rem; font-weight: 600;">TAGS:</span>
+                <span style="font-weight: 700; color: #A6E22E; font-size: 0.88rem; background: #272822; border: 1px solid #3E3D32; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">{cmd.source_tool}</span>
+                <span style="color: #FD971F; font-size: 0.80rem; font-weight: 600;">TAGS:</span>
                 {tags_html}
             </div>
             """

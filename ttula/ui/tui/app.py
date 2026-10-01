@@ -48,28 +48,28 @@ class TTULATUIApp(App):
     SUB_TITLE = "Security Reconnaissance Workspace"
     CSS = """
     Screen {
-        background: #0A0D12;
-        color: #e2e8f0;
+        background: #121212;
+        color: #F8F8F2;
     }
 
     Header {
-        background: #0A0D12;
-        color: #10b981;
+        background: #1E1E1E;
+        color: #A6E22E;
         dock: top;
-        border-bottom: solid #232D3B;
+        border-bottom: solid #3E3D32;
     }
 
     Footer {
-        background: #0A0D12;
-        color: #94a3b8;
+        background: #1E1E1E;
+        color: #75715E;
         dock: bottom;
-        border-top: solid #232D3B;
+        border-top: solid #3E3D32;
     }
 
     #status_bar {
-        background: #11161D;
-        color: #34d399;
-        border-bottom: solid #232D3B;
+        background: #181818;
+        color: #A6E22E;
+        border-bottom: solid #3E3D32;
         padding: 0 1;
         height: 3;
     }
@@ -81,42 +81,42 @@ class TTULATUIApp(App):
 
     #main_tabs {
         height: auto;
-        background: #0A0D12;
+        background: #121212;
     }
 
     TabbedContent Tabs {
-        background: #11161D;
-        border-bottom: solid #232D3B;
+        background: #181818;
+        border-bottom: solid #3E3D32;
     }
 
     Tab {
-        color: #94a3b8;
-        background: #11161D;
+        color: #75715E;
+        background: #181818;
     }
 
     Tab.-active {
-        color: #34d399;
-        background: #18202C;
+        color: #A6E22E;
+        background: #272822;
         text-style: bold;
-        border-bottom: tall #10b981;
+        border-bottom: tall #F92672;
     }
 
     .glass-box {
-        background: #11161D;
-        border: round #232D3B;
+        background: #1E1E1E;
+        border: round #3E3D32;
         padding: 0 1;
         height: auto;
         min-height: 10;
     }
 
     .tool-header-title {
-        color: #10b981;
+        color: #A6E22E;
         text-style: bold;
         height: 1;
     }
 
     .tool-header-tagline {
-        color: #94a3b8;
+        color: #75715E;
         height: 1;
     }
 
@@ -125,7 +125,7 @@ class TTULATUIApp(App):
         margin-bottom: 1;
     }
 
-    /* Home Page Styles */
+    /* Monokai Home Page Styles */
     .home-box {
         align: center middle;
         text-align: center;
@@ -134,7 +134,7 @@ class TTULATUIApp(App):
     }
 
     .home-brand-title {
-        color: #10b981;
+        color: #A6E22E;
         text-style: bold;
         text-align: center;
         width: 100%;
@@ -142,21 +142,21 @@ class TTULATUIApp(App):
     }
 
     .home-tagline {
-        color: #34d399;
+        color: #FD971F;
         text-align: center;
         width: 100%;
         margin-bottom: 0;
     }
 
     .home-summary {
-        color: #94a3b8;
+        color: #F8F8F2;
         text-align: center;
         width: 100%;
         margin-bottom: 1;
     }
 
     .home-steps {
-        color: #cbd5e1;
+        color: #E6DB74;
         text-align: center;
         width: 100%;
         margin-bottom: 1;
@@ -169,7 +169,31 @@ class TTULATUIApp(App):
     }
 
     .home-divider {
-        color: #232D3B;
+        color: #3E3D32;
+        text-align: center;
+        width: 100%;
+    }
+
+    .home-credits-box {
+        align: center middle;
+        text-align: center;
+        width: 100%;
+        margin: 1 0;
+        background: #181818;
+        border: solid #3E3D32;
+        padding: 1;
+    }
+
+    .home-credits-line1 {
+        color: #A6E22E;
+        text-style: bold;
+        text-align: center;
+        width: 100%;
+    }
+
+    .home-credits-line2 {
+        color: #FD971F;
+        text-style: bold;
         text-align: center;
         width: 100%;
     }
@@ -184,35 +208,8 @@ class TTULATUIApp(App):
         margin: 0 1;
     }
 
-    .home-footer-row {
-        height: 2;
-        margin-top: 1;
-        width: 100%;
-        align: right middle;
-    }
-
-    .home-footer-spacer {
-        width: 1fr;
-    }
-
-    .home-creators-box {
-        width: auto;
-        padding-right: 2;
-    }
-
-    .home-creators-label {
-        color: #64748B;
-        text-align: right;
-    }
-
-    .home-creators-names {
-        color: #10b981;
-        text-style: bold;
-        text-align: right;
-    }
-
     .card-title {
-        color: #10b981;
+        color: #A6E22E;
         text-style: bold;
         margin-bottom: 0;
         height: 1;
@@ -254,7 +251,7 @@ class TTULATUIApp(App):
 
     #arsenal_vars_status {
         height: 1;
-        color: #34d399;
+        color: #E6DB74;
     }
 
     #input_arsenal_set_var {
@@ -269,9 +266,9 @@ class TTULATUIApp(App):
     #arsenal_cmd_preview {
         width: 1fr;
         height: 100%;
-        background: #0A0D12;
-        color: #10b981;
-        border: solid #232D3B;
+        background: #121212;
+        color: #A6E22E;
+        border: solid #3E3D32;
         padding: 0 1;
         text-style: bold;
     }
@@ -279,70 +276,70 @@ class TTULATUIApp(App):
     #arsenal_cmd_desc {
         width: 1fr;
         height: 100%;
-        background: #18202C;
-        color: #94a3b8;
-        border: solid #232D3B;
+        background: #272822;
+        color: #F8F8F2;
+        border: solid #3E3D32;
         padding: 0 1;
         overflow-y: scroll;
     }
 
     .cmd-preview {
-        background: #0A0D12;
-        color: #34d399;
-        border: solid #232D3B;
+        background: #121212;
+        color: #A6E22E;
+        border: solid #3E3D32;
         padding: 0 1;
         height: 3;
         text-style: bold;
     }
 
     .badge-auth {
-        color: #10b981;
+        color: #A6E22E;
         text-style: bold;
     }
 
     .badge-unauth {
-        color: #ef4444;
+        color: #F92672;
         text-style: bold;
     }
 
     Input {
-        background: #18202C;
-        color: #e2e8f0;
-        border: tall #232D3B;
+        background: #272822;
+        color: #F8F8F2;
+        border: tall #3E3D32;
     }
 
     Input:focus {
-        border: tall #10b981;
-        background: #11161D;
-        color: #ffffff;
+        border: tall #A6E22E;
+        background: #1E1E1E;
+        color: #FFFFFF;
     }
 
     DataTable {
         height: auto;
         min-height: 8;
         max-height: 16;
-        background: #11161D;
-        border: solid #232D3B;
+        background: #1E1E1E;
+        border: solid #3E3D32;
     }
 
     #terminal_pane {
         height: auto;
         min-height: 9;
-        border-top: solid #232D3B;
-        background: #0A0D12;
+        border-top: solid #3E3D32;
+        background: #121212;
         padding: 0 1;
         margin-top: 1;
     }
 
     #lbl_pty_title {
         height: 1;
-        color: #34d399;
+        color: #A6E22E;
         text-style: bold;
     }
 
     #term_log {
-        background: #0A0D12;
-        color: #a7f3d0;
+        background: #121212;
+        color: #A6E22E;
         height: 6;
         min-height: 4;
     }
@@ -353,19 +350,34 @@ class TTULATUIApp(App):
     }
 
     #term_input {
-        background: #18202C;
-        color: #e2e8f0;
-        border: tall #232D3B;
+        background: #272822;
+        color: #F8F8F2;
+        border: tall #3E3D32;
         width: 1fr;
     }
 
     #term_input:focus {
-        border: tall #10b981;
-        background: #11161D;
+        border: tall #A6E22E;
+        background: #1E1E1E;
     }
 
     Button {
+        background: #272822;
+        color: #F8F8F2;
+        border: solid #3E3D32;
         margin: 0;
+    }
+
+    Button.-primary {
+        background: #F92672;
+        color: #FFFFFF;
+        text-style: bold;
+    }
+
+    Button.-success {
+        background: #A6E22E;
+        color: #121212;
+        text-style: bold;
     }
     """
 
@@ -408,7 +420,7 @@ class TTULATUIApp(App):
         yield Static(id="status_bar")
 
         with VerticalScroll(id="main_scroll"):
-            with TabbedContent(initial="tab_tailscale", id="main_tabs"):
+            with TabbedContent(initial="tab_home", id="main_tabs"):
                 # TAB 0: HOME
                 with TabPane("⌂ [0] Home", id="tab_home"):
                     with Vertical(classes="glass-box home-box"):
@@ -424,25 +436,23 @@ class TTULATUIApp(App):
                         )
                         yield Static("─" * 60, classes="home-divider")
                         yield Static(
-                            "[bold #10b981]Steps to Use:[/bold #10b981]\n"
-                            "[dim]1.[/dim] [bold]Discover[/bold] – Crawl target web endpoints or run Tookie identity OSINT\n"
-                            "[dim]2.[/dim] [bold]Clean[/bold] – Pipe endpoints into Uro to deduplicate and strip noise\n"
-                            "[dim]3.[/dim] [bold]Select[/bold] – Browse 247+ tools & YAML commands in Arsenal-NG\n"
-                            "[dim]4.[/dim] [bold]Execute[/bold] – Dispatch safely to the live persistent PTY terminal",
+                            "[bold #A6E22E]Steps to Use:[/bold #A6E22E]\n"
+                            "[#75715E]1.[/#75715E] [bold]Discover[/bold] – Crawl target web endpoints or run Tookie identity OSINT\n"
+                            "[#75715E]2.[/#75715E] [bold]Clean[/bold] – Pipe endpoints into Uro to deduplicate and strip noise\n"
+                            "[#75715E]3.[/#75715E] [bold]Select[/bold] – Browse 247+ tools & YAML commands in Arsenal-NG\n"
+                            "[#75715E]4.[/#75715E] [bold]Execute[/bold] – Dispatch safely to the live persistent PTY terminal",
                             classes="home-steps",
                         )
+                        yield Static("─" * 60, classes="home-divider")
+                        with Vertical(classes="home-credits-box"):
+                            yield Label("Credits - Created by Aarush Rahul Patel", classes="home-credits-line1")
+                            yield Label("Research Partner  - Shreya Singh", classes="home-credits-line2")
                         yield Static("─" * 60, classes="home-divider")
                         with Horizontal(classes="home-actions-row"):
                             yield Button("🕸️ Start Crawling", id="btn_home_crawl", variant="primary")
                             yield Button("🔍 Identity OSINT", id="btn_home_tookie")
                             yield Button("📚 Security Cheats", id="btn_home_arsenal")
                             yield Button("🌐 Tailnet Mesh", id="btn_home_mesh")
-                        yield Static("─" * 60, classes="home-divider")
-                        with Horizontal(classes="home-footer-row"):
-                            yield Static(" ", classes="home-footer-spacer")
-                            with Vertical(classes="home-creators-box"):
-                                yield Label("Created by", classes="home-creators-label")
-                                yield Label("Aarush Rahul Patel · Shreya Singh", classes="home-creators-names")
 
                 # TAB 1: WEB CRAWLER
                 with TabPane("🕸️ [1] Web Crawler", id="tab_crawler"):
@@ -450,9 +460,9 @@ class TTULATUIApp(App):
                         yield Label("WEB CRAWLER", classes="tool-header-title")
                         yield Label("Web crawling and endpoint discovery", classes="tool-header-tagline")
                         yield Static(
-                            "[bold #10b981][ WEB RECON ][/]  "
-                            "[bold #34d399][ INFORMATION GATHERING ][/]  "
-                            "[bold #64748b][ RECON ][/]",
+                            "[bold #A6E22E][ WEB RECON ][/]  "
+                            "[bold #FD971F][ INFORMATION GATHERING ][/]  "
+                            "[bold #75715E][ RECON ][/]",
                             classes="tool-header-badges",
                         )
                         with Horizontal(classes="input-row"):
@@ -470,8 +480,8 @@ class TTULATUIApp(App):
                         yield Label("TAILSCALE", classes="tool-header-title")
                         yield Label("Secure peer-to-peer lab network boundary", classes="tool-header-tagline")
                         yield Static(
-                            "[bold #10b981][ NETWORK RECON ][/]  "
-                            "[bold #64748b][ SECURITY AUTOMATION ][/]",
+                            "[bold #AE81FF][ NETWORK RECON ][/]  "
+                            "[bold #75715E][ SECURITY AUTOMATION ][/]",
                             classes="tool-header-badges",
                         )
                         yield DataTable(id="devices_table")
@@ -487,9 +497,9 @@ class TTULATUIApp(App):
                         yield Label("TOOKIE", classes="tool-header-title")
                         yield Label("Username and identity OSINT tool (60+ Platforms)", classes="tool-header-tagline")
                         yield Static(
-                            "[bold #10b981][ OSINT ][/]  "
-                            "[bold #34d399][ IDENTITY DISCOVERY ][/]  "
-                            "[bold #64748b][ RECON ][/]",
+                            "[bold #FD971F][ OSINT ][/]  "
+                            "[bold #E6DB74][ IDENTITY DISCOVERY ][/]  "
+                            "[bold #75715E][ RECON ][/]",
                             classes="tool-header-badges",
                         )
                         with Horizontal(classes="input-row"):
@@ -506,9 +516,9 @@ class TTULATUIApp(App):
                         yield Label("URO", classes="tool-header-title")
                         yield Label("URL normalization and deduplication utility", classes="tool-header-tagline")
                         yield Static(
-                            "[bold #10b981][ WEB RECON ][/]  "
-                            "[bold #f59e0b][ URL PROCESSING ][/]  "
-                            "[bold #64748b][ RECON ][/]",
+                            "[bold #A6E22E][ WEB RECON ][/]  "
+                            "[bold #E6DB74][ URL PROCESSING ][/]  "
+                            "[bold #75715E][ RECON ][/]",
                             classes="tool-header-badges",
                         )
                         yield Static("Ready to filter URL collection...", id="uro_status_label")
@@ -538,8 +548,8 @@ class TTULATUIApp(App):
                         yield Label("LEGBA", classes="tool-header-title")
                         yield Label("Multi-protocol authentication testing utility (Strict Lab Gated)", classes="tool-header-tagline")
                         yield Static(
-                            "[bold #f43f5e][ AUTHENTICATION ][/]  "
-                            "[bold #e11d48][ CREDENTIAL TESTING ][/]",
+                            "[bold #F92672][ AUTHENTICATION ][/]  "
+                            "[bold #FD971F][ CREDENTIAL TESTING ][/]",
                             classes="tool-header-badges",
                         )
                         yield Static("⚠️ Refuses execution unless target is marked [✓ AUTHORIZED LAB]", id="legba_warning")
@@ -647,8 +657,8 @@ class TTULATUIApp(App):
 
         target_str = "[dim]None selected[/dim]"
         if self.active_target:
-            auth_str = "[bold green][✓ LAB][/bold green]" if self.active_target.is_authorized_lab else "[bold red][✗ RESTRICTED][/bold red]"
-            target_str = f"[bold #10b981]{self.active_target.name}[/bold #10b981] ({self.active_target.tailscale_ip}) {auth_str}"
+            auth_str = "[bold #A6E22E][✓ LAB][/bold #A6E22E]" if self.active_target.is_authorized_lab else "[bold #F92672][✗ RESTRICTED][/bold #F92672]"
+            target_str = f"[bold #A6E22E]{self.active_target.name}[/bold #A6E22E] ({self.active_target.tailscale_ip}) {auth_str}"
 
         online_badge = "[bold green]ONLINE[/bold green]" if online else "[bold yellow]STANDALONE/OFFLINE[/bold yellow]"
         status_bar = self.query_one("#status_bar", Static)
@@ -975,7 +985,7 @@ class TTULATUIApp(App):
     def _run_tookie_worker(self, user: str, max_results: int = 50) -> None:
         self.app.call_from_thread(
             self._log_terminal,
-            f"\n[bold #10b981][*] Running Tookie OSINT discovery for username: '{user}' (limit: {max_results} URLs)...[/bold #10b981]",
+            f"\n[bold #A6E22E][*] Running Tookie OSINT discovery for username: '{user}' (limit: {max_results} URLs)...[/bold #A6E22E]",
         )
         self.app.call_from_thread(
             self._log_terminal,
@@ -1100,14 +1110,14 @@ class TTULATUIApp(App):
         dt.clear()
 
         for c in cmds:
-            lab_badge = "[bold red]YES[/bold red]" if c.requires_authorized_lab else "[green]NO[/green]"
+            lab_badge = "[bold #F92672]YES[/bold #F92672]" if c.requires_authorized_lab else "[#A6E22E]NO[/#A6E22E]"
             tool_name = getattr(c, "source_tool", "misc")
             cmd_tags = getattr(c, "tags", [])
             if cmd_tags:
                 tags_str = ", ".join(cmd_tags)
-                tool_display = f"[bold #10b981]{tool_name}[/bold #10b981]  [dim]\\[{escape(tags_str)}\\][/dim]"
+                tool_display = f"[bold #A6E22E]{tool_name}[/bold #A6E22E]  [#E6DB74]\\[{escape(tags_str)}\\][/#E6DB74]"
             else:
-                tool_display = f"[bold #10b981]{tool_name}[/bold #10b981]"
+                tool_display = f"[bold #A6E22E]{tool_name}[/bold #A6E22E]"
             dt.add_row(tool_display, c.title, lab_badge)
 
         self._update_arsenal_vars_display()
@@ -1121,7 +1131,7 @@ class TTULATUIApp(App):
         sess_vars = self.engine.get_session_variables()
         var_pairs = [f"{k}={v}" for k, v in list(sess_vars.items())[:6]]
         target_name = self.active_target.name if self.active_target else "None"
-        lbls.first().update(f"Active Vars: {', '.join(var_pairs)} | Target: [bold #10b981]{target_name}[/bold #10b981]")
+        lbls.first().update(f"Active Vars: {', '.join(var_pairs)} | Target: [bold #A6E22E]{target_name}[/bold #A6E22E]")
 
     def _update_arsenal_preview(self) -> None:
         previews = self.query("#arsenal_cmd_preview")

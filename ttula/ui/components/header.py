@@ -26,8 +26,8 @@ def render_tool_header(tool_key: str, custom_description: Optional[str] = None) 
 
     header_html = f"""
     <div style="
-        background: #111820;
-        border: 1px solid #27323D;
+        background: #181818;
+        border: 1px solid #3E3D32;
         border-left: 4px solid {accent};
         border-radius: 8px;
         padding: 16px 20px 12px 20px;
@@ -39,17 +39,18 @@ def render_tool_header(tool_key: str, custom_description: Optional[str] = None) 
                 font-size: 1.25rem;
                 font-weight: 800;
                 letter-spacing: 0.5px;
-                color: #FFFFFF;
+                color: #F8F8F2;
                 font-family: inherit;
             ">{title}</span>
             <span style="
-                color: #64748B;
+                color: #75715E;
                 font-size: 0.85rem;
                 margin-left: 6px;
             ">• {tagline}</span>
         </div>
         <div style="
-            color: #94A3B8;
+            color: #F8F8F2;
+            opacity: 0.88;
             font-size: 0.90rem;
             line-height: 1.45;
             margin-top: 4px;

@@ -11,24 +11,26 @@ def render_home_page(on_navigate=None) -> None:
 
     home_hero_html = """
     <div style="
-        background: #12171F;
-        border: 1px solid #232D3B;
-        border-radius: 12px;
-        padding: 30px 34px;
-        margin-bottom: 24px;
+        background: #181818;
+        border: 1px solid #3E3D32;
+        border-radius: 10px;
+        padding: 28px 32px;
+        margin-bottom: 22px;
         position: relative;
     ">
         <div style="
             font-size: 2.1rem;
             font-weight: 800;
-            color: #FFFFFF;
+            color: #A6E22E;
             letter-spacing: -0.5px;
             margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
         ">
             🕸️ WEB CRAWLER
         </div>
         <div style="
-            color: #94A3B8;
+            color: #F8F8F2;
+            opacity: 0.9;
             font-size: 1.02rem;
             line-height: 1.65;
             max-width: 860px;
@@ -40,11 +42,11 @@ def render_home_page(on_navigate=None) -> None:
             and strict boundary-enforced lab credential testing through a zero-trust Tailscale mesh.
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <span style="background: #18202C; border: 1px solid #283547; color: #10B981; padding: 3px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">RECONNAISSANCE</span>
-            <span style="background: #18202C; border: 1px solid #283547; color: #A855F7; padding: 3px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">IDENTITY OSINT</span>
-            <span style="background: #18202C; border: 1px solid #283547; color: #34D399; padding: 3px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">URL DE-NOISING</span>
-            <span style="background: #18202C; border: 1px solid #283547; color: #F59E0B; padding: 3px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">190+ CHEAT PLAYBOOKS</span>
-            <span style="background: #18202C; border: 1px solid #283547; color: #EF4444; padding: 3px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">LAB SAFETY GATED</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #A6E22E; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">RECONNAISSANCE</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #FD971F; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">IDENTITY OSINT</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #E6DB74; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">URL DE-NOISING</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #AE81FF; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">190+ CHEAT PLAYBOOKS</span>
+            <span style="background: #272822; border: 1px solid #3E3D32; color: #F92672; padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">LAB SAFETY GATED</span>
         </div>
     </div>
     """
@@ -69,45 +71,82 @@ def render_home_page(on_navigate=None) -> None:
             st.session_state["nav_selection"] = "🌐 Tailscale Mesh"
             st.rerun()
 
-    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
 
     # Steps to Use the Workspace (Short & Structured)
     steps_html = """
     <div style="
-        background: #0E131A;
-        border: 1px solid #232D3B;
+        background: #181818;
+        border: 1px solid #3E3D32;
         border-radius: 10px;
         padding: 22px 24px;
-        margin-bottom: 24px;
+        margin-bottom: 14px;
     ">
-        <div style="font-size: 1.15rem; font-weight: 700; color: #F1F5F9; margin-bottom: 14px;">
+        <div style="font-size: 1.15rem; font-weight: 700; color: #A6E22E; margin-bottom: 14px; font-family: 'JetBrains Mono', monospace;">
             📋 Workflow & Steps to Use
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
-            <div style="background: #141A23; border: 1px solid #28323E; border-left: 3px solid #10B981; border-radius: 6px; padding: 12px 14px;">
-                <div style="color: #10B981; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 1 • Discover</div>
-                <div style="color: #FFFFFF; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Endpoint & Persona Recon</div>
-                <div style="color: #8E9DAE; font-size: 0.82rem; line-height: 1.45;">Crawl target web ports with <b>Web Crawler</b> or discover user accounts across 60+ platforms with <b>Tookie</b>.</div>
+            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #A6E22E; border-radius: 6px; padding: 12px 14px;">
+                <div style="color: #A6E22E; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 1 • Discover</div>
+                <div style="color: #F8F8F2; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Endpoint & Persona Recon</div>
+                <div style="color: #75715E; font-size: 0.82rem; line-height: 1.45;">Crawl target web ports with <b>Web Crawler</b> or discover user accounts across 60+ platforms with <b>Tookie</b>.</div>
             </div>
-            <div style="background: #141A23; border: 1px solid #28323E; border-left: 3px solid #F59E0B; border-radius: 6px; padding: 12px 14px;">
-                <div style="color: #F59E0B; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 2 • Clean</div>
-                <div style="color: #FFFFFF; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Uro Normalization</div>
-                <div style="color: #8E9DAE; font-size: 0.82rem; line-height: 1.45;">Pipe raw URL lists directly into <b>Uro</b> to strip static noise, tracking parameters, and duplicate endpoints.</div>
+            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #FD971F; border-radius: 6px; padding: 12px 14px;">
+                <div style="color: #FD971F; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 2 • Clean</div>
+                <div style="color: #F8F8F2; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Uro Normalization</div>
+                <div style="color: #75715E; font-size: 0.82rem; line-height: 1.45;">Pipe raw URL lists directly into <b>Uro</b> to strip static noise, tracking parameters, and duplicate endpoints.</div>
             </div>
-            <div style="background: #141A23; border: 1px solid #28323E; border-left: 3px solid #34D399; border-radius: 6px; padding: 12px 14px;">
-                <div style="color: #34D399; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 3 • Select</div>
-                <div style="color: #FFFFFF; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Tool Playbooks & Tags</div>
-                <div style="color: #8E9DAE; font-size: 0.82rem; line-height: 1.45;">Search 190+ tool YAML cheats with side-by-side tags (Nmap, Impacket, FFUF) and automatic variable injection.</div>
+            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #E6DB74; border-radius: 6px; padding: 12px 14px;">
+                <div style="color: #E6DB74; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 3 • Select</div>
+                <div style="color: #F8F8F2; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Tool Playbooks & Tags</div>
+                <div style="color: #75715E; font-size: 0.82rem; line-height: 1.45;">Search 190+ tool YAML cheats with side-by-side tags (Nmap, Impacket, FFUF) and automatic variable injection.</div>
             </div>
-            <div style="background: #141A23; border: 1px solid #28323E; border-left: 3px solid #EF4444; border-radius: 6px; padding: 12px 14px;">
-                <div style="color: #EF4444; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 4 • Execute</div>
-                <div style="color: #FFFFFF; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Safe PTY Dispatch</div>
-                <div style="color: #8E9DAE; font-size: 0.82rem; line-height: 1.45;">Verify <b>Tailscale</b> authorized lab status and dispatch commands directly to the live, persistent <b>PTY Terminal</b>.</div>
+            <div style="background: #272822; border: 1px solid #3E3D32; border-left: 3px solid #F92672; border-radius: 6px; padding: 12px 14px;">
+                <div style="color: #F92672; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px;">Step 4 • Execute</div>
+                <div style="color: #F8F8F2; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Safe PTY Dispatch</div>
+                <div style="color: #75715E; font-size: 0.82rem; line-height: 1.45;">Verify <b>Tailscale</b> authorized lab status and dispatch commands directly to the live, persistent <b>PTY Terminal</b>.</div>
             </div>
         </div>
     </div>
     """
     st.markdown(steps_html, unsafe_allow_html=True)
+
+    # Credits Section positioned under the Steps to Use section
+    credits_html = """
+    <div style="
+        background: #1E1E1E;
+        border: 1px solid #3E3D32;
+        border-left: 4px solid #A6E22E;
+        border-radius: 8px;
+        padding: 14px 22px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    ">
+        <div style="
+            color: #A6E22E;
+            font-weight: 700;
+            font-size: 0.95rem;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.2px;
+        ">
+            Credits - Created by Aarush Rahul Patel
+        </div>
+        <div style="
+            color: #FD971F;
+            font-weight: 600;
+            font-size: 0.92rem;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.2px;
+        ">
+            Research Partner  - Shreya Singh
+        </div>
+    </div>
+    """
+    st.markdown(credits_html, unsafe_allow_html=True)
 
     # Integrated Tools Grid
     st.markdown("### Integrated Security Toolchain")
@@ -124,7 +163,7 @@ def render_home_page(on_navigate=None) -> None:
 
     for i, (tool_id, display_title, short_desc) in enumerate(tool_items):
         tool_meta = TOOLS.get(tool_id, {})
-        accent = tool_meta.get("accent", "#10B981")
+        accent = tool_meta.get("accent", "#A6E22E")
         cats = tool_meta.get("categories", [])
         col = grid_cols[i % 3]
 
@@ -132,18 +171,18 @@ def render_home_page(on_navigate=None) -> None:
             badges_html = render_category_chips_html(cats[:3])
             card_html = f"""
             <div style="
-                background: #12171F;
-                border: 1px solid #232D3B;
+                background: #181818;
+                border: 1px solid #3E3D32;
                 border-top: 3px solid {accent};
                 border-radius: 8px;
                 padding: 16px;
                 margin-bottom: 16px;
                 min-height: 145px;
             ">
-                <div style="font-weight: 700; color: #FFFFFF; font-size: 0.98rem; margin-bottom: 4px;">
+                <div style="font-weight: 700; color: #F8F8F2; font-size: 0.98rem; margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;">
                     {display_title}
                 </div>
-                <div style="color: #8E9DAE; font-size: 0.84rem; line-height: 1.4; margin-bottom: 10px;">
+                <div style="color: #75715E; font-size: 0.84rem; line-height: 1.4; margin-bottom: 10px;">
                     {short_desc}
                 </div>
                 {badges_html}
@@ -151,33 +190,25 @@ def render_home_page(on_navigate=None) -> None:
             """
             st.markdown(card_html, unsafe_allow_html=True)
 
-    # Bottom Footer with Creator Credits positioned at the last in the side
-    footer_html = """
+    # Minimal clean bottom footer
+    clean_footer_html = """
     <div style="
-        border-top: 1px solid #232D3B;
-        margin-top: 36px;
-        padding-top: 18px;
-        padding-bottom: 12px;
+        border-top: 1px solid #3E3D32;
+        margin-top: 32px;
+        padding-top: 16px;
+        padding-bottom: 8px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 12px;
     ">
-        <div style="color: #64748B; font-size: 0.82rem;">
-            Web Crawler • Security Reconnaissance Workspace
+        <div style="color: #75715E; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace;">
+            Web Crawler • Monokai Security Reconnaissance Workspace
         </div>
-        <div style="
-            text-align: right;
-            background: #141A23;
-            border: 1px solid #28323E;
-            border-right: 3px solid #10B981;
-            border-radius: 6px;
-            padding: 8px 16px;
-        ">
-            <span style="color: #64748B; font-size: 0.72rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Created by</span><br/>
-            <span style="color: #E2E8F0; font-size: 0.90rem; font-weight: 600;">Aarush Rahul Patel &nbsp;·&nbsp; Shreya Singh</span>
+        <div style="color: #75715E; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace;">
+            v1.0.0
         </div>
     </div>
     """
-    st.markdown(footer_html, unsafe_allow_html=True)
+    st.markdown(clean_footer_html, unsafe_allow_html=True)
