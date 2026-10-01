@@ -15,6 +15,7 @@ async def test_tui_app_mount_and_tabs(monkeypatch, tmp_path):
     app.engine.tailscale.mock_mode = True
 
     async with app.run_test() as pilot:
+        await pilot.pause()
         # Verify title and initial tab
         assert "TTULA" in app.title
         assert app.active_target is not None

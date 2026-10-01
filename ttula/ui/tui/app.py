@@ -1,8 +1,10 @@
 """TTULA Visual Terminal User Interface (TUI).
 
 Full terminal dashboard built with Textual, featuring:
+- Web Crawler endpoint discovery & crawling engine
+- Arsenal-style tool headers and categorized badges
 - Real-time Tailscale mesh monitoring & 1-key lab authorization toggle
-- Multi-tool pipeline (Tookie -> Uro -> Arsenal -> Legba)
+- Multi-tool pipeline (Crawler -> Tookie -> Uro -> Arsenal -> Legba)
 - Live persistent interactive PTY split pane
 """
 
@@ -35,48 +37,144 @@ from textual import work
 from ttula.core.engine import TTULAEngine, create_default_engine
 from ttula.core.models import Target, Command, URLCollection
 from ttula.execution.manager import get_execution_manager
+from ttula.config.tools import TOOLS, CATEGORY_COLORS, get_tool_metadata
 
 
 class TTULATUIApp(App):
-    """Main Textual Application for TTULA."""
+    """Main Textual Application for Web Crawler."""
 
-    TITLE = "TTULA // SecOps Terminal Orchestrator"
-    SUB_TITLE = "Personal Kali-Native Lab Orchestration"
+    TITLE = "TTULA // Web Crawler"
+    SUB_TITLE = "Security Reconnaissance Workspace"
     CSS = """
     Screen {
-        background: #0b0f19;
+        background: #0B0F14;
         color: #e2e8f0;
     }
 
     Header {
-        background: #06090e;
+        background: #0B0F14;
         color: #00f0ff;
         dock: top;
+        border-bottom: solid #27323D;
     }
 
     Footer {
-        background: #06090e;
+        background: #0B0F14;
         color: #94a3b8;
         dock: bottom;
+        border-top: solid #27323D;
     }
 
     #status_bar {
-        background: #111827;
-        color: #38bdf8;
-        border-bottom: solid #00f0ff;
+        background: #111820;
+        color: #00f0ff;
+        border-bottom: solid #27323D;
         padding: 0 1;
         height: 3;
     }
 
     #main_tabs {
         height: 1fr;
+        background: #0B0F14;
+    }
+
+    TabbedContent Tabs {
+        background: #111820;
+        border-bottom: solid #27323D;
+    }
+
+    Tab {
+        color: #94a3b8;
+        background: #111820;
+    }
+
+    Tab.-active {
+        color: #00f0ff;
+        background: #17212B;
+        text-style: bold;
+        border-bottom: tall #00f0ff;
     }
 
     .glass-box {
-        background: #131b2e;
-        border: round #1e293b;
+        background: #111820;
+        border: round #27323D;
         padding: 1;
         height: 1fr;
+    }
+
+    .tool-header-title {
+        color: #00f0ff;
+        text-style: bold;
+        height: 1;
+    }
+
+    .tool-header-tagline {
+        color: #94a3b8;
+        height: 1;
+    }
+
+    .tool-header-badges {
+        height: 1;
+        margin-bottom: 1;
+    }
+
+    /* Home Page Styles */
+    .home-box {
+        align: center middle;
+        text-align: center;
+        padding: 2;
+    }
+
+    .home-brand-title {
+        color: #00f0ff;
+        text-style: bold;
+        text-align: center;
+        width: 100%;
+        margin-top: 1;
+    }
+
+    .home-tagline {
+        color: #94a3b8;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 1;
+    }
+
+    .home-badges {
+        text-align: center;
+        width: 100%;
+        margin-bottom: 1;
+    }
+
+    .home-divider {
+        color: #27323D;
+        text-align: center;
+        width: 100%;
+    }
+
+    .home-creators-label {
+        color: #64748B;
+        text-align: center;
+        width: 100%;
+        margin-top: 1;
+    }
+
+    .home-creators-names {
+        color: #00f0ff;
+        text-style: bold;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 1;
+    }
+
+    .home-actions-row {
+        align: center middle;
+        height: 3;
+        margin-top: 1;
+    }
+
+    .home-actions-row Button {
+        margin: 0 1;
     }
 
     .card-title {
@@ -101,6 +199,10 @@ class TTULATUIApp(App):
 
     #input_arsenal_port {
         width: 14;
+    }
+
+    #input_crawler_max_pages {
+        width: 16;
     }
 
     .btn-row {
@@ -129,9 +231,9 @@ class TTULATUIApp(App):
     #arsenal_cmd_preview {
         width: 1fr;
         height: 100%;
-        background: #06090e;
-        color: #00ff88;
-        border: solid #00f0ff;
+        background: #0B0F14;
+        color: #10b981;
+        border: solid #27323D;
         padding: 0 1;
         text-style: bold;
     }
@@ -139,25 +241,24 @@ class TTULATUIApp(App):
     #arsenal_cmd_desc {
         width: 1fr;
         height: 100%;
-        background: #0f172a;
+        background: #17212B;
         color: #94a3b8;
-        border: solid #334155;
+        border: solid #27323D;
         padding: 0 1;
         overflow-y: scroll;
     }
 
     .cmd-preview {
-        background: #06090e;
-        color: #38bdf8;
-        border: solid #00f0ff;
+        background: #0B0F14;
+        color: #00f0ff;
+        border: solid #27323D;
         padding: 0 1;
         height: 3;
         text-style: bold;
     }
 
-
     .badge-auth {
-        color: #00ff88;
+        color: #10b981;
         text-style: bold;
     }
 
@@ -167,27 +268,28 @@ class TTULATUIApp(App):
     }
 
     Input {
-        background: #111827;
+        background: #17212B;
         color: #e2e8f0;
-        border: tall #334155;
+        border: tall #27323D;
     }
 
     Input:focus {
         border: tall #00f0ff;
-        background: #192238;
+        background: #111820;
         color: #ffffff;
     }
 
     DataTable {
         height: 1fr;
         min-height: 4;
-        background: #131b2e;
+        background: #111820;
+        border: solid #27323D;
     }
 
     #terminal_pane {
         height: 11;
-        border-top: double #00f0ff;
-        background: #06090e;
+        border-top: solid #27323D;
+        background: #0B0F14;
     }
 
     #lbl_pty_title {
@@ -196,7 +298,7 @@ class TTULATUIApp(App):
     }
 
     #term_log {
-        background: #06090e;
+        background: #0B0F14;
         color: #38bdf8;
         height: 1fr;
         min-height: 4;
@@ -207,15 +309,15 @@ class TTULATUIApp(App):
     }
 
     #term_input {
-        background: #111827;
+        background: #17212B;
         color: #e2e8f0;
-        border: tall #1e293b;
+        border: tall #27323D;
         width: 1fr;
     }
 
     #term_input:focus {
         border: tall #00f0ff;
-        background: #192238;
+        background: #111820;
     }
 
     Button {
@@ -226,16 +328,20 @@ class TTULATUIApp(App):
     BINDINGS = [
         Binding("ctrl+c", "quit", "Quit", show=False),
         Binding("ctrl+q", "quit", "Quit", show=True),
-        Binding("f1", "switch_tab('tab_tailscale')", "F1 Mesh", show=True),
-        Binding("f2", "switch_tab('tab_tookie')", "F2 Recon", show=True),
-        Binding("f3", "switch_tab('tab_uro')", "F3 Filter", show=True),
-        Binding("f4", "switch_tab('tab_arsenal')", "F4 Cheats", show=True),
-        Binding("f5", "switch_tab('tab_legba')", "F5 Auth", show=True),
+        Binding("f1", "switch_tab('tab_home')", "F1 Home", show=True),
+        Binding("f2", "switch_tab('tab_crawler')", "F2 Crawl", show=True),
+        Binding("f3", "switch_tab('tab_tailscale')", "F3 Mesh", show=True),
+        Binding("f4", "switch_tab('tab_tookie')", "F4 OSINT", show=True),
+        Binding("f5", "switch_tab('tab_uro')", "F5 Uro", show=True),
+        Binding("f6", "switch_tab('tab_arsenal')", "F6 Arsenal", show=True),
+        Binding("f7", "switch_tab('tab_legba')", "F7 Auth", show=True),
+        Binding("0", "key_0", "0", show=False),
         Binding("1", "key_1", "1", show=False),
         Binding("2", "key_2", "2", show=False),
         Binding("3", "key_3", "3", show=False),
         Binding("4", "key_4", "4", show=False),
         Binding("5", "key_5", "5", show=False),
+        Binding("6", "key_6", "6", show=False),
         Binding("space", "key_space", "Space Auth", show=True),
         Binding("r", "key_refresh", "r Refresh", show=True),
         Binding("f12", "focus_terminal", "F12 Terminal", show=True),
@@ -258,10 +364,62 @@ class TTULATUIApp(App):
         yield Static(id="status_bar")
 
         with TabbedContent(initial="tab_tailscale", id="main_tabs"):
-            # TAB 1: TAILSCALE MESH
-            with TabPane("🌐 [1] Tailnet Mesh", id="tab_tailscale"):
+            # TAB 0: HOME
+            with TabPane("⌂ [0] Home", id="tab_home"):
+                with Vertical(classes="glass-box home-box"):
+                    yield Label("WEB CRAWLER", classes="home-brand-title")
+                    yield Label(
+                        "A unified security reconnaissance workspace for web crawling, "
+                        "identity discovery, URL processing, OSINT workflows, and security command knowledge.",
+                        classes="home-tagline",
+                    )
+                    yield Static(
+                        "[bold #14b8a6][ RECON ][/]  "
+                        "[bold #8b5cf6][ OSINT ][/]  "
+                        "[bold #06b6d4][ WEB RECON ][/]  "
+                        "[bold #64748b][ SECURITY AUTOMATION ][/]",
+                        classes="home-badges",
+                    )
+                    yield Static("─" * 60, classes="home-divider")
+                    yield Label("Created by", classes="home-creators-label")
+                    yield Label("Aarush Rahul Patel · Shreya Singh", classes="home-creators-names")
+                    yield Static("─" * 60, classes="home-divider")
+                    with Horizontal(classes="home-actions-row"):
+                        yield Button("🕸️ Start Crawling", id="btn_home_crawl", variant="primary")
+                        yield Button("🔍 Identity OSINT", id="btn_home_tookie")
+                        yield Button("📚 Security Cheats", id="btn_home_arsenal")
+                        yield Button("🌐 Tailnet Mesh", id="btn_home_mesh")
+
+            # TAB 1: WEB CRAWLER
+            with TabPane("🕸️ [1] Web Crawler", id="tab_crawler"):
                 with Vertical(classes="glass-box"):
-                    yield Label("Discovered Tailscale Lab Mesh Devices", classes="card-title")
+                    yield Label("WEB CRAWLER", classes="tool-header-title")
+                    yield Label("Web crawling and endpoint discovery", classes="tool-header-tagline")
+                    yield Static(
+                        "[bold #06b6d4][ WEB RECON ][/]  "
+                        "[bold #0ea5e9][ INFORMATION GATHERING ][/]  "
+                        "[bold #14b8a6][ RECON ][/]",
+                        classes="tool-header-badges",
+                    )
+                    with Horizontal(classes="input-row"):
+                        yield Input(placeholder="Target URL (e.g. http://127.0.0.1:8000)", id="input_crawler_url")
+                        yield Input(placeholder="Max Pages (e.g. 15)", value="15", id="input_crawler_max_pages")
+                        yield Button("🕸️ Start Crawl", id="btn_run_crawler", variant="primary")
+                    yield DataTable(id="crawler_results_table")
+                    with Horizontal(classes="btn-row"):
+                        yield Button("🧹 Send Discovered URLs to Uro Pipeline", id="btn_crawler_to_uro", variant="success")
+                        yield Button("⚡ Crawl & Deduplicate (Auto-Pipe)", id="btn_crawler_pipe_uro")
+
+            # TAB 2: TAILSCALE MESH
+            with TabPane("🌐 [2] Tailnet Mesh", id="tab_tailscale"):
+                with Vertical(classes="glass-box"):
+                    yield Label("TAILSCALE", classes="tool-header-title")
+                    yield Label("Secure peer-to-peer lab network boundary", classes="tool-header-tagline")
+                    yield Static(
+                        "[bold #38bdf8][ NETWORK RECON ][/]  "
+                        "[bold #64748b][ SECURITY AUTOMATION ][/]",
+                        classes="tool-header-badges",
+                    )
                     yield DataTable(id="devices_table")
                     with Horizontal(classes="btn-row"):
                         yield Button("Toggle Lab Authorization (Space)", id="btn_toggle_auth", variant="primary")
@@ -269,10 +427,17 @@ class TTULATUIApp(App):
                         yield Button("Refresh Status (r)", id="btn_refresh_ts")
                         yield Button("Simulate Lab Node", id="btn_sim_node")
 
-            # TAB 2: TOOKIE OSINT
-            with TabPane("🔍 [2] Tookie OSINT", id="tab_tookie"):
+            # TAB 3: TOOKIE OSINT
+            with TabPane("🔍 [3] Tookie OSINT", id="tab_tookie"):
                 with Vertical(classes="glass-box"):
-                    yield Label("OSINT Username Discovery", classes="card-title")
+                    yield Label("TOOKIE", classes="tool-header-title")
+                    yield Label("Username and identity OSINT tool", classes="tool-header-tagline")
+                    yield Static(
+                        "[bold #8b5cf6][ OSINT ][/]  "
+                        "[bold #a78bfa][ IDENTITY DISCOVERY ][/]  "
+                        "[bold #14b8a6][ RECON ][/]",
+                        classes="tool-header-badges",
+                    )
                     with Horizontal(classes="input-row"):
                         yield Input(placeholder="Target username (e.g. labadmin, root)", id="input_tookie_user")
                         yield Button("🚀 Run Discovery", id="btn_run_tookie", variant="primary")
@@ -280,19 +445,35 @@ class TTULATUIApp(App):
                     with Horizontal(classes="btn-row"):
                         yield Button("🧹 Send Collection to Uro Pipeline", id="btn_tookie_to_uro", variant="success")
 
-            # TAB 3: URO FILTERING
-            with TabPane("🧹 [3] Uro URL Filter", id="tab_uro"):
+            # TAB 4: URO FILTERING
+            with TabPane("🧹 [4] Uro URL Filter", id="tab_uro"):
                 with Vertical(classes="glass-box"):
-                    yield Label("URL Cleaning and Normalization", classes="card-title")
+                    yield Label("URO", classes="tool-header-title")
+                    yield Label("URL normalization and deduplication utility", classes="tool-header-tagline")
+                    yield Static(
+                        "[bold #06b6d4][ WEB RECON ][/]  "
+                        "[bold #f59e0b][ URL PROCESSING ][/]  "
+                        "[bold #14b8a6][ RECON ][/]",
+                        classes="tool-header-badges",
+                    )
                     yield Static("Ready to filter URL collection...", id="uro_status_label")
                     yield DataTable(id="uro_results_table")
                     with Horizontal(classes="btn-row"):
                         yield Button("⚡ Clean URLs with Uro", id="btn_run_uro", variant="primary")
 
-            # TAB 4: ARSENAL-NG PLAYBOOKS
-            with TabPane("⚡ [4] Arsenal-NG", id="tab_arsenal"):
+            # TAB 5: ARSENAL-NG PLAYBOOKS
+            with TabPane("📚 [5] Arsenal-NG", id="tab_arsenal"):
                 with Vertical(classes="glass-box"):
-                    yield Label("Arsenal-NG Multi-Tool Playbooks (247+ Tools, 2,900+ Actions)", classes="card-title")
+                    yield Label("ARSENAL-NG", classes="tool-header-title")
+                    yield Label("Security command knowledge and operation reference (247+ Tools, 2,900+ Actions)", classes="tool-header-tagline")
+                    yield Static(
+                        "[bold #14b8a6][ RECON ][/]  "
+                        "[bold #10b981][ ENUMERATION ][/]  "
+                        "[bold #ef4444][ EXPLOITATION ][/]  "
+                        "[bold #ec4899][ WIRELESS SECURITY ][/]  "
+                        "[bold #10b981][ COMMAND REFERENCE ][/]",
+                        classes="tool-header-badges",
+                    )
                     yield Static(id="arsenal_target_status")
                     yield Static(id="arsenal_vars_status")
                     with Horizontal(classes="input-row"):
@@ -308,11 +489,16 @@ class TTULATUIApp(App):
                     with Horizontal(classes="btn-row"):
                         yield Button("▶ Execute in PTY Terminal (Enter)", id="btn_exec_arsenal", variant="success")
 
-
-            # TAB 5: LEGBA AUTH TESTING
-            with TabPane("🔐 [5] Legba Auth", id="tab_legba"):
+            # TAB 6: LEGBA AUTH TESTING
+            with TabPane("🔐 [6] Legba Auth", id="tab_legba"):
                 with Vertical(classes="glass-box"):
-                    yield Label("Legba Authentication Testing (Strict Lab Gated)", classes="card-title")
+                    yield Label("LEGBA", classes="tool-header-title")
+                    yield Label("Multi-protocol authentication testing utility (Strict Lab Gated)", classes="tool-header-tagline")
+                    yield Static(
+                        "[bold #f43f5e][ AUTHENTICATION ][/]  "
+                        "[bold #e11d48][ CREDENTIAL TESTING ][/]",
+                        classes="tool-header-badges",
+                    )
                     yield Static("⚠️ Refuses execution unless target is marked [✓ AUTHORIZED LAB]", id="legba_warning")
                     with Horizontal(classes="input-row"):
                         yield Select(
@@ -346,6 +532,11 @@ class TTULATUIApp(App):
 
     def on_mount(self) -> None:
         """Initialize tables and periodic background reading."""
+        # Setup Crawler Table
+        dt_crawler = self.query_one("#crawler_results_table", DataTable)
+        dt_crawler.cursor_type = "row"
+        dt_crawler.add_columns("Discovered URL", "Depth", "Category", "Status")
+
         # Setup Devices Table
         dt_devices = self.query_one("#devices_table", DataTable)
         dt_devices.cursor_type = "row"
@@ -366,9 +557,8 @@ class TTULATUIApp(App):
         dt_arsenal.cursor_type = "row"
         dt_arsenal.add_columns("Tool", "Action Title", "Requires Lab")
 
-
         # Log initial terminal banner
-        self._log_terminal("[bold cyan][*] TTULA Interactive PTY Session active. Zero-injection argv executor ready.[/bold cyan]")
+        self._log_terminal("[bold cyan][*] TTULA Web Crawler PTY Session active. Zero-injection argv executor ready.[/bold cyan]")
 
         # Initial refresh
         self.action_refresh_tailscale()
@@ -387,7 +577,7 @@ class TTULATUIApp(App):
             pass
 
     def watch_active_target(self, target: Optional[Target]) -> None:
-        """Update status bar and Arsenal-NG session variables whenever active target changes."""
+        """Update status bar, crawler URL, and Arsenal-NG session variables whenever active target changes."""
         if target:
             self.engine.set_session_variable("target", target.tailscale_ip)
             self.engine.set_session_variable("ip", target.tailscale_ip)
@@ -395,12 +585,17 @@ class TTULATUIApp(App):
             self.engine.set_session_variable("rhost", target.tailscale_ip)
             self.engine.set_session_variable("hostname", target.hostname or target.name)
             port = self.engine.get_session_variables().get("port", "80")
-            self.engine.set_session_variable("url", f"http://{target.tailscale_ip}:{port}")
+            target_url = f"http://{target.tailscale_ip}:{port}"
+            self.engine.set_session_variable("url", target_url)
+
+            # Auto-populate crawler input if empty
+            crawler_inputs = self.query("#input_crawler_url")
+            if crawler_inputs and not crawler_inputs.first().value:
+                crawler_inputs.first().value = target_url
 
         self._update_status_bar()
         self._update_legba_preview()
         self._update_arsenal_preview()
-
 
     def _update_status_bar(self) -> None:
         status = self.engine.get_tailscale_status()
@@ -448,27 +643,43 @@ class TTULATUIApp(App):
         if target:
             new_auth = not target.is_authorized_lab
             self.engine.set_target_authorization(target.name, new_auth)
+            target.is_authorized_lab = new_auth
             if self.active_target and self.active_target.name == target.name:
-                self.active_target = target
+                self.active_target.is_authorized_lab = new_auth
+
+            auth_badge = "[bold green]AUTHORIZED LAB[/bold green]" if new_auth else "[bold red]RESTRICTED[/bold red]"
+            self._log_terminal(f"\n[yellow][*] Security Boundary: target '{target.name}' updated to {auth_badge}[/yellow]")
             self.action_refresh_tailscale()
+            self._update_status_bar()
+            self._update_legba_preview()
+            self._update_arsenal_preview()
+            self.notify(f"Authorization toggled for {target.name}: {new_auth}")
+
+    def action_key_0(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_switch_tab("tab_home")
 
     def action_key_1(self) -> None:
         if not isinstance(self.focused, Input):
-            self.action_switch_tab("tab_tailscale")
+            self.action_switch_tab("tab_crawler")
 
     def action_key_2(self) -> None:
         if not isinstance(self.focused, Input):
-            self.action_switch_tab("tab_tookie")
+            self.action_switch_tab("tab_tailscale")
 
     def action_key_3(self) -> None:
         if not isinstance(self.focused, Input):
-            self.action_switch_tab("tab_uro")
+            self.action_switch_tab("tab_tookie")
 
     def action_key_4(self) -> None:
         if not isinstance(self.focused, Input):
-            self.action_switch_tab("tab_arsenal")
+            self.action_switch_tab("tab_uro")
 
     def action_key_5(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_switch_tab("tab_arsenal")
+
+    def action_key_6(self) -> None:
         if not isinstance(self.focused, Input):
             self.action_switch_tab("tab_legba")
 
@@ -486,57 +697,56 @@ class TTULATUIApp(App):
     def action_switch_tab(self, tab_id: str) -> None:
         tabs = self.query_one("#main_tabs", TabbedContent)
         tabs.active = tab_id
-        if tab_id == "tab_tookie":
+        self._focus_tab_widget(tab_id)
+
+    def _focus_tab_widget(self, tab_id: str) -> None:
+        target_widget = None
+        if tab_id == "tab_home":
+            btns = self.query("#btn_home_crawl")
+            if btns:
+                target_widget = btns.first()
+        elif tab_id == "tab_crawler":
+            inps = self.query("#input_crawler_url")
+            if inps:
+                target_widget = inps.first()
+        elif tab_id == "tab_tookie":
             inps = self.query("#input_tookie_user")
             if inps:
-                inps.first().focus()
+                target_widget = inps.first()
         elif tab_id == "tab_arsenal":
             tables = self.query("#arsenal_table")
             if tables:
-                tables.first().focus()
-            self._update_arsenal_preview()
+                target_widget = tables.first()
         elif tab_id == "tab_tailscale":
             tables = self.query("#devices_table")
             if tables:
-                tables.first().focus()
+                target_widget = tables.first()
         elif tab_id == "tab_uro":
             btns = self.query("#btn_run_uro")
             if btns:
-                btns.first().focus()
+                target_widget = btns.first()
         elif tab_id == "tab_legba":
             inps = self.query("#input_legba_user")
             if inps:
-                inps.first().focus()
-            self._update_legba_preview()
+                target_widget = inps.first()
+
+        if target_widget:
+            target_widget.focus()
+            self.call_after_refresh(target_widget.focus)
 
     def on_tabbed_content_tab_activated(self, event: TabbedContent.TabActivated) -> None:
-        pane_id = event.pane.id
-        if pane_id == "tab_tookie":
-            inps = self.query("#input_tookie_user")
-            if inps:
-                inps.first().focus()
-        elif pane_id == "tab_arsenal":
-            tables = self.query("#arsenal_table")
-            if tables:
-                tables.first().focus()
+        active_id = event.tabbed_content.active
+        self._focus_tab_widget(active_id)
+        if active_id == "tab_arsenal":
             self._update_arsenal_preview()
-        elif pane_id == "tab_tailscale":
-            tables = self.query("#devices_table")
-            if tables:
-                tables.first().focus()
-        elif pane_id == "tab_uro":
-            btns = self.query("#btn_run_uro")
-            if btns:
-                btns.first().focus()
-        elif pane_id == "tab_legba":
-            inps = self.query("#input_legba_user")
-            if inps:
-                inps.first().focus()
+        elif active_id == "tab_legba":
             self._update_legba_preview()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         inp_id = event.input.id
-        if inp_id == "input_tookie_user":
+        if inp_id == "input_crawler_url":
+            self._handle_crawler_run()
+        elif inp_id == "input_tookie_user":
             self._handle_tookie_run()
         elif inp_id in ("input_arsenal_query", "input_arsenal_port"):
             self._populate_arsenal()
@@ -564,7 +774,15 @@ class TTULATUIApp(App):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
-        if btn_id == "btn_refresh_ts":
+        if btn_id == "btn_home_crawl":
+            self.action_switch_tab("tab_crawler")
+        elif btn_id == "btn_home_tookie":
+            self.action_switch_tab("tab_tookie")
+        elif btn_id == "btn_home_arsenal":
+            self.action_switch_tab("tab_arsenal")
+        elif btn_id == "btn_home_mesh":
+            self.action_switch_tab("tab_tailscale")
+        elif btn_id == "btn_refresh_ts":
             self.action_refresh_tailscale()
         elif btn_id == "btn_toggle_auth":
             self.action_toggle_auth()
@@ -583,6 +801,12 @@ class TTULATUIApp(App):
             self.action_refresh_tailscale()
             self._log_terminal("[bold green][✓] Registered & selected simulated lab target: lab-vulnerable-server (100.64.0.50) [AUTHORIZED LAB][/bold green]")
             self.notify("Simulated authorized lab node registered.")
+        elif btn_id == "btn_run_crawler":
+            self._handle_crawler_run()
+        elif btn_id == "btn_crawler_to_uro":
+            self._handle_crawler_to_uro()
+        elif btn_id == "btn_crawler_pipe_uro":
+            self._handle_crawler_pipe_uro()
         elif btn_id == "btn_run_tookie":
             self._handle_tookie_run()
         elif btn_id == "btn_tookie_to_uro":
@@ -602,7 +826,91 @@ class TTULATUIApp(App):
         elif btn_id == "btn_clear_pty":
             self.query_one("#term_log", RichLog).clear()
 
+    # ==================== WEB CRAWLER HANDLERS ====================
+    def _handle_crawler_run(self) -> None:
+        inps = self.query("#input_crawler_url")
+        if not inps:
+            return
+        target_url = inps.first().value.strip()
+        if not target_url:
+            if self.active_target:
+                target_url = f"http://{self.active_target.tailscale_ip}:80"
+                inps.first().value = target_url
+            else:
+                self.notify("Please enter a target URL to crawl.", severity="warning")
+                return
 
+        max_inps = self.query("#input_crawler_max_pages")
+        max_p = 15
+        if max_inps and max_inps.first().value.strip():
+            try:
+                max_p = int(max_inps.first().value.strip())
+            except ValueError:
+                max_p = 15
+
+        self._run_crawler_worker(target_url, max_p)
+
+    @work(exclusive=True, thread=True)
+    def _run_crawler_worker(self, target_url: str, max_pages: int, auto_pipe_uro: bool = False) -> None:
+        self.app.call_from_thread(
+            self._log_terminal,
+            f"\n[bold cyan][*] Running Web Crawler for: '{target_url}' (max pages: {max_pages})...[/bold cyan]",
+        )
+        self.app.call_from_thread(self.notify, f"Crawling {target_url}...")
+        try:
+            col = self.engine.run_crawler(target_url, max_pages=max_pages)
+            self._last_collection = col
+
+            def update_ui():
+                dt_list = self.query("#crawler_results_table")
+                if dt_list:
+                    dt = dt_list.first()
+                    dt.clear()
+                    pages = col.metadata.get("pages", [])
+                    for p in pages:
+                        dt.add_row(p.get("url", ""), str(p.get("depth", 0)), "Page", str(p.get("status", 200)))
+                    endpoints = col.metadata.get("endpoints", [])
+                    for ep in endpoints:
+                        dt.add_row(ep, "N/A", "API / Form Endpoint", "Discovered")
+
+                self._log_terminal(
+                    f"[bold green][+] Web Crawler finished: {col.count()} endpoints discovered from '{target_url}'.[/bold green]"
+                )
+                self.notify(f"Discovered {col.count()} endpoints. Send to Uro to normalize.")
+
+            self.app.call_from_thread(update_ui)
+
+            if auto_pipe_uro and col.items:
+                self.app.call_from_thread(self._handle_uro_run)
+
+        except Exception as e:
+            def report_err():
+                self._log_terminal(f"[bold red][-] Web Crawler error: {e}[/bold red]")
+                self.notify(f"Web Crawler error: {e}", severity="error")
+            self.app.call_from_thread(report_err)
+
+    def _handle_crawler_to_uro(self) -> None:
+        if not self._last_collection or not self._last_collection.items:
+            self.notify("No crawl results to process. Run crawler first.", severity="warning")
+            return
+        self.action_switch_tab("tab_uro")
+        self._handle_uro_run()
+
+    def _handle_crawler_pipe_uro(self) -> None:
+        inps = self.query("#input_crawler_url")
+        if not inps:
+            return
+        target_url = inps.first().value.strip()
+        if not target_url:
+            if self.active_target:
+                target_url = f"http://{self.active_target.tailscale_ip}:80"
+                inps.first().value = target_url
+            else:
+                self.notify("Please enter a target URL.", severity="warning")
+                return
+        self._run_crawler_worker(target_url, 15, auto_pipe_uro=True)
+
+    # ==================== TOOKIE HANDLERS ====================
     def _handle_tookie_run(self) -> None:
         inps = self.query("#input_tookie_user")
         if not inps:
@@ -617,11 +925,11 @@ class TTULATUIApp(App):
     def _run_tookie_worker(self, user: str) -> None:
         self.app.call_from_thread(
             self._log_terminal,
-            f"\n[bold cyan][*] Running Tookie OSINT discovery for username: '{user}'...[/bold cyan]"
+            f"\n[bold cyan][*] Running Tookie OSINT discovery for username: '{user}'...[/bold cyan]",
         )
         self.app.call_from_thread(
             self._log_terminal,
-            "[dim][*] Querying public platforms & social profiles (please wait)...[/dim]"
+            "[dim][*] Querying public platforms & social profiles (please wait)...[/dim]",
         )
         self.app.call_from_thread(self.notify, f"Running Tookie discovery for '{user}'...")
         try:
@@ -636,7 +944,7 @@ class TTULATUIApp(App):
                     matches = col.metadata.get("matches", [])
                     for m in matches:
                         dt.add_row(m.get("platform", "Web"), m.get("url", ""), m.get("status", "possible match"))
-                
+
                 if col.metadata.get("warning"):
                     self._log_terminal(f"[bold yellow][!] {col.metadata['warning']}[/bold yellow]")
 
@@ -650,7 +958,6 @@ class TTULATUIApp(App):
                     self.engine.set_session_variable("user", user)
                     self.engine.set_session_variable("username", user)
                     self._update_arsenal_preview()
-
 
                 self._log_terminal(
                     f"[bold green][+] Tookie finished: {col.count()} URLs discovered for '{user}'.[/bold green]"
@@ -668,135 +975,143 @@ class TTULATUIApp(App):
         if not self._last_collection or not self._last_collection.items:
             self.notify("No Tookie results to process. Run discovery first.", severity="warning")
             return
-
         self.action_switch_tab("tab_uro")
         self._handle_uro_run()
 
+    # ==================== URO HANDLERS ====================
     def _handle_uro_run(self) -> None:
         if not self._last_collection or not self._last_collection.items:
-            self.notify("No collection available for Uro. Run Tookie first.", severity="warning")
-            return
-        self._run_uro_worker()
+            # Check if there is active target with IP
+            if self.active_target:
+                fallback_urls = [
+                    f"http://{self.active_target.tailscale_ip}:80/index.html",
+                    f"http://{self.active_target.tailscale_ip}:80/login.php?user=1",
+                    f"http://{self.active_target.tailscale_ip}:80/login.php?user=2",
+                    f"http://{self.active_target.tailscale_ip}:80/static/style.css",
+                    f"http://{self.active_target.tailscale_ip}:80/static/logo.png",
+                ]
+                self._last_collection = URLCollection(items=fallback_urls, source_tool="manual_target")
+                self._log_terminal(f"[*] Pre-populated test URLs for target: {self.active_target.tailscale_ip}")
+            else:
+                self.notify("No URL collection loaded. Run Web Crawler or Tookie first.", severity="warning")
+                return
+
+        self._run_uro_worker(self._last_collection)
 
     @work(exclusive=True, thread=True)
-    def _run_uro_worker(self) -> None:
+    def _run_uro_worker(self, col: URLCollection) -> None:
         self.app.call_from_thread(
             self._log_terminal,
-            f"\n[bold cyan][*] Running Uro URL deduplication on {self._last_collection.count()} endpoints...[/bold cyan]"
+            f"\n[bold yellow][*] Running Uro URL filter pipeline on {col.count()} raw items...[/bold yellow]",
         )
         try:
-            cleaned = self.engine.run_uro(self._last_collection)
-            self._last_collection = cleaned
+            filtered = self.engine.run_uro(col)
 
-            def update_uro_ui():
-                lbls = self.query("#uro_status_label")
-                if lbls:
-                    lbls.first().update(f"[bold green]Deduplicated:[/bold green] {cleaned.count()} endpoints retained.")
+            def update_ui():
                 dt_list = self.query("#uro_results_table")
+                lbl_list = self.query("#uro_status_label")
                 if dt_list:
                     dt = dt_list.first()
                     dt.clear()
-                    for u in cleaned.items:
-                        dt.add_row(u)
-                self._log_terminal(f"[bold green][+] Uro finished: {cleaned.count()} cleaned endpoints retained.[/bold green]")
-                self.notify(f"Uro cleaned {cleaned.count()} URLs.")
+                    for item in filtered.items:
+                        dt.add_row(item)
 
-            self.app.call_from_thread(update_uro_ui)
+                if lbl_list:
+                    status_text = (
+                        f"Cleaned {col.count()} raw URLs down to {filtered.count()} unique endpoints "
+                        f"(Efficiency: {100 - int(filtered.count()/max(col.count(),1)*100)}% noise eliminated)"
+                    )
+                    lbl_list.first().update(f"[bold green]✓ {status_text}[/bold green]")
+
+                self._log_terminal(
+                    f"[bold green][✓] Uro complete: Retained {filtered.count()}/{col.count()} distinct actionable URLs.[/bold green]"
+                )
+                self.notify(f"Uro pipeline reduced noise by {col.count() - filtered.count()} URLs!")
+
+            self.app.call_from_thread(update_ui)
         except Exception as e:
-            def report_uro_err():
+            def report_err():
                 self._log_terminal(f"[bold red][-] Uro error: {e}[/bold red]")
-                self.notify(f"Uro error: {e}", severity="error")
-            self.app.call_from_thread(report_uro_err)
+                self.notify(f"Uro filter error: {e}", severity="error")
+            self.app.call_from_thread(report_err)
 
+    # ==================== ARSENAL-NG HANDLERS ====================
     def _populate_arsenal(self) -> None:
-        query = ""
         inps = self.query("#input_arsenal_query")
-        if inps:
-            query = inps.first().value.strip()
-        cmds = self.engine.find_commands(query)
+        query = inps.first().value.strip() if inps else ""
+
+        cmds = self.engine.search_commands(query, limit=100)
+        self._current_cmds = cmds
 
         dt_list = self.query("#arsenal_table")
-        if dt_list:
-            dt = dt_list.first()
-            dt.clear()
-            for i, cmd in enumerate(cmds[:250]):
-                lab_badge = "[bold red]Yes[/bold red]" if cmd.requires_authorized_lab else "[bold green]No[/bold green]"
-                dt.add_row(cmd.source_tool, cmd.title, lab_badge, key=str(i))
+        if not dt_list:
+            return
+        dt = dt_list.first()
+        dt.clear()
 
+        for c in cmds:
+            lab_badge = "[bold red]YES[/bold red]" if c.requires_authorized_lab else "[green]NO[/green]"
+            tool_name = getattr(c, "source_tool", "misc")
+            dt.add_row(tool_name.upper(), c.title, lab_badge)
+
+        self._update_arsenal_vars_display()
         if cmds:
-            self._current_cmds = cmds
             self._update_arsenal_preview()
 
+    def _update_arsenal_vars_display(self) -> None:
+        lbls = self.query("#arsenal_vars_status")
+        if not lbls:
+            return
+        sess_vars = self.engine.get_session_variables()
+        var_pairs = [f"{k}={v}" for k, v in list(sess_vars.items())[:6]]
+        target_name = self.active_target.name if self.active_target else "None"
+        lbls.first().update(f"Active Vars: {', '.join(var_pairs)} | Target: [bold cyan]{target_name}[/bold cyan]")
+
     def _update_arsenal_preview(self) -> None:
-        status_widgets = self.query("#arsenal_target_status")
-        if status_widgets:
-            if self.active_target and self.active_target.is_authorized_lab:
-                status_widgets.first().update(
-                    f"[bold green]✓ Active Lab Target: {self.active_target.name} ({self.active_target.tailscale_ip}) [AUTHORIZED LAB][/bold green]"
-                )
-            elif self.active_target:
-                status_widgets.first().update(
-                    f"[bold red]⚠️ Target {self.active_target.name} is [RESTRICTED / UNAUTHORIZED]. Scans blocked by Safety Gate.[/bold red]"
-                )
-            else:
-                status_widgets.first().update(
-                    "[bold yellow]⚠️ No active target selected. Go to [1] Tailnet Mesh (or click 'Simulate Lab Target')[/bold yellow]"
-                )
-
-        vars_widgets = self.query("#arsenal_vars_status")
-        if vars_widgets and self.engine.arsenal:
-            v = self.engine.get_session_variables()
-            disp_parts = []
-            for k in ("ip", "port", "user", "url", "domain"):
-                val = v.get(k)
-                if val:
-                    disp_parts.append(f"[bold cyan]{k}:[/bold cyan] {val}")
-                else:
-                    disp_parts.append(f"[dim]{k}: (unset)[/dim]")
-            vars_widgets.first().update(" | ".join(disp_parts))
-
         previews = self.query("#arsenal_cmd_preview")
-        desc_widgets = self.query("#arsenal_cmd_desc")
+        descs = self.query("#arsenal_cmd_desc")
+        dt_list = self.query("#arsenal_table")
 
-        if not hasattr(self, "_current_cmds") or not self._current_cmds:
-            if previews:
-                previews.first().update("$ [Select a command template]")
-            if desc_widgets:
-                desc_widgets.first().update("[No command selected]")
+        if not previews or not dt_list:
+            return
+        preview_widget = previews.first()
+        desc_widget = descs.first() if descs else None
+        dt = dt_list.first()
+
+        if dt.row_count == 0 or not hasattr(self, "_current_cmds") or not self._current_cmds:
+            preview_widget.update("$ [No command templates found]")
+            if desc_widget:
+                desc_widget.update("No command selected.")
             return
 
-        dt = self.query("#arsenal_table")
-        row_idx = 0
-        if dt:
-            dt_widget = dt.first()
-            if dt_widget.cursor_row is not None and dt_widget.cursor_row >= 0:
-                row_idx = min(dt_widget.cursor_row, len(self._current_cmds) - 1)
+        row_idx = dt.cursor_row
+        if row_idx is None or row_idx < 0:
+            row_idx = 0
 
-        cmd = self._current_cmds[row_idx]
-        if desc_widgets:
-            desc_text = cmd.description or "No description provided."
-            desc_widgets.first().update(f"[bold cyan]{cmd.source_tool}:[/bold cyan] {desc_text}")
-
-        if previews:
+        if row_idx < len(self._current_cmds):
+            cmd = self._current_cmds[row_idx]
             try:
                 prep = self.engine.prepare_command(cmd, target=self.active_target)
-                previews.first().update(f"$ {prep.display_string}")
+                preview_widget.update(f"$ {prep.display_string}")
+                if desc_widget:
+                    tool_val = getattr(cmd, "source_tool", "misc")
+                    desc_text = f"Tool: {tool_val}\nAction: {cmd.title}\nRequires Lab: {cmd.requires_authorized_lab}\nDescription:\n{cmd.description}"
+                    desc_widget.update(desc_text)
             except Exception as e:
-                previews.first().update(f"⛔ {e}")
+                preview_widget.update(f"⛔ Error: {e}")
+                if desc_widget:
+                    desc_widget.update(f"Command requires parameters: {getattr(cmd, 'placeholders', {})}")
 
     def _handle_set_arsenal_var(self) -> None:
-        inps = self.query("#input_arsenal_set_var")
-        if not inps:
-            return
-        inp = inps.first()
+        inp = self.query_one("#input_arsenal_set_var", Input)
         val = inp.value.strip()
-        if not val:
-            return
-        cmd_str = val if val.startswith("set ") else f"set {val}"
-        resp = self.engine.arsenal.handle_command(cmd_str)
-        if resp:
-            self._log_terminal(f"\n[bold cyan]{resp}[/bold cyan]")
-            self.notify(f"Arsenal Variable: {val}")
+        if "=" in val:
+            k, v = val.split("=", 1)
+            self.engine.set_session_variable(k.strip(), v.strip())
+            self.notify(f"Variable set: {k.strip()} = {v.strip()}")
+            self._update_arsenal_vars_display()
+        else:
+            self.notify("Format must be key=val (e.g. port=8080)", severity="warning")
         inp.value = ""
         self._update_arsenal_preview()
 
@@ -825,7 +1140,7 @@ class TTULATUIApp(App):
                     )
                     self._log_terminal(f"\n[bold red]{err_msg}[/bold red]")
                     self._log_terminal(
-                        "[yellow]💡 Solution: Go to [1] Tailnet Mesh (press F1) and press Space to authorize a device, or click 'Simulate Lab Target'.[/yellow]"
+                        "[yellow]💡 Solution: Go to [2] Tailnet Mesh (press F3) and press Space to authorize a device, or click 'Simulate Lab Target'.[/yellow]"
                     )
                     self.notify(f"Safety Gate: Target '{target_name}' unauthorized.", severity="error")
                     return
@@ -839,7 +1154,7 @@ class TTULATUIApp(App):
                 self._log_terminal(f"\n[bold red]⛔ Command Preparation Error: {e}[/bold red]")
                 self.notify(f"Safety Gate: {e}", severity="error")
 
-
+    # ==================== LEGBA HANDLERS ====================
     def _update_legba_preview(self) -> None:
         previews = self.query("#legba_cmd_preview")
         if not previews:
@@ -847,7 +1162,7 @@ class TTULATUIApp(App):
         preview_widget = previews.first()
 
         if not self.active_target:
-            preview_widget.update("⛔ No active target selected. Go to [1] Tailscale.")
+            preview_widget.update("⛔ No active target selected. Go to [2] Tailnet Mesh.")
             return
 
         protos = self.query("#select_legba_proto")
@@ -915,7 +1230,6 @@ class TTULATUIApp(App):
             self.exec_mgr.send(self.session_id, val)
             self.query_one("#term_log", RichLog).write(f"$ {val}")
             inp.value = ""
-
 
 
 def run_tui():

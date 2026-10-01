@@ -61,7 +61,17 @@ def cmd_recon(username: str):
         print(f"  -> {item}")
 
 
+def cmd_crawl(url: str, max_pages: int = 15):
+    engine = create_default_engine()
+    print(f"[*] Crawling target web service: {url} (max {max_pages} pages)")
+    res = engine.run_crawler(url, max_pages=max_pages)
+    print(f"[+] Discovered {res.count()} endpoints.")
+    for item in res.items:
+        print(f"  -> {item}")
+
+
 def cmd_pipeline(username: str):
+
     engine = create_default_engine()
     print(f"[*] Executing Tookie -> Uro pipeline for username: {username}")
     res = engine.run_tookie_uro_pipeline(username)
@@ -156,7 +166,7 @@ def cmd_setup_deps():
 def main():
     parser = argparse.ArgumentParser(
         prog="ttula",
-        description="TTULA - Security Operations Orchestration Tool",
+        description="Web Crawler - Security Reconnaissance Workspace",
     )
     subparsers = parser.add_subparsers(dest="command", help="Available subcommands")
 
@@ -164,9 +174,14 @@ def main():
     subparsers.add_parser("tui", help="Launch native Kali Visual Terminal Dashboard (default)")
 
     # UI / Web command
-    ui_parser = subparsers.add_parser("ui", help="Launch Streamlit browser console")
+    ui_parser = subparsers.add_parser("ui", help="Launch Web Crawler browser console")
     ui_parser.add_argument("--host", default="127.0.0.1", help="Bind host (default: 127.0.0.1)")
     ui_parser.add_argument("--port", type=int, default=8501, help="Bind port (default: 8501)")
+
+    # Crawl command
+    crawl_parser = subparsers.add_parser("crawl", help="Crawl target web service and extract endpoints")
+    crawl_parser.add_argument("url", help="Target URL to crawl (e.g. http://100.64.0.50)")
+    crawl_parser.add_argument("--max-pages", type=int, default=15, help="Maximum pages to spider (default: 15)")
 
     # Tailscale command
     subparsers.add_parser("tailscale", help="Check Tailscale status and targets")
@@ -198,6 +213,9 @@ def main():
         host = getattr(args, "host", "127.0.0.1")
         port = getattr(args, "port", 8501)
         launch_ui(host=host, port=port)
+    elif args.command == "crawl":
+        max_p = getattr(args, "max_pages", 15)
+        cmd_crawl(args.url, max_pages=max_p)
     elif args.command == "tailscale":
         cmd_tailscale()
     elif args.command == "recon":
@@ -210,6 +228,7 @@ def main():
         cmd_doctor()
     elif args.command == "setup-deps":
         cmd_setup_deps()
+
 
 
 if __name__ == "__main__":

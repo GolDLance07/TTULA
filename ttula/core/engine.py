@@ -32,6 +32,7 @@ class TTULAEngine:
         tookie_adapter: Any = None,
         uro_adapter: Any = None,
         legba_adapter: Any = None,
+        crawler_adapter: Any = None,
         execution_manager: Any = None,
     ):
         self.tailscale = tailscale_adapter
@@ -39,7 +40,9 @@ class TTULAEngine:
         self.tookie = tookie_adapter
         self.uro = uro_adapter
         self.legba = legba_adapter
+        self.crawler = crawler_adapter
         self.execution_manager = execution_manager
+
 
         self.operations = OperationRegistry()
         self._targets: Dict[str, Target] = {}
@@ -131,12 +134,41 @@ class TTULAEngine:
             "cleaned_collection": cleaned_collection,
         }
 
+    # Web Crawler Operations
+    def run_crawler(self, target_url: str, max_pages: int = 15) -> URLCollection:
+        """Execute web crawling and endpoint discovery on a target URL."""
+        if not self.crawler:
+            from ttula.integrations.crawler.adapter import WebCrawlerAdapter
+            self.crawler = WebCrawlerAdapter()
+        collection = self.crawler.crawl(target_url, max_pages=max_pages)
+        self._last_url_collection = collection
+        return collection
+
+    def run_crawler_uro_pipeline(self, target_url: str, max_pages: int = 15) -> Dict[str, Any]:
+        """Crawl target web service and immediately pipe to Uro for endpoint normalization."""
+        raw_collection = self.run_crawler(target_url, max_pages=max_pages)
+        cleaned_collection = self.run_uro(raw_collection)
+        return {
+            "target_url": target_url,
+            "raw_count": raw_collection.count(),
+            "cleaned_count": cleaned_collection.count(),
+            "raw_collection": raw_collection,
+            "cleaned_collection": cleaned_collection,
+        }
+
     # Arsenal Cheat Corpus Operations
     def find_commands(self, query_or_category: str) -> List[Command]:
         """Query Arsenal cheat corpus for candidate commands."""
         if not self.arsenal:
             return []
         return self.arsenal.search(query_or_category)
+
+    def search_commands(self, query: str = "", limit: int = 100) -> List[Command]:
+        """Search Arsenal cheat commands with optional limit."""
+        results = self.find_commands(query)
+        if limit and limit > 0:
+            return results[:limit]
+        return results
 
     def prepare_command(
         self,
@@ -227,6 +259,7 @@ def create_default_engine(mock_tailscale: bool = False, force_native_uro: bool =
     from ttula.integrations.tookie.adapter import TookieAdapter
     from ttula.integrations.uro.adapter import UroAdapter
     from ttula.integrations.legba.adapter import LegbaAdapter
+    from ttula.integrations.crawler.adapter import WebCrawlerAdapter
     from ttula.execution.manager import get_execution_manager
 
     tailscale = TailscaleAdapter(mock_mode=mock_tailscale)
@@ -234,6 +267,7 @@ def create_default_engine(mock_tailscale: bool = False, force_native_uro: bool =
     tookie = TookieAdapter()
     uro = UroAdapter(force_native_fallback=force_native_uro)
     legba = LegbaAdapter()
+    crawler = WebCrawlerAdapter()
     exec_mgr = get_execution_manager()
 
     engine = TTULAEngine(
@@ -242,8 +276,10 @@ def create_default_engine(mock_tailscale: bool = False, force_native_uro: bool =
         tookie_adapter=tookie,
         uro_adapter=uro,
         legba_adapter=legba,
+        crawler_adapter=crawler,
         execution_manager=exec_mgr,
     )
+
 
     # Pre-populate targets from Tailscale
     try:
