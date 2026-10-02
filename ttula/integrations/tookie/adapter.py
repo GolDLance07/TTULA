@@ -96,6 +96,88 @@ class TookieAdapter:
         finally:
             shutil.rmtree(temp_run_dir, ignore_errors=True)
 
+    def _parse_output(self, raw: str, username: str) -> URLCollection:
+        """Parse tookie-osint output into a URLCollection.
+
+        Handles two formats:
+        1. JSON: structured dict/list exported by `tookie -o json`
+        2. Plain text: one URL per line (fallback / stdout capture)
+        """
+        urls: List[str] = []
+        matches: List[Dict[str, Any]] = []
+
+        if not raw or not raw.strip():
+            return URLCollection(
+                items=[],
+                source_tool="tookie",
+                metadata={"username": username, "matches": [], "status": "no_output"},
+            )
+
+        # --- Attempt JSON parse first ---
+        for chunk in raw.split("\n"):
+            chunk = chunk.strip()
+            if not chunk:
+                continue
+            if chunk.startswith(("{", "[")):
+                try:
+                    data = json.loads(chunk)
+                    # tookie JSON can be a list of hit dicts or a wrapper dict
+                    if isinstance(data, list):
+                        for item in data:
+                            url = item.get("url") or item.get("link") or item.get("uri", "")
+                            if url:
+                                urls.append(url)
+                                matches.append({
+                                    "platform": item.get("site") or item.get("platform", ""),
+                                    "url": url,
+                                    "status": item.get("status", "possible match"),
+                                    "http_status": item.get("http_status", item.get("status_code", 200)),
+                                })
+                    elif isinstance(data, dict):
+                        # Wrap dict format: {"username": ..., "results": [...]}
+                        results = data.get("results") or data.get("data") or data.get("hits") or []
+                        for item in results:
+                            url = item.get("url") or item.get("link") or item.get("uri", "")
+                            if url:
+                                urls.append(url)
+                                matches.append({
+                                    "platform": item.get("site") or item.get("platform", ""),
+                                    "url": url,
+                                    "status": item.get("status", "possible match"),
+                                    "http_status": item.get("http_status", item.get("status_code", 200)),
+                                })
+                    if urls:
+                        break
+                except (json.JSONDecodeError, ValueError):
+                    pass
+
+        # --- Fall back to plain-text URL extraction ---
+        if not urls:
+            import re
+            url_pattern = re.compile(r"https?://[^\s\'\"\]\)>]+")
+            for line in raw.splitlines():
+                for found_url in url_pattern.findall(line):
+                    found_url = found_url.rstrip(".,;")
+                    if found_url not in urls:
+                        urls.append(found_url)
+                        matches.append({
+                            "platform": "",
+                            "url": found_url,
+                            "status": "possible match",
+                            "http_status": 200,
+                        })
+
+        return URLCollection(
+            items=urls,
+            source_tool="tookie",
+            metadata={
+                "username": username,
+                "matches": matches,
+                "status": "completed" if urls else "no_results",
+                "disclaimer": "Per Tookie OSINT rules, matches indicate platform presence and are not confirmed identity.",
+            },
+        )
+
     def _apply_limit(self, col: URLCollection, max_results: Optional[int]) -> URLCollection:
         """Apply max_results limit if specified."""
         if not max_results or max_results <= 0 or len(col.items) <= max_results:
